@@ -1,0 +1,30 @@
+{
+  "name": "pixi-experimental",
+  "version": "1.0.0",
+  "description": "Experimentation with pixi.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env npm run build && http-server ./out",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fraxken/pixi-experimental.git"
+  },
+  "keywords": [],
+  "author": "GENTILHOMME Thomas <gentilhomme.thomas@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fraxken/pixi-experimental/issues"
+  },
+  "homepage": "https://github.com/fraxken/pixi-experimental#readme",
+  "dependencies": {
+    "pixi.js": "^6.0.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.11.4",
+    "http-server": "^0.12.3"
+  }
+}
