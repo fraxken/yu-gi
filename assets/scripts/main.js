@@ -1,36 +1,110 @@
 import * as PIXI from 'pixi.js';
 
-import catURL from "../sprites/cat.jpg";
-console.log(catURL);
-
-const type = PIXI.utils.isWebGLSupported() ? "WebGL" : "canvas";
-PIXI.utils.sayHello(type);
+import adventurerAtlasURL from "../sprites/adventurer.json";
 
 //Create a Pixi Application
 let app = new PIXI.Application({
-    width: 256,
-    height: 256,
-    antialias: true,
-    resolution: 1
+    autoResize: true,
+    resolution: devicePixelRatio
 });
 
-app.renderer.autoResize = true;
-app.renderer.resize(512, 512);
+app.renderer.backgroundColor = 0xFF00FF;
 
-//Add the canvas that Pixi automatically created for you to the HTML document
 document.body.appendChild(app.view);
 
 app.loader
-  .add([
-    catURL
-  ])
-  .load(loaderSetup);
+    .add(adventurerAtlasURL)
+    .load(loaderSetup);
 
+
+function keyboard(value) {
+    let key = {};
+    key.value = value;
+    key.isDown = false;
+    key.isUp = true;
+    key.press = undefined;
+    key.release = undefined;
+    //The `downHandler`
+    key.downHandler = event => {
+        if (event.key === key.value) {
+            if (key.isUp && key.press) key.press();
+            key.isDown = true;
+            key.isUp = false;
+            event.preventDefault();
+        }
+    };
+
+    //The `upHandler`
+    key.upHandler = event => {
+        if (event.key === key.value) {
+            if (key.isDown && key.release) key.release();
+            key.isDown = false;
+            key.isUp = true;
+            event.preventDefault();
+        }
+    };
+
+    //Attach event listeners
+    const downListener = key.downHandler.bind(key);
+    const upListener = key.upHandler.bind(key);
+
+    window.addEventListener(
+        "keydown", downListener, false
+    );
+    window.addEventListener(
+        "keyup", upListener, false
+    );
+
+    // Detach event listeners
+    key.unsubscribe = () => {
+        window.removeEventListener("keydown", downListener);
+        window.removeEventListener("keyup", upListener);
+    };
+
+    return key;
+}
+
+let character;
 function loaderSetup() {
+    resize();
+
+    // const getOneTexture = (url) => app.loader.resources[url].texture;
+    const getAtlasTexture = (url, name) => app.loader.resources[url].textures[name];
+
     console.log("loaded!");
-    // Create the cat sprite
-    let cat = new PIXI.Sprite(app.loader.resources[catURL].texture);
-    
-    // Add the cat to the stage
-    app.stage.addChild(cat);
+    character = new PIXI.Sprite(getAtlasTexture(adventurerAtlasURL, "adventurer-idle-00.png"));
+
+    let left = keyboard("ArrowLeft"),
+      up = keyboard("ArrowUp"),
+      right = keyboard("ArrowRight"),
+      down = keyboard("ArrowDown");
+
+    right.press = () => {
+        character.vx = 5;
+    }
+    right.release = () => {
+        character.vx = 0;
+    }
+
+    // character.y = app.stage.height / 2 - character.height / 2;
+    // character.x = app.stage.width / 2 - character.width / 2;
+
+    app.stage.addChild(character);
+    app.ticker.add((delta) => gameLoop(delta));
+}
+
+function gameLoop() {
+    character.x += character.vx;
+    character.y += character.vy;
+}
+
+// Listen for window resize events
+window.addEventListener("resize", resize);
+
+// Resize function window
+function resize() {
+    console.log("resize");
+
+    // Resize the renderer
+    app.renderer.resize(window.innerWidth, window.innerHeight);
 }

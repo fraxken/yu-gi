@@ -21,7 +21,8 @@ async function main() {
             ".woff2": "file",
             ".eot": "file",
             ".ttf": "file",
-            ".svg": "file"
+            ".svg": "file",
+            ".json": "file"
         },
         platform: "browser",
         bundle: true,
