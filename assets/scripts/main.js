@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import Actor from "./ECS/actor.class.js";
 
 import adventurerAtlasURL from "../sprites/adventurer.json";
 
@@ -67,12 +68,17 @@ function keyboard(value) {
 let character;
 function loaderSetup() {
     resize();
+    console.log("loaded!");
 
     // const getOneTexture = (url) => app.loader.resources[url].texture;
     const getAtlasTexture = (url, name) => app.loader.resources[url].textures[name];
 
     console.log("loaded!");
     character = new PIXI.Sprite(getAtlasTexture(adventurerAtlasURL, "adventurer-idle-00.png"));
+    character.y = (app.stage.height / 2) - (character.height / 2);
+    character.x = (app.stage.width / 2) - (character.width / 2);
+    character.vx = 0;
+    character.vy = 0;
 
     let left = keyboard("ArrowLeft"),
       up = keyboard("ArrowUp"),
@@ -80,22 +86,24 @@ function loaderSetup() {
       down = keyboard("ArrowDown");
 
     right.press = () => {
+        console.log("to the right!");
         character.vx = 5;
     }
     right.release = () => {
         character.vx = 0;
     }
 
-    // character.y = app.stage.height / 2 - character.height / 2;
-    // character.x = app.stage.width / 2 - character.width / 2;
-
     app.stage.addChild(character);
     app.ticker.add((delta) => gameLoop(delta));
 }
 
 function gameLoop() {
-    character.x += character.vx;
-    character.y += character.vy;
+    if (character.vx > 0) {
+        character.x += character.vx;
+    }
+    if (character.vy > 0) {
+        character.y += character.vy;
+    }
 }
 
 // Listen for window resize events
