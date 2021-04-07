@@ -7,27 +7,35 @@ export default class Engine extends PIXI.utils.EventEmitter {
     constructor() {
         super();
 
-        this.assetsToLoad = [];
+        this.assets = new Map();
         this.app = new PIXI.Application({
             autoResize: true,
             resolution: devicePixelRatio
         });
         this.app.renderer.backgroundColor = 0xFF00FF;
-        this.input = new Keyboard();
+        this.input = new Keyboard(this.app.view);
 
-        document.body.appendChild(app.view);
+        document.body.appendChild(this.app.view);
     }
     
-    registerAsset(assetURL) {
-        this.assetsToLoad.push(assetURL);
+    getActor(name) {
+        return this.currentScene.findActorByName(name, true);
+    }
+    
+    registerAsset(name, assetURL) {
+        this.assets.set(name, assetURL);
 
         return this;
     }
 
+    getAsset(name) {
+        return this.assets.get(name);
+    }
+
     init() {
         const loader = this.app.loader;
-        for (const url of this.assetsToLoad) {
-            loader.add(url);
+        for (const [name, url] of this.assets.entries()) {
+            loader.add(name, url);
         }
         
         loader.load(this.awake.bind(this));
@@ -37,19 +45,19 @@ export default class Engine extends PIXI.utils.EventEmitter {
     }
 
     awake() {
-        this.emit("awake");
-
         this.currentScene = new Scene().awake();
         this.app.stage.addChild(this.currentScene);
         this.resize();
+
+        this.emit("awake");
         this.app.ticker.add((delta) => this.update(delta));
     }
 
     update(delta = 0) {
-        this.emit("update", delta);
+        this.input.update(delta);
+        this.currentScene.update(delta);
 
-        this.input.update();
-        this.currentScene.update();
+        this.emit("update", delta);
     }
 
     resize() {
@@ -57,7 +65,7 @@ export default class Engine extends PIXI.utils.EventEmitter {
     }
 
     // const getOneTexture = (url) => app.loader.resources[url].texture;
-    getAtlasTexture(url, name) {
-        return app.loader.resources[url].textures[name];
+    getAtlasTexture(assetName, name) {
+        return this.app.loader.resources[assetName].textures[name];
     }
 }

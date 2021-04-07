@@ -12,24 +12,16 @@ export default class Actor extends PIXI.Container {
         this.destroyed = false;
         this.name = name;
         if (parent !== null) {
-            parent.addChild(this);
+            parent.add(this);
         }
+
+        /** @type {Actor[]} */
+        this.childrens = [];
         /** @type {Behavior[]} */
         this.behaviors = [];
 
         this.on("destroy", () => {
             this.destroyed = true;
-        });
-        this.on("update", () => {
-            if (this.vx > 0) {
-                this.x += this.vx;
-            }
-            if (this.vy > 0) {
-                this.y += this.vy;
-            }
-
-            this.vx = 0;
-            this.vy = 0;
         });
     }
 
@@ -42,6 +34,17 @@ export default class Actor extends PIXI.Container {
     }
 
     getChildrenActorByName(name) {
+        for (const actor of this.childrens) {
+            if (actor.name === name) {
+                return actor;
+            }
+
+            const childActor = actor.getChildrenActorByName(name);
+            if (childActor !== null) {
+                return childActor;
+            }
+        }
+
         return null;
     }
 
@@ -59,7 +62,7 @@ export default class Actor extends PIXI.Container {
 
     triggerBehaviorEvent(eventName, ...args) {
         for (const behavior of this.behaviors) {
-            behavior.emit(eventName, ...args);
+            behavior[eventName](...args);
         }
     }
 }

@@ -11,7 +11,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     awake() {
         const asset = new PIXI.Sprite(
-            game.getAtlasTexture(adventurerAtlasURL, "adventurer-idle-00.png")
+            game.getAtlasTexture("adventurer", "adventurer-idle-00.png")
         );
         this.actor.addSprite(asset);
 
@@ -21,7 +21,14 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     update() {
         if (game.input.isKeyDown("KeyD")) {
+            console.log("execute!!!");
             this.actor.moveX(this.speed);
         }
+
+        this.actor.x += this.actor.vx;
+        this.actor.y += this.actor.vy;
+
+        this.actor.vx = 0;
+        this.actor.vy = 0;
     }
 }
