@@ -8,7 +8,7 @@ const esbuild = require("esbuild");
 
 // CONSTANTS
 const kAssetsDir = path.join(__dirname, "assets");
-const kImageDir = path.join(kAssetsDir, "images");
+const kSpritesDir = path.join(kAssetsDir, "sprites");
 const kOutDir = path.join(__dirname, "out");
 
 fse.mkdirSync(kOutDir, { recursive: true });
@@ -39,7 +39,7 @@ async function main() {
   fse.copyFileSync(path.join(__dirname, "editor.html"), path.join(kOutDir, "index.html"));
 
   //Copy images folder
-  fse.copy(kImageDir, path.join(kOutDir, 'images'));
+  fse.copy(kSpritesDir, path.join(kOutDir, "sprites"));
 }
 
 main().catch(() => process.exit(1));

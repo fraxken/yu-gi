@@ -6,11 +6,8 @@ import Engine from "./ECS/engine.class.js";
 import PlayerBehavior from "./behaviours/PlayerBehavior.js";
 // import CameraBehavior from "./behaviours/CameraBehavior.js";
 
-// Import Assets
-import adventurerAtlasURL from "../sprites/adventurer.json";
-
 const game = new Engine()
-    .registerAsset("adventurer", adventurerAtlasURL)
+    .registerAsset("adventurer", "sprites/adventurer.json")
     .init();
 window.game = game;
 
