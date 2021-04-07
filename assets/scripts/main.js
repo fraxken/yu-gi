@@ -1,118 +1,21 @@
-import * as PIXI from 'pixi.js';
+// Import Dependencies
 import Actor from "./ECS/actor.class.js";
+import Engine from "./ECS/engine.class.js";
 
+// Import Behaviors
+import PlayerBehavior from "./behaviours/PlayerBehavior.js";
+
+// Import Assets
 import adventurerAtlasURL from "../sprites/adventurer.json";
 
-//Create a Pixi Application
-let app = new PIXI.Application({
-    autoResize: true,
-    resolution: devicePixelRatio
+const game = new Engine()
+    .registerAsset(adventurerAtlasURL)
+    .init();
+window.game = game;
+
+game.on("awake", () => {
+    const player = new Actor("player");
+    player.addScriptedBehavior(new PlayerBehavior());
+
+    game.currentScene.add(player);
 });
-
-app.renderer.backgroundColor = 0xFF00FF;
-
-document.body.appendChild(app.view);
-
-app.loader
-    .add(adventurerAtlasURL)
-    .load(loaderSetup);
-
-
-function keyboard(value) {
-    let key = {};
-    key.value = value;
-    key.isDown = false;
-    key.isUp = true;
-    key.press = undefined;
-    key.release = undefined;
-    //The `downHandler`
-    key.downHandler = event => {
-        if (event.key === key.value) {
-            if (key.isUp && key.press) key.press();
-            key.isDown = true;
-            key.isUp = false;
-            event.preventDefault();
-        }
-    };
-
-    //The `upHandler`
-    key.upHandler = event => {
-        if (event.key === key.value) {
-            if (key.isDown && key.release) key.release();
-            key.isDown = false;
-            key.isUp = true;
-            event.preventDefault();
-        }
-    };
-
-    //Attach event listeners
-    const downListener = key.downHandler.bind(key);
-    const upListener = key.upHandler.bind(key);
-
-    window.addEventListener(
-        "keydown", downListener, false
-    );
-    window.addEventListener(
-        "keyup", upListener, false
-    );
-
-    // Detach event listeners
-    key.unsubscribe = () => {
-        window.removeEventListener("keydown", downListener);
-        window.removeEventListener("keyup", upListener);
-    };
-
-    return key;
-}
-
-let character;
-function loaderSetup() {
-    resize();
-    console.log("loaded!");
-
-    // const getOneTexture = (url) => app.loader.resources[url].texture;
-    const getAtlasTexture = (url, name) => app.loader.resources[url].textures[name];
-
-    console.log("loaded!");
-    character = new PIXI.Sprite(getAtlasTexture(adventurerAtlasURL, "adventurer-idle-00.png"));
-    character.y = (app.stage.height / 2) - (character.height / 2);
-    character.x = (app.stage.width / 2) - (character.width / 2);
-    character.vx = 0;
-    character.vy = 0;
-
-    let left = keyboard("ArrowLeft"),
-      up = keyboard("ArrowUp"),
-      right = keyboard("ArrowRight"),
-      down = keyboard("ArrowDown");
-
-    right.press = () => {
-        console.log("to the right!");
-        character.vx = 5;
-    }
-    right.release = () => {
-        character.vx = 0;
-    }
-
-    app.stage.addChild(character);
-    app.ticker.add((delta) => gameLoop(delta));
-}
-
-function gameLoop() {
-    if (character.vx > 0) {
-        character.x += character.vx;
-    }
-    if (character.vy > 0) {
-        character.y += character.vy;
-    }
-}
-
-// Listen for window resize events
-window.addEventListener("resize", resize);
-
-// Resize function window
-function resize() {
-    console.log("resize");
-
-    // Resize the renderer
-    app.renderer.resize(window.innerWidth, window.innerHeight);
-}
