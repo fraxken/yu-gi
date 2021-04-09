@@ -1,6 +1,7 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
 import ScriptBehavior from "../ECS/scriptbehavior";
+import { Key } from "../ECS/input.class";
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = 5) {
@@ -20,8 +21,14 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
-        if (game.input.isKeyDown("KeyD")) {
-            console.log("execute!!!");
+        if (game.input.isKeyDown(Key.Q)) {
+            console.log("Q KEY!");
+        }
+        if (game.input.wasKeyJustPressed(Key.Z)) {
+            console.log("Z KEY");
+        }
+        if (game.input.wasKeyJustReleased(Key.D)) {
+            console.log("D KEY!");
             this.actor.moveX(this.speed);
         }
 
