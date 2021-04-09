@@ -1,12 +1,16 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
+import Actor from "./actor.class";
 
 export default class Scene extends PIXI.Container {
     constructor() {
         super();
 
+        /** @type {Actor[]} */
         this.actors = [];
+
         this.awakened = false;
+        this.destroyed = false;
     }
 
     findActorByName(name, lookForActorChildrens = false) {
@@ -46,12 +50,18 @@ export default class Scene extends PIXI.Container {
     }
 
     update(delta) {
+        if (this.destroyed) {
+            return;
+        }
+
         this._emitForAllActors("update", delta);
     }
 
-    destroy() {
+    cleanup() {
         this._emitForAllActors("destroy");
+        this.destroy();
         this.actors = [];
+        this.destroyed = true;
     }
 
     _emitForAllActors(eventName, ...args) {

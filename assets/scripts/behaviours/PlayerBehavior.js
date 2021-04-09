@@ -10,6 +10,10 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.speed = speed;
     }
 
+    cameraInit() {
+        console.log("camera initialized");
+    }
+
     awake() {
         const asset = new PIXI.Sprite(
             game.getAtlasTexture("adventurer", "adventurer-idle-00.png")

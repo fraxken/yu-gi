@@ -4,11 +4,15 @@ import ScriptBehavior from "../ECS/scriptbehavior";
 export default class CameraBehavior extends ScriptBehavior {
     awake() {
         this.target = game.getActor("player");
-        console.log(this.target);
+        
+        const playerBehavior = this.target.getScriptedBehavior("PlayerBehavior");
+        playerBehavior.sendMessage("cameraInit");
 
         const { width, height } = game.app.renderer.screen;
+
         this.actor.position.set(width / 2, height / 2);
-        this.actor.pivot.copy(this.target.position);
+        this.actor.pivot.x = this.target.x;
+        this.actor.pivot.y = this.target.y;
     }
 
     update() {

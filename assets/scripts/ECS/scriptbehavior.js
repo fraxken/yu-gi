@@ -13,6 +13,12 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
             }
         }
     }
+
+    sendMessage(name, ...args) {
+        if (typeof this[name] === "function") {
+            this[name](...args);
+        }
+    }
 }
 
 ScriptBehavior.AvailableMethods = new Set(["awake", "update", "destroy"]);
