@@ -2,13 +2,18 @@
 import * as PIXI from "pixi.js";
 import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
+import State from "./state.class";
 
 export default class Engine extends PIXI.utils.EventEmitter {
+    /**
+     * @param {object} [options]
+     * @param {State} [options.state] 
+     */
     constructor(options = Object.create(null)) {
         super();
 
         this.assets = new Map();
-        this.state = {};
+        this.state = options.state || new State({});
 
         this.app = new PIXI.Application({
             autoResize: true,
@@ -20,11 +25,6 @@ export default class Engine extends PIXI.utils.EventEmitter {
 
         document.body.appendChild(this.app.view);
         window.game = this;
-    }
-
-    setState(keyName, value = null) {
-        this.state[keyName] = value;
-        this.emit(`state:${keyName}`, value);
     }
     
     registerAsset(name, assetURL) {

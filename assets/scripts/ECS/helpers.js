@@ -1,3 +1,4 @@
+import { game } from "../../../global";
 import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
 
@@ -8,6 +9,10 @@ import Actor from "./actor.class";
  */
 export function getActor(name) {
     return game.currentScene.findActor(name, true);
+}
+
+export function getCurrentState() {
+    return game.state;
 }
 
 // const getOneTexture = (url) => app.loader.resources[url].texture;
