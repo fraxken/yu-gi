@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 
 import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
+import Timer from "../helpers/timer.class";
 
 import { Key } from "../helpers/input.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
@@ -12,6 +13,8 @@ export default class PlayerBehavior extends ScriptBehavior {
         super();
 
         this.speed = speed;
+        this.hp = 1;
+        this.time = new Timer(120);
     }
 
     cameraInit() {
@@ -29,6 +32,10 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
+        if (this.time.walk()) {
+            this.updateProperty("hp", ++this.hp);
+        }
+
         if (game.input.isKeyDown(Key.Q)) {
             this.actor.moveX(-this.speed);
         }

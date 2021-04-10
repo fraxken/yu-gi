@@ -14,9 +14,15 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
         }
     }
 
+    updateProperty(propertyName, propertyValue = null) {
+        this[propertyName] = propertyValue;
+        this.emit(`property:${propertyName}`, propertyValue);
+    }
+
     sendMessage(name, ...args) {
         if (typeof this[name] === "function") {
             this[name](...args);
+            this.emit(name, ...args);
         }
     }
 }

@@ -8,6 +8,8 @@ export default class Engine extends PIXI.utils.EventEmitter {
         super();
 
         this.assets = new Map();
+        this.state = {};
+
         this.app = new PIXI.Application({
             autoResize: true,
             resolution: devicePixelRatio
@@ -18,6 +20,11 @@ export default class Engine extends PIXI.utils.EventEmitter {
 
         document.body.appendChild(this.app.view);
         window.game = this;
+    }
+
+    setState(keyName, value = null) {
+        this.state[keyName] = value;
+        this.emit(`state:${keyName}`, value);
     }
     
     getActor(name) {

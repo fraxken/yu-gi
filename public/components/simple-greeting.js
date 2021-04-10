@@ -1,5 +1,7 @@
 import { LitElement, css, html } from "lit-element";
 
+import { bindToScriptEvent } from "../helpers";
+
 class SimpleGreeting extends LitElement {
     static get properties() {
         return { name: { type: String } };
@@ -13,11 +15,13 @@ class SimpleGreeting extends LitElement {
 
     constructor() {
         super();
-        this.name = "World";
+        const script = game.getActor("player").getScriptedBehavior("PlayerBehavior");
+
+        bindToScriptEvent("hp", this, script);
     }
 
     render() {
-        return html`<p>Hello, ${this.name}!</p>`;
+        return html`<p>Player life: ${this.hp}!</p>`;
     }
 }
 
