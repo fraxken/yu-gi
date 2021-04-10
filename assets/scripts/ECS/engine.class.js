@@ -1,6 +1,6 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
-import Keyboard from "./input.class.js";
+import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 
 export default class Engine extends PIXI.utils.EventEmitter {

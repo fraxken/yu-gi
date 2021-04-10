@@ -1,7 +1,7 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
 import ScriptBehavior from "../ECS/scriptbehavior";
-import { Key } from "../ECS/input.class";
+import { Key } from "../helpers/input.class";
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = 5) {
