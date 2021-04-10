@@ -63,7 +63,6 @@ export default class PlayerBehavior extends ScriptBehavior {
         if (this.time.walk()) {
             this.hp += 1;
         }
-        // console.log(this.actor.scale.x);
 
         let isMoving = false;
         if (game.input.isKeyDown(Key.Q)) {
