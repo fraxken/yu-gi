@@ -33,9 +33,6 @@ export default class ActorTree extends PIXI.Container {
     appendActor(actor) {
         this.actors.set(actor.name, actor);
         this.addChild(actor);
-        if (this.awakened) {
-            actor.triggerBehaviorEvent("awake");
-        }
 
         return this;
 
