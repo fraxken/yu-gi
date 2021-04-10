@@ -7,6 +7,7 @@ import Timer from "../helpers/timer.class";
 
 import { Key } from "../helpers/input.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
+import { getAtlasTexture } from "../ECS/helpers";
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = 5) {
@@ -23,7 +24,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     awake() {
         const asset = new PIXI.Sprite(
-            game.getAtlasTexture("adventurer", "adventurer-idle-00.png")
+            getAtlasTexture("adventurer", "adventurer-idle-00.png")
         );
         this.actor.addSprite(asset);
 

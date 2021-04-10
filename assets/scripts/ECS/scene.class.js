@@ -1,14 +1,13 @@
 // Import dependencies
-import * as PIXI from "pixi.js";
+// import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
+import ActorTree from "./actortree.class";
 
-export default class Scene extends PIXI.Container {
-    constructor(sceneInitor) {
-        super();
-
-        /** @type {Actor[]} */
-        this.actors = [];
-
+export default class Scene extends ActorTree {
+    constructor(sceneInitor, options = {}) {
+        super({
+            useLRUCache: options.useLRUCache || true
+        });
         this.awakened = false;
         this.destroyed = false;
         
@@ -16,30 +15,19 @@ export default class Scene extends PIXI.Container {
         this.sceneInitor.init(this);
     }
 
-    findActorByName(name, lookForActorChildrens = false) {
-        for (const actor of this.actors) {
-            if (actor.name === name) {
-                return actor;
-            }
-
-            if (!lookForActorChildrens) {
-                continue;
-            }
-
-            const actorChild = actor.getChildrenActorByName(name);
-            if (actorChild !== null) {
-                return actorChild;
+    /**
+     * @param {!Actor | Scene} entity 
+     * @returns 
+     */
+    add(entity) {
+        if (entity instanceof Actor) {
+            this.appendActor(entity);
+            if (this.awakened) {
+                entity.triggerBehaviorEvent("awake");
             }
         }
-
-        return null;
-    }
-
-    add(actor) {
-        this.actors.push(actor);
-        this.addChild(actor);
-        if (this.awakened) {
-            actor.triggerBehaviorEvent("awake");
+        else if (entity instanceof Scene) {
+            console.log("[DEBUG] ADD SCENE NOT IMPLEMENTED YET!");
         }
 
         return this;
@@ -47,7 +35,7 @@ export default class Scene extends PIXI.Container {
 
     awake() {
         this.sceneInitor.awake(this);
-        this._emitForAllActors("awake");
+        this.emitEventForAllActors("awake");
         this.awakened = true;
 
         return this;
@@ -59,19 +47,12 @@ export default class Scene extends PIXI.Container {
         }
 
         this.sceneInitor.update(this);
-        this._emitForAllActors("update", delta);
+        this.emitEventForAllActors("update", delta);
     }
 
     cleanup() {
-        this._emitForAllActors("destroy");
-        this.destroy();
-        this.actors = [];
+        this.cleanupTree();
+        this.destroy({ children: true });
         this.destroyed = true;
-    }
-
-    _emitForAllActors(eventName, ...args) {
-        for (const actor of this.actors) {
-            actor.triggerBehaviorEvent(eventName, ...args);
-        }
     }
 }

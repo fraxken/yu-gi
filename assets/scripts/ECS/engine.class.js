@@ -27,10 +27,6 @@ export default class Engine extends PIXI.utils.EventEmitter {
         this.emit(`state:${keyName}`, value);
     }
     
-    getActor(name) {
-        return this.currentScene.findActorByName(name, true);
-    }
-    
     registerAsset(name, assetURL) {
         this.assets.set(name, assetURL);
 
@@ -71,10 +67,5 @@ export default class Engine extends PIXI.utils.EventEmitter {
 
     resize() {
         this.app.renderer.resize(window.innerWidth, window.innerHeight);
-    }
-
-    // const getOneTexture = (url) => app.loader.resources[url].texture;
-    getAtlasTexture(assetName, name) {
-        return this.app.loader.resources[assetName].textures[name];
     }
 }

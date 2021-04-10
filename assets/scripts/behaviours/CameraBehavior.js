@@ -3,10 +3,11 @@ import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
 
 import * as EntityBuilder from "../helpers/entitybuilder.js";
+import { getActor } from "../ECS/helpers";
 
 export default class CameraBehavior extends ScriptBehavior {
     awake() {
-        this.target = game.getActor("player");
+        this.target = getActor("player");
         
         const playerBehavior = this.target.getScriptedBehavior("PlayerBehavior");
         playerBehavior.sendMessage("cameraInit");

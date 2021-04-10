@@ -1,9 +1,13 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
 import Behavior from "./scriptbehavior.js";
+import ActorTree from "./actortree.class";
 
-export default class Actor extends PIXI.Container {
-    constructor(name, parent = null) {
+export default class Actor extends ActorTree {
+    /**
+     * @param {!string} name 
+     */
+    constructor(name) {
         super();
 
         // Velocity properties
@@ -14,12 +18,6 @@ export default class Actor extends PIXI.Container {
         this.sprite = null;
         this.destroyed = false;
         this.name = name;
-        if (parent !== null) {
-            parent.add(this);
-        }
-
-        /** @type {Actor[]} */
-        this.childrens = [];
 
         /** @type {Behavior[]} */
         this.behaviors = [];
@@ -28,7 +26,6 @@ export default class Actor extends PIXI.Container {
     }
 
     cleanup() {
-        // TODO: cleanup children actors
         if (this.sprite) {
             this.sprite.destroy();
         }
@@ -36,29 +33,24 @@ export default class Actor extends PIXI.Container {
         this.destroyed = true;
     }
 
+    /**
+     * @param {number} [x=0]
+     */
     moveX(x = 0) {
         this.vx += x;
     }
 
+    /**
+     * @param {number} [y=0]
+     */
     moveY(y = 0) {
         this.vy += y;
     }
 
-    getChildrenActorByName(name) {
-        for (const actor of this.childrens) {
-            if (actor.name === name) {
-                return actor;
-            }
-
-            const childActor = actor.getChildrenActorByName(name);
-            if (childActor !== null) {
-                return childActor;
-            }
-        }
-
-        return null;
-    }
-
+    /**
+     * @param {!PIXI.Sprite} pixiSprite 
+     * @returns {void}
+     */
     addSprite(pixiSprite) {
         this.sprite = pixiSprite;
         this.addChild(this.sprite);
@@ -76,6 +68,10 @@ export default class Actor extends PIXI.Container {
         return this;
     }
 
+    /**
+     * @param {!string} name 
+     * @returns {Behavior | undefined}
+     */
     getScriptedBehavior(name) {
         return this.behaviors.find((object) => object.constructor.name === name);
     }

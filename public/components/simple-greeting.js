@@ -1,5 +1,6 @@
 import { LitElement, css, html } from "lit-element";
 
+import { getActor } from "../../assets/scripts/ECS/helpers";
 import { bindToScriptEvent } from "../helpers";
 
 class SimpleGreeting extends LitElement {
@@ -15,7 +16,7 @@ class SimpleGreeting extends LitElement {
 
     constructor() {
         super();
-        const script = game.getActor("player").getScriptedBehavior("PlayerBehavior");
+        const script = getActor("player").getScriptedBehavior("PlayerBehavior");
 
         bindToScriptEvent("hp", this, script);
     }
