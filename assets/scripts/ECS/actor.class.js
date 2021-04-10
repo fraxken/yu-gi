@@ -111,6 +111,14 @@ export default class Actor extends PIXI.Container {
 
         for (const behavior of this.behaviors) {
             behavior[eventName](...args);
+
+            if (eventName === "update") {
+                this.x += this.vx;
+                this.y += this.vy;
+        
+                this.vx = 0;
+                this.vy = 0;
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
 
 export default class Scene extends PIXI.Container {
-    constructor() {
+    constructor(sceneInitor) {
         super();
 
         /** @type {Actor[]} */
@@ -11,6 +11,9 @@ export default class Scene extends PIXI.Container {
 
         this.awakened = false;
         this.destroyed = false;
+        
+        this.sceneInitor = sceneInitor;
+        this.sceneInitor.init(this);
     }
 
     findActorByName(name, lookForActorChildrens = false) {
@@ -43,6 +46,7 @@ export default class Scene extends PIXI.Container {
     }
 
     awake() {
+        this.sceneInitor.awake(this);
         this._emitForAllActors("awake");
         this.awakened = true;
 
@@ -54,6 +58,7 @@ export default class Scene extends PIXI.Container {
             return;
         }
 
+        this.sceneInitor.update(this);
         this._emitForAllActors("update", delta);
     }
 

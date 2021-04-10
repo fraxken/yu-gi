@@ -1,23 +1,10 @@
 // Import Dependencies
-import Actor from "./ECS/actor.class.js";
 import Engine from "./ECS/engine.class.js";
+import * as Behaviors from "./behaviours/all";
 
-// Import Behaviors
-import PlayerBehavior from "./behaviours/PlayerBehavior.js";
-import CameraBehavior from "./behaviours/CameraBehavior.js";
+import * as defaultScene from "../scenes/default";
 
-const game = new Engine()
+Behaviors.init();
+new Engine({ defaultScene })
     .registerAsset("adventurer", "sprites/adventurer.json")
     .init();
-window.game = game;
-
-game.on("awake", () => {
-    console.log("awake triggered!");
-    const player = new Actor("player")
-        .addScriptedBehavior(new PlayerBehavior());
-    const camera = new Actor("camera")
-        .addScriptedBehavior(new CameraBehavior());
-
-    game.currentScene.add(player);
-    game.currentScene.add(camera);
-});

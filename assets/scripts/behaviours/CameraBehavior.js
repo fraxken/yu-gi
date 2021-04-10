@@ -1,5 +1,8 @@
 // Import dependencies
+import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
+
+import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 export default class CameraBehavior extends ScriptBehavior {
     awake() {
@@ -24,3 +27,8 @@ export default class CameraBehavior extends ScriptBehavior {
         this.actor.pivot.y = (targetPivot.y - this.actor.pivot.y) * dt + this.actor.pivot.y;
     }
 }
+
+EntityBuilder.define("actor:camera", () => {
+    return new Actor("camera")
+        .addScriptedBehavior(new CameraBehavior());
+});

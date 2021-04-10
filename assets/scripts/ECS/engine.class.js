@@ -4,7 +4,7 @@ import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 
 export default class Engine extends PIXI.utils.EventEmitter {
-    constructor() {
+    constructor(options = Object.create(null)) {
         super();
 
         this.assets = new Map();
@@ -14,8 +14,10 @@ export default class Engine extends PIXI.utils.EventEmitter {
         });
         this.app.renderer.backgroundColor = 0xFF00FF;
         this.input = new Keyboard(this.app.view);
+        this.currentScene = new Scene(options.defaultScene);
 
         document.body.appendChild(this.app.view);
+        window.game = this;
     }
     
     getActor(name) {
@@ -45,7 +47,7 @@ export default class Engine extends PIXI.utils.EventEmitter {
     }
 
     awake() {
-        this.currentScene = new Scene().awake();
+        this.currentScene.awake();
         this.app.stage.addChild(this.currentScene);
         this.resize();
 

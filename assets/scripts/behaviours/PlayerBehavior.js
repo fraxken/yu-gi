@@ -1,7 +1,11 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
+
+import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
+
 import { Key } from "../helpers/input.class";
+import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = 5) {
@@ -20,26 +24,28 @@ export default class PlayerBehavior extends ScriptBehavior {
         );
         this.actor.addSprite(asset);
 
-        // character.y = (app.stage.height / 2) - (character.height / 2);
-        // character.x = (app.stage.width / 2) - (character.width / 2);
+        // this.actor.y = (game.app.stage.height / 2) - (this.actor.sprite.height / 2);
+        // this.actor.x = (game.app.stage.width / 2) - (this.actor.sprite.width / 2);
     }
 
     update() {
         if (game.input.isKeyDown(Key.Q)) {
-            console.log("Q KEY!");
+            this.actor.moveX(-this.speed);
         }
-        if (game.input.wasKeyJustPressed(Key.Z)) {
-            console.log("Z KEY");
-        }
-        if (game.input.wasKeyJustReleased(Key.D)) {
-            console.log("D KEY!");
+        else if (game.input.isKeyDown(Key.D)) {
             this.actor.moveX(this.speed);
         }
 
-        this.actor.x += this.actor.vx;
-        this.actor.y += this.actor.vy;
-
-        this.actor.vx = 0;
-        this.actor.vy = 0;
+        if (game.input.isKeyDown(Key.Z)) {
+            this.actor.moveY(-this.speed);
+        }
+        else if (game.input.isKeyDown(Key.S)) {
+            this.actor.moveY(this.speed);
+        }
     }
 }
+
+EntityBuilder.define("actor:player", () => {
+    return new Actor("player")
+        .addScriptedBehavior(new PlayerBehavior());
+});
