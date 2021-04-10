@@ -21,7 +21,7 @@ export default class Engine extends PIXI.utils.EventEmitter {
             autoResize: true,
             resolution: devicePixelRatio
         });
-        this.app.renderer.backgroundColor = 0xFF00FF;
+        this.app.loader.resources
         window.game = this;
         
         this.input = new Keyboard(this.app.view);

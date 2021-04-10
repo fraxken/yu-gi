@@ -9,7 +9,7 @@ class SimpleGreeting extends LitElement {
 
     static get styles() {
         return css`
-          p { color: blue; }
+          p { color: #06F; }
         `;
     }
 

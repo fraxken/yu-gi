@@ -22,7 +22,14 @@ export function getCurrentState() {
 // const getOneTexture = (url) => app.loader.resources[url].texture;
 
 /**
- * 
+ * @param {!string} assetName 
+ * @returns {PIXI.Spritesheet}
+ */
+export function getSpritesheet(assetName) {
+    return game.app.loader.resources[assetName].spritesheet;
+}
+
+/**
  * @param {!string} assetName 
  * @param {!string} name 
  * @returns {PIXI.Texture}

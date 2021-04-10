@@ -14,7 +14,7 @@ export default class Actor extends ActorTree {
         this.vx = 0;
         this.vy = 0;
 
-        /** @type {PIXI.Sprite} */
+        /** @type {PIXI.Sprite | PIXI.AnimatedSprite} */
         this.sprite = null;
         this.destroyed = false;
         this.name = name;
@@ -48,7 +48,7 @@ export default class Actor extends ActorTree {
     }
 
     /**
-     * @param {!PIXI.Sprite} pixiSprite 
+     * @param {!PIXI.Sprite | PIXI.AnimatedSprite} pixiSprite 
      * @returns {void}
      */
     addSprite(pixiSprite) {
