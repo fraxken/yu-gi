@@ -1,32 +1,81 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
 import clonedeep from "lodash.clonedeep";
+import get from "lodash.get";
+import set from "lodash.set";
+import ScriptBehavior from "./scriptbehavior";
 
 export default class State extends PIXI.utils.EventEmitter {
-    constructor(defaultState = {}) {
+    /**
+     * @param {!string} name 
+     * @param {*} defaultState 
+     */
+    constructor(name, defaultState = {}) {
         super();
+        if (typeof name !== "string") {
+            throw new TypeError("name must be a string");
+        }
 
+        this.name = name;
         this.defaultState = clonedeep(defaultState);
-        this.innerState = clonedeep(defaultState);
+
+        this.load();
+    }
+
+    load() {
+        const stateStr = localStorage.getItem(`state:${this.name}`);
+
+        this.data = stateStr === null ? clonedeep(this.defaultState) : JSON.parse(stateStr);
     }
 
     reset() {
-        this.innerState = clonedeep(this.defaultState);
+        this.data = clonedeep(this.defaultState);
+        this.save();
         this.emit("reset");
     }
 
-    setState(keyName, value = null) {
-        this.innerState[keyName] = value;
-        this.emit(keyName, value);
+    /**
+     * @param {!string} key 
+     * @param {*} value 
+     */
+    setState(key, value = null) {
+        set(this.data, key, value);
+        this.emit(key, value);
+        this.save();
     }
 
-    getState(keyName) {
-        return this.innerState[keyName];
+    /**
+     * @param {!string} key 
+     * @returns 
+     */
+    getState(key) {
+        return get(this.data, key);
     }
 
-    linkToBehavior(behavior) {}
+    /**
+     * 
+     * @param {!ScriptBehavior} behavior 
+     * @param {*} config 
+     */
+    attachToBehavior(behavior, config = {}) {
+        if (typeof config === "undefined") {
+            throw new TypeError("config must be set!");
+        }
 
-    saveToLocalStorage() {
+        for (const [behaviorKey, stateKey] of Object.entries(config)) {
+            const defaultValue = behavior[behaviorKey] || null;
+            this.setState(stateKey, defaultValue);
 
+            Object.defineProperty(behavior, behaviorKey, {
+                get: () => this.getState(stateKey),
+                set: (newValue) => {
+                    this.setState(stateKey, newValue);
+                }
+            })
+        }
+    }
+
+    save() {
+        localStorage.setItem(`state:${this.name}`, JSON.stringify(this.data));
     }
 }

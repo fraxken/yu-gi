@@ -9,6 +9,10 @@ import { Key } from "../helpers/input.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 import { getAtlasTexture } from "../ECS/helpers";
 
+const PlayerState = {
+    hp: "player.hp"
+};
+
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = 5) {
         super();
@@ -16,6 +20,8 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.speed = speed;
         this.hp = 1;
         this.time = new Timer(120);
+
+        this.stateConfiguration(PlayerState);
     }
 
     cameraInit() {
@@ -34,7 +40,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     update() {
         if (this.time.walk()) {
-            this.updateProperty("hp", ++this.hp);
+            this.hp += 1;
         }
 
         if (game.input.isKeyDown(Key.Q)) {

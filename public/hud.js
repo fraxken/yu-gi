@@ -24,7 +24,5 @@ window.addEventListener("DOMContentLoaded", () => {
         console.log(`[DEBUG] hud '${elementName}' loaded!`)
     }
     window.loadHUD = loadHUD;
-
-    loadHUD("test_hud");
 });
 

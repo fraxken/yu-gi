@@ -7,12 +7,14 @@ import State from "./state.class";
 export default class Engine extends PIXI.utils.EventEmitter {
     /**
      * @param {object} [options]
-     * @param {State} [options.state] 
+     * @param {State} [options.state]
+     * @param {boolean} [options.debug=false]
      */
     constructor(options = Object.create(null)) {
         super();
 
         this.assets = new Map();
+        this.debug = options.debug || false;
         this.state = options.state || new State({});
 
         this.app = new PIXI.Application({
@@ -20,11 +22,21 @@ export default class Engine extends PIXI.utils.EventEmitter {
             resolution: devicePixelRatio
         });
         this.app.renderer.backgroundColor = 0xFF00FF;
+        window.game = this;
+        
         this.input = new Keyboard(this.app.view);
         this.currentScene = new Scene(options.defaultScene);
 
         document.body.appendChild(this.app.view);
-        window.game = this;
+        window.addEventListener("resize", this.resize.bind(this));
+    }
+
+    get stage() {
+        return this.app.stage;
+    }
+
+    get renderer() {
+        return this.app.renderer;
     }
     
     registerAsset(name, assetURL) {
@@ -38,24 +50,26 @@ export default class Engine extends PIXI.utils.EventEmitter {
     }
 
     init() {
+        console.log(`[DEBUG] init engine`);
         const loader = this.app.loader;
         for (const [name, url] of this.assets.entries()) {
             loader.add(name, url);
         }
         
         loader.load(this.awake.bind(this));
-        window.addEventListener("resize", this.resize.bind(this));
+        this.resize();
 
         return this;
     }
 
     awake() {
+        console.log(`[DEBUG] awake engine`);
         this.currentScene.awake();
         this.app.stage.addChild(this.currentScene);
-        this.resize();
 
         this.emit("awake");
         this.app.ticker.add((delta) => this.update(delta));
+        console.log(`[DEBUG] awake engine done`);
     }
 
     update(delta = 0) {
@@ -66,6 +80,7 @@ export default class Engine extends PIXI.utils.EventEmitter {
     }
 
     resize() {
+        console.log(`[DEBUG] resize renderer triggered!`);
         this.app.renderer.resize(window.innerWidth, window.innerHeight);
     }
 }

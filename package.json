@@ -25,6 +25,8 @@
     "fs-extra": "^9.1.0",
     "lit-element": "^2.4.0",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
     "lru-cache": "^6.0.0",
     "pixi.js": "^6.0.1"
   },

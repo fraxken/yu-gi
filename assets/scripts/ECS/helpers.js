@@ -1,6 +1,7 @@
-import { game } from "../../../global";
+// import { game } from "../../../global";
 import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
+import State from "./state.class";
 
 /**
  * 
@@ -11,6 +12,9 @@ export function getActor(name) {
     return game.currentScene.findActor(name, true);
 }
 
+/**
+ * @returns {State}
+ */
 export function getCurrentState() {
     return game.state;
 }

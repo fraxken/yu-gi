@@ -1,6 +1,7 @@
 // Import dependencies
 import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
+import { getCurrentState } from "./helpers";
 
 const voidFunction = () => undefined;
 
@@ -17,13 +18,8 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
         }
     }
 
-    /**
-     * @param {!string} propertyName 
-     * @param {*} propertyValue 
-     */
-    updateProperty(propertyName, propertyValue = null) {
-        this[propertyName] = propertyValue;
-        this.emit(`property:${propertyName}`, propertyValue);
+    stateConfiguration(config = {}) {
+        getCurrentState().attachToBehavior(this, config);
     }
 
     /**

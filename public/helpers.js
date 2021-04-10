@@ -1,9 +1,13 @@
 
-export function bindToScriptEvent(propertyName, component, script) {
-    component[propertyName] = script[propertyName];
+import { getCurrentState } from "../assets/scripts/ECS/helpers";
 
-    script.on(`property:${propertyName}`, (newValue) => {
-        component[propertyName] = newValue;
+export function bindToScriptEvent(component, propertyName, componentPropertyName = propertyName) {
+    const state = getCurrentState();
+
+    component[componentPropertyName] = state.getState(propertyName);
+
+    state.on(propertyName, (newValue) => {
+        component[componentPropertyName] = newValue;
         component.update();
     });
 }
