@@ -2,6 +2,7 @@
 import * as PIXI from "pixi.js";
 import Behavior from "./scriptbehavior.js";
 import ActorTree from "./actortree.class";
+import AnimatedSpriteEx from "./animatedsprite.class";
 
 export default class Actor extends ActorTree {
     /**
@@ -14,7 +15,7 @@ export default class Actor extends ActorTree {
         this.vx = 0;
         this.vy = 0;
 
-        /** @type {PIXI.Sprite | PIXI.AnimatedSprite} */
+        /** @type {PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} */
         this.sprite = null;
         this.destroyed = false;
         this.name = name;
@@ -48,7 +49,7 @@ export default class Actor extends ActorTree {
     }
 
     /**
-     * @param {!PIXI.Sprite | PIXI.AnimatedSprite} pixiSprite 
+     * @param {!PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} pixiSprite 
      * @returns {void}
      */
     addSprite(pixiSprite) {

@@ -18,6 +18,18 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
         }
     }
 
+    get hasVelocity() {
+        return this.actor.vx !== 0 || this.actor.vy !== 0;
+    }
+
+    get sprite() {
+        return this.actor.sprite;
+    }
+
+    get pos() {
+        return { x: this.actor.x, y: this.actor.y };
+    }
+
     stateConfiguration(config = {}) {
         getCurrentState().attachToBehavior(this, config);
     }
