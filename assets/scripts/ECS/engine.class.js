@@ -1,5 +1,8 @@
-// Import dependencies
+// Import third-party dependencies
 import * as PIXI from "pixi.js";
+import { Viewport } from "pixi-viewport";
+
+// Import internal dependencies
 import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 import State from "./state.class";
@@ -21,6 +24,14 @@ export default class Engine extends PIXI.utils.EventEmitter {
             autoResize: true,
             resolution: devicePixelRatio
         });
+        this.viewport = new Viewport({
+            screenWidth: window.innerWidth,
+            screenHeight: window.innerHeight,
+            worldWidth: 500,
+            worldHeight: 500,
+            interaction: this.app.renderer.plugins.interaction,
+        });
+
         window.game = this;
         
         this.input = new Keyboard(this.app.view);
@@ -64,7 +75,10 @@ export default class Engine extends PIXI.utils.EventEmitter {
     awake() {
         console.log(`[DEBUG] awake engine`);
         this.currentScene.awake();
-        this.app.stage.addChild(this.currentScene);
+        this.app.stage.addChild(this.viewport);
+        this.viewport.zoomPercent(1);
+        this.viewport.addChild(this.currentScene);
+        this.viewport.wheel({ smooth: 150, lineHeight: 300 });
 
         this.emit("awake");
         this.app.ticker.add((delta) => this.update(delta));
@@ -81,5 +95,6 @@ export default class Engine extends PIXI.utils.EventEmitter {
     resize() {
         console.log(`[DEBUG] resize renderer triggered!`);
         this.app.renderer.resize(window.innerWidth, window.innerHeight);
+        this.viewport.resize(window.innerWidth, window.innerHeight);
     }
 }

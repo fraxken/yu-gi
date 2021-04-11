@@ -1,4 +1,3 @@
-export * as CameraBehavior from "./CameraBehavior";
 export * as PlayerBehavior from "./PlayerBehavior";
 
 export function init() {
