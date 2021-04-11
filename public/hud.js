@@ -1,4 +1,5 @@
 import "./components/simple-greeting.js";
+import "./components/player-hp.js";
 
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[DEBUG] DOM loaded");
@@ -10,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
             return;
         }
         const elementName = `#${name}`;
-    
+
         const template = document.querySelector(elementName);
         if (!template) {
             throw new Error(`[ERROR] Unable to found HTML Template with name '${elementName}'`);

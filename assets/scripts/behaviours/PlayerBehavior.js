@@ -11,16 +11,18 @@ import * as EntityBuilder from "../helpers/entitybuilder.js";
 import { Key } from "../helpers/input.class";
 
 const PlayerState = {
-    hp: "player.hp"
+    currentHp: "player.currentHp",
+    maxHp: "player.maxHp"
 };
 
 export default class PlayerBehavior extends ScriptBehavior {
-    constructor(speed = 2.5) {
+    constructor(speed = 2.5, currentHp = 1, maxHp = 20) {
         super();
 
         this.speed = speed;
-        this.hp = 1;
-        this.time = new Timer(120);
+        this.currentHp = currentHp;
+        this.maxHp = maxHp;
+        this.time = new Timer(60);
 
         this.stateConfiguration(PlayerState);
     }
@@ -48,8 +50,8 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
-        if (this.time.walk()) {
-            this.hp += 1;
+        if (this.time.walk() && this.currentHp < this.maxHp) {
+            this.currentHp += 1;
         }
 
         if (game.input.isKeyDown(Key.Q)) {

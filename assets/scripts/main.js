@@ -9,7 +9,8 @@ Behaviors.init();
 
 const gameState = new State("gameState", {
     player: {
-        hp: 1
+        currentHp: 1,
+        maxHp: 15
     }
 });
 
