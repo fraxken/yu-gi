@@ -3,18 +3,18 @@ import { LitElement, css, html } from "lit-element";
 import { bindToScriptEvent } from "../helpers";
 
 class PlayerHp extends LitElement {
-  // static get properties() {
-  //   return {};
-  // }
+    // static get properties() {
+    //   return {};
+    // }
 
-  constructor() {
-    super();
-    bindToScriptEvent(this, "player.currentHp", "currentHp");
-    bindToScriptEvent(this, "player.maxHp", "maxHp");
-  }
+    constructor() {
+        super();
+        bindToScriptEvent(this, "player.currentHp", "currentHp");
+        bindToScriptEvent(this, "player.maxHp", "maxHp");
+    }
 
-  static get styles() {
-    return css`
+    static get styles() {
+        return css`
       .hud-life {
         position: absolute;
         bottom: 0;
@@ -42,12 +42,12 @@ class PlayerHp extends LitElement {
          padding: inherit;
        }
      `;
-  }
+    }
 
-  render() {
-    const lifePercent = (this.currentHp / this.maxHp) * 100;
+    render() {
+        const lifePercent = (this.currentHp / this.maxHp) * 100;
 
-    return html`
+        return html`
       <div class="hud-life">
         <div class="life-bar">
           <span class="info-life">${lifePercent} %</span>
@@ -55,7 +55,7 @@ class PlayerHp extends LitElement {
         </div>
       </div>
     `;
-  }
+    }
 }
 
 customElements.define("player-hp", PlayerHp);

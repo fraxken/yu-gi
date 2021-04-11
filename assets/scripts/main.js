@@ -8,16 +8,16 @@ import * as defaultScene from "../scenes/default";
 Behaviors.init();
 
 const gameState = new State("gameState", {
-  player: {
-    currentHp: 1,
-    maxHp: 15
-  }
+    player: {
+        currentHp: 1,
+        maxHp: 15
+    }
 });
 
 const game = new Engine({ defaultScene, state: gameState })
-  .registerAsset("adventurer", "sprites/adventurer.json")
-  .init();
+    .registerAsset("adventurer", "sprites/adventurer.json")
+    .init();
 
 game.on("awake", () => {
-  loadHUD("test_hud");
+    loadHUD("test_hud");
 });
