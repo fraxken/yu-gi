@@ -3,7 +3,7 @@ import Engine from "./ECS/engine.class.js";
 import State from "./ECS/state.class";
 import * as Behaviors from "./behaviours/all";
 
-import * as defaultScene from "../scenes/default";
+import DefaultScene from "../scenes/default";
 
 Behaviors.init();
 
@@ -15,7 +15,7 @@ const gameState = new State("gameState", {
     }
 });
 
-const game = new Engine({ defaultScene, state: gameState })
+const game = new Engine({ defaultScene: DefaultScene, state: gameState })
     .registerAsset("adventurer", "sprites/adventurer.json")
     .init();
 

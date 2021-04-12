@@ -60,7 +60,7 @@ export default class Engine extends AssetLoader {
 
     init() {
         console.log(`[INFO] init engine`);
-        this.rootScene = new Scene(this.defaultRootScene);
+        this.rootScene = new this.defaultRootScene();
 
         this.resizeRendererToScreenSize();
         this.loadAssets(this.app.loader, () => this.awake());
