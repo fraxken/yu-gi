@@ -17,7 +17,7 @@ class SimpleGreeting extends LitElement {
     constructor() {
         super();
 
-        bindToScriptEvent(this, "player.hp", "hp");
+        bindToScriptEvent(this, "player.currentHp", "hp");
         bindToScriptEvent(this, "player.name", "name");
     }
 
