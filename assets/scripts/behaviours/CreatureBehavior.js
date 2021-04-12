@@ -43,11 +43,11 @@ export default class CreatureBehavior extends ScriptBehavior {
 
     update() {
         if (!this.isInAction) {
-            if (!this.action) {
+            if (this.time.walk()) {
                 this.isInAction = true;
                 this.action = "DEPLACEMENT";
-                const r = creatureRange.radius * Math.sqrt(Math.random())
-                const theta = Math.random() * 2 * Math.PI
+                const r = creatureRange.radius * Math.sqrt(Math.random());
+                const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(creatureRange.position.x + r * Math.cos(theta));
                 const y = Math.round(creatureRange.position.y + r * Math.sin(theta));
 
@@ -55,21 +55,6 @@ export default class CreatureBehavior extends ScriptBehavior {
                 this.nextPos.y = y;
                 this.actor.y = this.actor.y < y ? this.actor.y +1: this.actor.y -1;
                 this.actor.x = this.actor.x < x ? this.actor.x +1: this.actor.x -1;
-            }
-            else {
-                if (this.time.walk()) {
-                    this.isInAction = true;
-                    this.action = "DEPLACEMENT";
-                    const r = creatureRange.radius * Math.sqrt(Math.random())
-                    const theta = Math.random() * 2 * Math.PI
-                    const x = Math.round(creatureRange.position.x + r * Math.cos(theta));
-                    const y = Math.round(creatureRange.position.y + r * Math.sin(theta));
-
-                    this.nextPos.x = x;
-                    this.nextPos.y = y;
-                    this.actor.y = this.actor.y < y ? this.actor.y +1: this.actor.y -1;
-                    this.actor.x = this.actor.x < x ? this.actor.x +1: this.actor.x -1;
-                }
             }
         }
         else {
@@ -79,6 +64,8 @@ export default class CreatureBehavior extends ScriptBehavior {
                     this.nextPos.x = null;
                     this.nextPos.y = null;
                     this.isInAction = false;
+
+                    this.time = new Timer(120);
                 }
                 else {
                     if (this.nextPos.x !== this.actor.x) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
