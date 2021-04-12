@@ -6,7 +6,8 @@
   "scripts": {
     "start": "cross-env npm run build && http-server ./out",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node build.js"
+    "build": "node build.js",
+    "watch": "watch -p \"public/**/*.js\" -p \"assets/scripts/**/*.js\" -c \"npm run build\""
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,8 @@
     "lodash.set": "^4.3.2",
     "lru-cache": "^6.0.0",
     "pixi-viewport": "^4.23.1",
-    "pixi.js": "^6.0.1"
+    "pixi.js": "^6.0.1",
+    "watch-cli": "^0.2.3"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
