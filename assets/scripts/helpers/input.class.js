@@ -102,6 +102,16 @@ export default class Input extends PIXI.utils.EventEmitter {
             keyboardButton.wasJustPressed = !wasDown && keyboardButton.isDown;
             keyboardButton.wasJustAutoRepeated = false;
             keyboardButton.wasJustReleased = wasDown && !keyboardButton.isDown;
+
+            if (keyboardButton.isDown) {
+                this.emit("isDown", code);
+            }
+            if (keyboardButton.wasJustReleased) {
+                this.emit("wasJustReleased", code);
+            }
+            if (keyboardButton.wasJustPressed) {
+                this.emit("wasJustPressed", code);
+            }
         }
 
         if (this.autoRepeatedKey !== null) {
