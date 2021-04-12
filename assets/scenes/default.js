@@ -2,7 +2,9 @@ import * as EntityBuilder from "../scripts/helpers/entitybuilder";
 
 export function init(scene) {
     scene.add(EntityBuilder.create("actor:player"));
-    scene.add(EntityBuilder.create("actor:creature"));
+    for (let i = 0; i < 5; i++) {
+        scene.add(EntityBuilder.create(`actor:creature${i}`));
+    }
     // scene.add(EntityBuilder.create("actor:camera"));
 }
 
