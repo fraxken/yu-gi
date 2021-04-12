@@ -10,16 +10,24 @@ class SimpleGreeting extends LitElement {
     static get styles() {
         return css`
           p { color: #06F; }
+          h2 { color: #06F; }
         `;
     }
 
     constructor() {
         super();
+
         bindToScriptEvent(this, "player.hp", "hp");
+        bindToScriptEvent(this, "player.name", "name");
     }
 
     render() {
-        return html`<p>Player life: ${this.hp}!</p>`;
+        return html`
+            <div class="menu-player">
+                <h2>${this.name}!</h2>
+                <p>Player life: ${this.hp}!</p>
+            </div>
+        `;
     }
 }
 

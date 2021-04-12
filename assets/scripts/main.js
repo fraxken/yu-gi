@@ -9,7 +9,8 @@ Behaviors.init();
 
 const gameState = new State("gameState", {
     player: {
-        hp: 1
+        hp: 1,
+        name: "Thomas"
     }
 });
 
