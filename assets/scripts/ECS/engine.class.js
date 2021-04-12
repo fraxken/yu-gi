@@ -21,6 +21,8 @@ export default class Engine extends AssetLoader {
         this.state = options.state || new State({});
 
         this.app = new PIXI.Application({
+            width: window.innerWidth,
+            height: window.innerHeight,
             autoResize: true,
             resolution: devicePixelRatio
         });
@@ -33,13 +35,19 @@ export default class Engine extends AssetLoader {
             interaction: this.app.renderer.plugins.interaction,
         });
         this.input = new Keyboard(this.app.view);
-        
+
         this.defaultRootScene = options.defaultScene;
         /** @type {Scene} */
         this.rootScene = null;
 
         document.body.appendChild(this.app.view);
         window.addEventListener("resize", this.resizeRendererToScreenSize.bind(this));
+    }
+
+    get screenSize() {
+        const { width, height } = this.app.renderer.view;
+
+        return { width, height };
     }
 
     get stage() {
@@ -53,9 +61,10 @@ export default class Engine extends AssetLoader {
     init() {
         console.log(`[INFO] init engine`);
         this.rootScene = new Scene(this.defaultRootScene);
-        
+
         this.resizeRendererToScreenSize();
         this.loadAssets(this.app.loader, () => this.awake());
+        this.emit("init");
 
         return this;
     }
@@ -68,7 +77,7 @@ export default class Engine extends AssetLoader {
         this.viewport.zoomPercent(1);
         this.viewport.wheel({ smooth: 150, lineHeight: 300 });
         this.viewport.addChild(this.rootScene);
-        
+
         this.rootScene.awake();
         this.emit("awake");
         console.log(`[INFO] 'awake' phase done`);
