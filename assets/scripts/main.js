@@ -11,6 +11,10 @@ const gameState = new State("gameState", {
     player: {
         currentHp: 1,
         maxHp: 15
+    },
+    creature: {
+        currentHp: 1,
+        maxHp: 5
     }
 });
 

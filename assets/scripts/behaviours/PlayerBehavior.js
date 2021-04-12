@@ -36,8 +36,8 @@ export default class PlayerBehavior extends ScriptBehavior {
             new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
 
-        console.log("sprite width: ", this.sprite.width);
-        console.log("sprite height: ", this.sprite.height);
+        console.log("Player sprite width: ", this.sprite.width);
+        console.log("Player sprite height: ", this.sprite.height);
 
         // this.actor.y = (game.app.stage.height / 2) - (this.actor.sprite.height / 2);
         // this.actor.x = (game.app.stage.width / 2) - (this.actor.sprite.width / 2);
