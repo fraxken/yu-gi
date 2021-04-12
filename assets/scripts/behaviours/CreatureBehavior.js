@@ -10,19 +10,18 @@ import Timer from "../helpers/timer.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 import { Key } from "../helpers/input.class";
 
-const creatureRange = {
-  position: {
-    y: 50,
-    x: 50
-  },
-  radius: 20
-}
+const kHandicapForDeplacement = 120;
 
 export default class CreatureBehavior extends ScriptBehavior {
 
     constructor() {
         super();
 
+        this.position = {
+            x: 100,
+            y: 200
+        };
+        this.radius = 40;
         this.nextPos = {
             x: null,
             y: null
@@ -37,8 +36,25 @@ export default class CreatureBehavior extends ScriptBehavior {
             new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
             );
 
-        this.actor.y = creatureRange.position.y;
-        this.actor.x = creatureRange.position.x;
+        this.actor.y = this.position.y;
+        this.actor.x = this.position.x;
+    }
+
+    execute() {
+        if (this.action === "DEPLACEMENT") {
+            if (this.nextPos.x === this.actor.x && this.nextPos.y === this.actor.y) {
+                this.action = null;
+                this.nextPos.x = null;
+                this.nextPos.y = null;
+                this.isInAction = false;
+
+                this.time = new Timer(120);
+            }
+            else {
+                if (this.actor.x !== this.nextPos.x) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
+                if (this.actor.y !== this.nextPos.y) this.actor.y = this.actor.y < this.nextPos.y ? this.actor.y +1: this.actor.y -1;
+            }
+        }
     }
 
     update() {
@@ -46,15 +62,14 @@ export default class CreatureBehavior extends ScriptBehavior {
             if (this.time.walk()) {
                 this.isInAction = true;
                 this.action = "DEPLACEMENT";
-                const r = creatureRange.radius * Math.sqrt(Math.random());
+                const r = this.radius * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
-                const x = Math.round(creatureRange.position.x + r * Math.cos(theta));
-                const y = Math.round(creatureRange.position.y + r * Math.sin(theta));
+                const x = Math.round(this.position.x + r * Math.cos(theta));
+                const y = Math.round(this.position.y + r * Math.sin(theta));
 
                 this.nextPos.x = x;
                 this.nextPos.y = y;
-                this.actor.y = this.actor.y < y ? this.actor.y +1: this.actor.y -1;
-                this.actor.x = this.actor.x < x ? this.actor.x +1: this.actor.x -1;
+                this.execute();
             }
         }
         else {
@@ -65,11 +80,10 @@ export default class CreatureBehavior extends ScriptBehavior {
                     this.nextPos.y = null;
                     this.isInAction = false;
 
-                    this.time = new Timer(120);
+                    this.time = new Timer(kHandicapForDeplacement);
                 }
                 else {
-                    if (this.nextPos.x !== this.actor.x) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
-                    if (this.nextPos.y !== this.actor.y) this.actor.y = this.actor.y < this.nextPos.y ? this.actor.y +1: this.actor.y -1;
+                    this.execute();
                 }
             }
         }
