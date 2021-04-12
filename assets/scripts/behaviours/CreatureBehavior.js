@@ -17,15 +17,17 @@ export default class CreatureBehavior extends ScriptBehavior {
     constructor() {
         super();
 
+        const r = 200 * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
         this.position = {
-            x: 100,
-            y: 200
+            x: Math.round(0 + r * Math.cos(theta)),
+            y: Math.round(0 + r * Math.sin(theta))
         };
-        this.radius = 40;
         this.nextPos = {
             x: null,
             y: null
         };
+        this.radius = 40;
         this.isInAction = false;
         this.action = null;
         this.time = new Timer(60);
