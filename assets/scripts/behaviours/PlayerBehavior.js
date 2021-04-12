@@ -1,10 +1,7 @@
 // Import dependencies
-import * as PIXI from "pixi.js";
-
 import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
 import AnimatedSpriteEx from "../ECS/animatedsprite.class";
-import { getSpritesheet } from "../ECS/helpers";
 
 import Timer from "../helpers/timer.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
@@ -68,7 +65,11 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(this.speed);
         }
 
-        this.sprite.playAnimation(this.hasVelocity ? "adventurer-run" : "adventurer-idle");
+        if (game.input.isKeyDown(Key.E)) {
+            this.sprite.playAnimation("adventurer-die", { loop: false })
+        } else {
+            this.sprite.playAnimation(this.hasVelocity ? "adventurer-run" : "adventurer-idle");
+        }
     }
 }
 

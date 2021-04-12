@@ -32,13 +32,18 @@ export default class AnimatedSpriteEx extends PIXI.AnimatedSprite {
         this.playAnimation(this.defaultAnimation);
     }
 
-    playAnimation(animationName) {
-        if (this.currentAnimationName === animationName) {
+    playAnimation(animationName, options = {}) {
+        const { loop = true } = options
+
+        const isCurrentAnimation = this.currentAnimationName === animationName
+        const isPlayingWithoutLoop = this.loop === false && this.playing
+        if (isCurrentAnimation || isPlayingWithoutLoop) {
             return;
         }
 
         this.currentAnimationName = animationName;
         this.textures = this.spritesheet.animations[animationName];
+        this.loop = loop
         this.play();
     }
 }
