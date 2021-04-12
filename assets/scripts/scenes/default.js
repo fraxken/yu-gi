@@ -11,7 +11,7 @@ export default class DefaultScene extends Scene {
     awake() {
         super.awake();
 
-        console.log("SCENE Awake");
+        console.log("Default Scene Awake");
     }
 }
 

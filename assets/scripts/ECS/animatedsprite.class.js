@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 
 // Import internal dependencies
 import { findAsset } from "./helpers";
+import * as Component from "./component";
 
 export default class AnimatedSpriteEx extends PIXI.AnimatedSprite {
     /**
@@ -16,6 +17,7 @@ export default class AnimatedSpriteEx extends PIXI.AnimatedSprite {
         const { animationSpeed = 0.1, defaultAnimation } = options;
 
         super(spritesheet.animations[defaultAnimation]);
+        Component.assignSymbols(this);
 
         this.animationSpeed = animationSpeed;
         this.play();
