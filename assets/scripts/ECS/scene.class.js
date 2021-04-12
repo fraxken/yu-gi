@@ -4,6 +4,17 @@ import Actor from "./actor.class";
 import ActorTree from "./actortree.class";
 
 export default class Scene extends ActorTree {
+    /** @type {Map<string, Scene>} */
+    static cache = new Map();
+
+    /**
+     * @param {!string} sceneName
+     * @param {!Scene} classInstance
+     */
+    static define(sceneName, classInstance) {
+        this.cache.set(sceneName, classInstance);
+    }
+
     /**
      * @param {object} options
      * @param {boolean} [options.useLRUCache=true]

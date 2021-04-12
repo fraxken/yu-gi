@@ -1,9 +1,8 @@
 // Import Dependencies
-import Engine from "./ECS/engine.class.js";
-import State from "./ECS/state.class";
-import * as Behaviors from "./behaviours/all";
+import { State, Engine } from "./ECS";
+import * as Behaviors from "./behaviours";
 
-import DefaultScene from "../scenes/default";
+import DefaultScene from "./scenes/default";
 
 Behaviors.init();
 

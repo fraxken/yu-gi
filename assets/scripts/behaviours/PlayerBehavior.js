@@ -1,7 +1,5 @@
 // Import dependencies
-import Actor from "../ECS/actor.class";
-import ScriptBehavior from "../ECS/scriptbehavior";
-import AnimatedSpriteEx from "../ECS/animatedsprite.class";
+import { Actor, ScriptBehavior, AnimatedSpriteEx } from "../ECS";
 
 import Timer from "../helpers/timer.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
@@ -66,7 +64,9 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 }
 
+ScriptBehavior.define("PlayerBehavior", PlayerBehavior);
+
 EntityBuilder.define("actor:player", () => {
     return new Actor("player")
-        .addScriptedBehavior(new PlayerBehavior());
+        .createScriptedBehavior("PlayerBehavior");
 });

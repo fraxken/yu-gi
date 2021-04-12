@@ -2,17 +2,17 @@
 import * as PIXI from "pixi.js";
 
 // Import internal dependencies
-import { getSpritesheet } from "./helpers";
+import { findAsset } from "./helpers";
 
 export default class AnimatedSpriteEx extends PIXI.AnimatedSprite {
     /**
-     * @param {!string} spritesheetName 
-     * @param {!object} options 
+     * @param {!string} spritesheetName
+     * @param {!object} options
      * @param {number} [options.animationSpeed=0.1]
      * @param {string} [options.defaultAnimation]
      */
     constructor(spritesheetName, options = {}) {
-        const spritesheet = getSpritesheet(spritesheetName);
+        const { spritesheet } = findAsset(spritesheetName);
         const { animationSpeed = 0.1, defaultAnimation } = options;
 
         super(spritesheet.animations[defaultAnimation]);
@@ -22,7 +22,7 @@ export default class AnimatedSpriteEx extends PIXI.AnimatedSprite {
 
         this.spritesheet = spritesheet;
         this.defaultAnimation = defaultAnimation;
-        this.currentAnimationName = defaultAnimation;
+        this.currentAnimationName = defaultAnimation;screenTop
 
         // Center anchor
         this.anchor.set(0.5, 0.5);

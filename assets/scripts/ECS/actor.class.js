@@ -5,8 +5,12 @@ import ActorTree from "./actortree.class";
 import AnimatedSpriteEx from "./animatedsprite.class";
 
 export default class Actor extends ActorTree {
+    static Type = Object.freeze({
+        AnimatedSpriteEx: "AnimatedSprite"
+    });
+
     /**
-     * @param {!string} name 
+     * @param {!string} name
      */
     constructor(name) {
         super();
@@ -22,6 +26,8 @@ export default class Actor extends ActorTree {
 
         /** @type {Behavior[]} */
         this.behaviors = [];
+
+        this.components = new Map();
 
         this.on("destroy", this.cleanup.bind(this));
     }
@@ -49,7 +55,24 @@ export default class Actor extends ActorTree {
     }
 
     /**
-     * @param {!PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} pixiSprite 
+     * @param {!string} componentName
+     * @param {!AnimatedSpriteEx | PIXI.Sprite | PIXI.AnimatedSprite} component
+     * @param {keyof typeof Actor.Type} type
+     */
+    addComponent(componentName, component, type) {
+        if (typeof type === "undefined") {
+            if (component instanceof AnimatedSpriteEx) {
+                type = Actor.Type.AnimatedSpriteEx;
+            }
+        }
+
+        this.components.set(componentName, { component, type });
+
+        return this;
+    }
+
+    /**
+     * @param {!PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} pixiSprite
      * @returns {void}
      */
     addSprite(pixiSprite) {
@@ -59,10 +82,14 @@ export default class Actor extends ActorTree {
 
     /**
      * @method addScriptedBehavior
-     * @param {Behavior} scriptInstance 
-     * @returns 
+     * @param {Behavior} scriptInstance
+     * @returns
      */
-    addScriptedBehavior(scriptInstance) {
+    createScriptedBehavior(scriptInstance, ...options) {
+        if (typeof scriptInstance === "string") {
+            const classInstance = Behavior.cache.get(scriptInstance);
+            scriptInstance = new classInstance(...options);
+        }
         scriptInstance.actor = this;
         this.behaviors.push(scriptInstance);
 
@@ -70,7 +97,7 @@ export default class Actor extends ActorTree {
     }
 
     /**
-     * @param {!string} name 
+     * @param {!string} name
      * @returns {Behavior | undefined}
      */
     getScriptedBehavior(name) {
@@ -79,10 +106,10 @@ export default class Actor extends ActorTree {
 
     /**
      * @method sendMessage
-     * @param {!string} name 
-     * @param {object} options 
+     * @param {!string} name
+     * @param {object} options
      * @param {string[]} [options.scripts]
-     * @param  {...any} args 
+     * @param  {...any} args
      * @returns {void}
      */
     sendMessage(name, options = {}, ...args) {
@@ -97,8 +124,8 @@ export default class Actor extends ActorTree {
 
     /**
      * @method triggerBehaviorEvent
-     * @param {"awake" | "destroy" | "update"} eventName 
-     * @param  {...any} args 
+     * @param {"awake" | "destroy" | "update"} eventName
+     * @param  {...any} args
      * @returns {void}
      */
     triggerBehaviorEvent(eventName, ...args) {
@@ -112,7 +139,7 @@ export default class Actor extends ActorTree {
             if (eventName === "update") {
                 this.x += this.vx;
                 this.y += this.vy;
-        
+
                 this.vx = 0;
                 this.vy = 0;
             }

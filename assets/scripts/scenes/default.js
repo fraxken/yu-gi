@@ -1,5 +1,5 @@
-import * as EntityBuilder from "../scripts/helpers/entitybuilder";
-import Scene from "../scripts/ECS/scene.class";
+import { EntityBuilder } from "../helpers";
+import { Scene } from "../ECS";
 
 export default class DefaultScene extends Scene {
     constructor() {
@@ -14,3 +14,5 @@ export default class DefaultScene extends Scene {
         console.log("SCENE Awake");
     }
 }
+
+Scene.define("default", DefaultScene);

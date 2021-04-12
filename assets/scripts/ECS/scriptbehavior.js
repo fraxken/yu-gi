@@ -6,6 +6,17 @@ import { getCurrentState } from "./helpers";
 const voidFunction = () => void 0;
 
 export default class ScriptBehavior extends PIXI.utils.EventEmitter {
+    /** @type {Map<string, ScriptBehavior>} */
+    static cache = new Map();
+
+    /**
+     * @param {!string} behaviorName
+     * @param {!ScriptBehavior} classInstance
+     */
+    static define(behaviorName, classInstance) {
+        this.cache.set(behaviorName, classInstance);
+    }
+
     constructor() {
         super();
         /** @type {Actor} */
@@ -35,8 +46,8 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
     }
 
     /**
-     * @param {!string} name 
-     * @param  {...any} args 
+     * @param {!string} name
+     * @param  {...any} args
      */
     sendMessage(name, ...args) {
         if (typeof this[name] === "function") {

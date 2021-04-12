@@ -17,6 +17,9 @@ export default class Engine extends AssetLoader {
      */
     constructor(options = Object.create(null)) {
         super();
+
+        // TODO: use this for scene loading
+        this.alreadyStarted = false;
         this.debug = options.debug || false;
         this.state = options.state || new State({});
 
@@ -56,6 +59,14 @@ export default class Engine extends AssetLoader {
 
     get renderer() {
         return this.app.renderer;
+    }
+
+    loadScene(sceneName) {
+        // TODO
+    }
+
+    appendScene(sceneName) {
+        // TODO
     }
 
     init() {

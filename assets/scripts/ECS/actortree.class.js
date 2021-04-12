@@ -28,7 +28,7 @@ export default class ActorTree extends PIXI.Container {
     }
 
     /**
-     * @param {!Actor} actor 
+     * @param {!Actor} actor
      */
     appendActor(actor) {
         this.actors.set(actor.name, actor);
@@ -39,23 +39,32 @@ export default class ActorTree extends PIXI.Container {
     }
 
     /**
-     * @param {!string} actorName 
-     * @param {boolean} [lookForActorChildrens=false] 
+     * @returns {IterableIterator<Actor>}
+     */
+    *getRootActors() {
+        for (const actor of this.actors.values()) {
+            yield actor;
+        }
+    }
+
+    /**
+     * @param {!string} actorName
+     * @param {boolean} [recursive=false]
      * @returns {null | Actor}
      */
-    findActor(actorName, lookForActorChildrens = false) {
+    findChild(actorName, recursive = false) {
         if (this.actors.has(actorName)) {
             return this.actors.get(actorName);
         }
         else if (this.useLRUCache && this.actorsCache.has(actorName)) {
             return this.actorsCache.get(actorName);
         }
-        else if (!lookForActorChildrens) {
+        else if (!recursive) {
             return null;
         }
 
         for (const actor of this.actors.values()) {
-            const childActor = actor.findActor(actorName, lookForActorChildrens);
+            const childActor = actor.findChild(actorName, recursive);
             if (childActor !== null) {
                 if (this.useLRUCache) {
                     this.actorsCache.set(actorName, childActor);
@@ -69,8 +78,8 @@ export default class ActorTree extends PIXI.Container {
     }
 
     /**
-     * @param {!string} eventName 
-     * @param  {...any} args 
+     * @param {!string} eventName
+     * @param  {...any} args
      */
     emitEventForAllActors(eventName, ...args) {
         for (const actor of this.actors.values()) {
