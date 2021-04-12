@@ -9,6 +9,7 @@ Behaviors.init();
 
 const gameState = new State("gameState", {
     player: {
+        name: "Thomas",
         currentHp: 1,
         maxHp: 15
     },

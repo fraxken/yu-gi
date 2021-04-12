@@ -7,4 +7,5 @@ export function init(scene) {
 }
 
 export function awake() {}
+export function start() {}
 export function update() {}

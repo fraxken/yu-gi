@@ -3,7 +3,7 @@ import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
 import { getCurrentState } from "./helpers";
 
-const voidFunction = () => undefined;
+const voidFunction = () => void 0;
 
 export default class ScriptBehavior extends PIXI.utils.EventEmitter {
     constructor() {
@@ -13,7 +13,7 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
 
         for (const methodName of ScriptBehavior.AvailableMethods) {
             if (typeof this[methodName] !== "function") {
-                this[methodName] = voidFunction();
+                this[methodName] = voidFunction;
             }
         }
     }
@@ -46,5 +46,5 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
     }
 }
 
-ScriptBehavior.AvailableMethods = new Set(["awake", "update", "destroy"]);
+ScriptBehavior.AvailableMethods = new Set(["awake", "start", "update", "destroy"]);
 

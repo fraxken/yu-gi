@@ -9,6 +9,7 @@ export default class Scene extends ActorTree {
             useLRUCache: options.useLRUCache || true
         });
         this.awakened = false;
+        this.started = false;
         this.destroyed = false;
         
         this.sceneInitor = sceneInitor;
@@ -37,6 +38,14 @@ export default class Scene extends ActorTree {
         this.sceneInitor.awake(this);
         this.emitEventForAllActors("awake");
         this.awakened = true;
+
+        return this;
+    }
+
+    start() {
+        this.sceneInitor.start(this);
+        this.emitEventForAllActors("start");
+        this.started = true;
 
         return this;
     }

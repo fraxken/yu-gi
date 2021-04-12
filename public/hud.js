@@ -2,7 +2,7 @@ import "./components/simple-greeting.js";
 import "./components/player-hp.js";
 
 window.addEventListener("DOMContentLoaded", () => {
-    console.log("[DEBUG] DOM loaded");
+    console.log("[INFO] DOM loaded");
     const hud = document.querySelector(".hud");
     window.currentActiveHUD = null;
 
@@ -22,7 +22,7 @@ window.addEventListener("DOMContentLoaded", () => {
         hud.appendChild(clone);
         window.currentActiveHUD = name;
 
-        console.log(`[DEBUG] hud '${elementName}' loaded!`)
+        console.log(`[INFO] hud '${elementName}' loaded!`)
     }
     window.loadHUD = loadHUD;
 });
