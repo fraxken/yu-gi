@@ -1,8 +1,9 @@
 // Import third-party Dependencies
-import { sound, filters } from "@pixi/sound";
+import { filters } from "@pixi/sound";
 
 // Import Dependencies
 import { State, Engine } from "./ECS";
+import { BackgroundMediaPlayer } from "./helpers";
 import * as Behaviors from "./behaviours";
 
 import DefaultScene from "./scenes/default";
@@ -24,14 +25,20 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
     .registerAsset("death", "sounds/death.wav")
     .init();
 
-game.on("awake", () => {
-    loadHUD("test_hud");
-    const ambientSound = sound.find("ambient-void");
-    ambientSound.volume = 0.05;
-    ambientSound.filters = [
+new BackgroundMediaPlayer({
+    defaultTrack: "default",
+    defaultFilters: [
         new filters.DistortionFilter(0.05),
         new filters.ReverbFilter(1, 9)
-    ];
+    ],
+    tracks: {
+        default: [
+            { name: "ambient-sound", volume: 0.025 },
+            { name: "ambient-void", volume: 0.025 }
+        ]
+    }
+}).bindToEngine(game);
 
-    ambientSound.play();
+game.on("awake", () => {
+    loadHUD("test_hud");
 });
