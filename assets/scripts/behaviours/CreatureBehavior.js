@@ -94,9 +94,7 @@ export default class CreatureBehavior extends ScriptBehavior {
 
 ScriptBehavior.define("CreatureBehavior", CreatureBehavior);
 
-for (let i = 0; i < 5; i++) {
-    EntityBuilder.define(`actor:creature${i}`, () => {
-        return new Actor(`creature${i}`)
-            .createScriptedBehavior(new CreatureBehavior());
-    });
-}
+EntityBuilder.define("actor:creature", () => {
+    return new Actor(EntityBuilder.increment("creature"))
+        .createScriptedBehavior(new CreatureBehavior());
+});

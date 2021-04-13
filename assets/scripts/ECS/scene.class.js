@@ -33,18 +33,20 @@ export default class Scene extends ActorTree {
     }
 
     /**
-     * @param {!Actor | Scene} entity
+     * @param {...(Actor | Scene)} entities
      * @returns
      */
-    add(entity) {
-        if (entity instanceof Actor) {
-            this.appendActor(entity);
-            if (this.awakened) {
-                entity.triggerBehaviorEvent("awake");
+    add(...entities) {
+        for (const entity of entities) {
+            if (entity instanceof Actor) {
+                this.appendActor(entity);
+                if (this.awakened) {
+                    entity.triggerBehaviorEvent("awake");
+                }
             }
-        }
-        else if (entity instanceof Scene) {
-            console.log("[DEBUG] ADD SCENE NOT IMPLEMENTED YET!");
+            else if (entity instanceof Scene) {
+                console.log("[DEBUG] ADD SCENE NOT IMPLEMENTED YET!");
+            }
         }
 
         return this;

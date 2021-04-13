@@ -6,9 +6,7 @@ export default class DefaultScene extends Scene {
         super({ useLRUCache: true });
 
         this.add(EntityBuilder.create("actor:player"));
-        for (let i = 0; i < 5; i++) {
-            this.add(EntityBuilder.create(`actor:creature${i}`));
-        }
+        this.add(...EntityBuilder.createMany("actor:creature", 5));
     }
 
     awake() {
