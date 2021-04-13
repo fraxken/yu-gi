@@ -17,6 +17,9 @@ export default class Engine extends AssetLoader {
      */
     constructor(options = Object.create(null)) {
         super();
+
+        // TODO: use this for scene loading
+        this.alreadyStarted = false;
         this.debug = options.debug || false;
         this.state = options.state || new State({});
 
@@ -58,9 +61,17 @@ export default class Engine extends AssetLoader {
         return this.app.renderer;
     }
 
+    loadScene(sceneName) {
+        // TODO
+    }
+
+    appendScene(sceneName) {
+        // TODO
+    }
+
     init() {
         console.log(`[INFO] init engine`);
-        this.rootScene = new Scene(this.defaultRootScene);
+        this.rootScene = new this.defaultRootScene();
 
         this.resizeRendererToScreenSize();
         this.loadAssets(this.app.loader, () => this.awake());
