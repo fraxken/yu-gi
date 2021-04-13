@@ -3,13 +3,16 @@ import * as PIXI from "pixi.js";
 import Behavior from "./scriptbehavior.js";
 import ActorTree from "./actortree.class";
 import AnimatedSpriteEx from "./animatedsprite.class";
+import * as Component from "./component.js";
 
 export default class Actor extends ActorTree {
     /**
-     * @param {!string} name 
+     * @param {!string} name
      */
     constructor(name) {
         super();
+        this.destroyed = false;
+        this.name = name;
 
         // Velocity properties
         this.vx = 0;
@@ -17,11 +20,12 @@ export default class Actor extends ActorTree {
 
         /** @type {PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} */
         this.sprite = null;
-        this.destroyed = false;
-        this.name = name;
 
         /** @type {Behavior[]} */
         this.behaviors = [];
+
+        /** @type {(AnimatedSpriteEx | PIXI.Sprite | PIXI.AnimatedSprite)[]} */
+        this.components = [];
 
         this.on("destroy", this.cleanup.bind(this));
     }
@@ -48,21 +52,60 @@ export default class Actor extends ActorTree {
         this.vy += y;
     }
 
+    get moving() {
+        return this.vx !== 0 || this.vy !== 0;
+    }
+
+    applyVelocity() {
+        if (!this.moving) {
+            return;
+        }
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        this.vx = 0;
+        this.vy = 0;
+    }
+
     /**
-     * @param {!PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} pixiSprite 
-     * @returns {void}
+     * @param {AnimatedSpriteEx | PIXI.Sprite | PIXI.AnimatedSprite} component
      */
-    addSprite(pixiSprite) {
-        this.sprite = pixiSprite;
-        this.addChild(this.sprite);
+    addComponent(component) {
+        Component.isComponent(component);
+        component.linkActorToComponent(this);
+        this.components.push(component);
+        this.addChild(component);
+
+        return component;
+    }
+
+    /**
+     * @param {keyof Component.Types} type
+     * @returns {AnimatedSpriteEx | PIXI.Sprite | PIXI.AnimatedSprite}
+     */
+    getComponent(type) {
+        return this.components.find((comp) => Component.type(comp) === type);
+    }
+
+    /**
+     * @param {keyof Component.Types} type
+     * @returns {(AnimatedSpriteEx | PIXI.Sprite | PIXI.AnimatedSprite)[]}
+     */
+    getAllComponent(type) {
+        return this.components.filter((comp) => Component.type(comp) === type);
     }
 
     /**
      * @method addScriptedBehavior
-     * @param {Behavior} scriptInstance 
-     * @returns 
+     * @param {Behavior} scriptInstance
+     * @returns
      */
-    addScriptedBehavior(scriptInstance) {
+    createScriptedBehavior(scriptInstance, ...options) {
+        if (typeof scriptInstance === "string") {
+            const classInstance = Behavior.cache.get(scriptInstance);
+            scriptInstance = new classInstance(...options);
+        }
         scriptInstance.actor = this;
         this.behaviors.push(scriptInstance);
 
@@ -70,7 +113,7 @@ export default class Actor extends ActorTree {
     }
 
     /**
-     * @param {!string} name 
+     * @param {!string} name
      * @returns {Behavior | undefined}
      */
     getScriptedBehavior(name) {
@@ -79,10 +122,10 @@ export default class Actor extends ActorTree {
 
     /**
      * @method sendMessage
-     * @param {!string} name 
-     * @param {object} options 
+     * @param {!string} name
+     * @param {object} options
      * @param {string[]} [options.scripts]
-     * @param  {...any} args 
+     * @param  {...any} args
      * @returns {void}
      */
     sendMessage(name, options = {}, ...args) {
@@ -97,24 +140,14 @@ export default class Actor extends ActorTree {
 
     /**
      * @method triggerBehaviorEvent
-     * @param {"awake" | "destroy" | "update"} eventName 
-     * @param  {...any} args 
+     * @param {"awake" | "start" | "destroy" | "update"} eventName
+     * @param  {...any} args
      * @returns {void}
      */
     triggerBehaviorEvent(eventName, ...args) {
-        if (this.destroyed) {
-            return;
-        }
-
-        for (const behavior of this.behaviors) {
-            behavior[eventName](...args);
-
-            if (eventName === "update") {
-                this.x += this.vx;
-                this.y += this.vy;
-        
-                this.vx = 0;
-                this.vy = 0;
+        if (!this.destroyed) {
+            for (const behavior of this.behaviors) {
+                behavior[eventName](...args);
             }
         }
     }

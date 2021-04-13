@@ -6,10 +6,25 @@ import { getCurrentState } from "./helpers";
 const voidFunction = () => void 0;
 
 export default class ScriptBehavior extends PIXI.utils.EventEmitter {
-    constructor() {
+    /** @type {Map<string, ScriptBehavior>} */
+    static cache = new Map();
+
+    /**
+     * @param {!string} behaviorName
+     * @param {!ScriptBehavior} classInstance
+     */
+    static define(behaviorName, classInstance) {
+        this.cache.set(behaviorName, classInstance);
+    }
+
+    constructor(state = null) {
         super();
         /** @type {Actor} */
         this.actor = null;
+
+        if (state !== null) {
+            getCurrentState().attachToBehavior(this, state);
+        }
 
         for (const methodName of ScriptBehavior.AvailableMethods) {
             if (typeof this[methodName] !== "function") {
@@ -18,25 +33,13 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
         }
     }
 
-    get hasVelocity() {
-        return this.actor.vx !== 0 || this.actor.vy !== 0;
-    }
-
-    get sprite() {
-        return this.actor.sprite;
-    }
-
     get pos() {
         return { x: this.actor.x, y: this.actor.y };
     }
 
-    stateConfiguration(config = {}) {
-        getCurrentState().attachToBehavior(this, config);
-    }
-
     /**
-     * @param {!string} name 
-     * @param  {...any} args 
+     * @param {!string} name
+     * @param  {...any} args
      */
     sendMessage(name, ...args) {
         if (typeof this[name] === "function") {

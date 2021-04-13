@@ -4,21 +4,37 @@ import Actor from "./actor.class";
 import ActorTree from "./actortree.class";
 
 export default class Scene extends ActorTree {
-    constructor(sceneInitor, options = {}) {
-        super({
-            useLRUCache: options.useLRUCache || true
-        });
-        this.awakened = false;
-        this.started = false;
-        this.destroyed = false;
-        
-        this.sceneInitor = sceneInitor;
-        this.sceneInitor.init(this);
+    /** @type {Map<string, Scene>} */
+    static cache = new Map();
+
+    /**
+     * @param {!string} sceneName
+     * @param {!Scene} classInstance
+     */
+    static define(sceneName, classInstance) {
+        this.cache.set(sceneName, classInstance);
     }
 
     /**
-     * @param {!Actor | Scene} entity 
-     * @returns 
+     * @param {object} options
+     * @param {boolean} [options.useLRUCache=true]
+     */
+    constructor(options = {}) {
+        super({
+            useLRUCache: options.useLRUCache || true
+        });
+
+        this.name = this.constructor.name;
+        this.awakened = false;
+        this.started = false;
+        this.destroyed = false;
+
+        console.log(`[INFO] New scene '${this.name}' instanciated!`);
+    }
+
+    /**
+     * @param {!Actor | Scene} entity
+     * @returns
      */
     add(entity) {
         if (entity instanceof Actor) {
@@ -35,7 +51,6 @@ export default class Scene extends ActorTree {
     }
 
     awake() {
-        this.sceneInitor.awake(this);
         this.emitEventForAllActors("awake");
         this.awakened = true;
 
@@ -43,7 +58,6 @@ export default class Scene extends ActorTree {
     }
 
     start() {
-        this.sceneInitor.start(this);
         this.emitEventForAllActors("start");
         this.started = true;
 
@@ -52,11 +66,11 @@ export default class Scene extends ActorTree {
 
     update(delta) {
         if (this.destroyed) {
-            return;
+            return true;
         }
-
-        this.sceneInitor.update(this);
         this.emitEventForAllActors("update", delta);
+
+        return false;
     }
 
     cleanup() {

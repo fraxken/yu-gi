@@ -1,11 +1,6 @@
 // Import dependencies
-import Actor from "../ECS/actor.class";
-import ScriptBehavior from "../ECS/scriptbehavior";
-import AnimatedSpriteEx from "../ECS/animatedsprite.class";
-
-import Timer from "../helpers/timer.class";
-import * as EntityBuilder from "../helpers/entitybuilder.js";
-import { Key } from "../helpers/input.class";
+import { Actor, ScriptBehavior, AnimatedSpriteEx } from "../ECS";
+import { Timer, EntityBuilder, Key } from "../helpers";
 
 const PlayerState = {
     currentHp: "player.currentHp",
@@ -14,7 +9,7 @@ const PlayerState = {
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = 0.4, currentHp = 1, maxHp = 20) {
-        super();
+        super(PlayerState);
 
         this.count = 1;
         this.currentKey = null;
@@ -25,12 +20,10 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.maxHp = maxHp;
         this.time = new Timer(60);
         this.speedDelay = new Timer(120);
-
-        this.stateConfiguration(PlayerState);
     }
 
     awake() {
-        this.actor.addSprite(
+        this.sprite = this.actor.addComponent(
             new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
 
@@ -118,12 +111,16 @@ export default class PlayerBehavior extends ScriptBehavior {
         if (game.input.isKeyDown(Key.E)) {
             this.sprite.playAnimation("adventurer-die", { loop: false })
         } else {
-            this.sprite.playAnimation(this.hasVelocity ? "adventurer-run" : "adventurer-idle");
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
+
+        this.actor.applyVelocity();
     }
 }
 
+ScriptBehavior.define("PlayerBehavior", PlayerBehavior);
+
 EntityBuilder.define("actor:player", () => {
     return new Actor("player")
-        .addScriptedBehavior(new PlayerBehavior());
+        .createScriptedBehavior("PlayerBehavior");
 });
