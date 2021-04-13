@@ -3,7 +3,7 @@ import { sound } from "@pixi/sound";
 
 // Import dependencies
 import { Actor, ScriptBehavior, AnimatedSpriteEx } from "../ECS";
-import { Timer, EntityBuilder, Key } from "../helpers";
+import { Timer, EntityBuilder, EasingFunction, Key } from "../helpers";
 
 const playerState = {
     currentHp: "player.currentHp",
@@ -14,6 +14,7 @@ const defaultStats = {
     currentHp: 1,
     maxHp: 20
 }
+const kDefaultVelocityScallFrames = 240;
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = defaultStats.speed, currentHp = defaultStats.currentHp, maxHp = defaultStats.maxHp) {
@@ -22,11 +23,11 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.currentKey = null;
         this.hasMovedPreviously = false;
         this.speed = speed;
-        this.maxSpeed = 2;
+        this.maxSpeed = 2.5;
         this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.time = new Timer(60);
-        this.isRunningTimer = new Timer(120, { autoStart: false, keepIterating: false });
+        this.velocityScallTimer = new Timer(kDefaultVelocityScallFrames, { autoStart: false, keepIterating: false });
     }
 
     awake() {
@@ -69,24 +70,23 @@ export default class PlayerBehavior extends ScriptBehavior {
         if (
             this.actor.moving &&
             this.hasMovedPreviously
-            ) {
-                if (!this.isRunningTimer.isStarted) {
-                    this.isRunningTimer.start();
+        ) {
+            if (this.speed !== this.maxSpeed) {
+                if (!this.velocityScallTimer.isStarted) {
+                    this.velocityScallTimer.start();
                 }
 
-                if (this.isRunningTimer.tick !== 120) {
-                    this.isRunningTimer.walk();
-                }
+                if (!this.velocityScallTimer.walk()) {
+                    const t = EasingFunction.easeInOutQuad(this.velocityScallTimer.tick, 0, 1, kDefaultVelocityScallFrames);
 
-                this.speed += Math.pow((this.isRunningTimer.tick / 120), 2);
-
-                if (this.speed > this.maxSpeed) {
-                    this.speed = this.maxSpeed;
+                    const dx = this.maxSpeed - defaultStats.speed;
+                    this.speed = defaultStats.speed + dx * t;
                 }
+            }
         }
         else {
             this.speed = defaultStats.speed;
-            this.isRunningTimer.reset();
+            this.velocityScallTimer.reset();
         }
 
         this.hasMovedPreviously = this.actor.moving ? true : false;
