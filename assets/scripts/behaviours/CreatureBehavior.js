@@ -4,11 +4,9 @@ import * as PIXI from "pixi.js";
 import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
 import AnimatedSpriteEx from "../ECS/animatedsprite.class";
-import { getSpritesheet } from "../ECS/helpers";
 
 import Timer from "../helpers/timer.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
-import { Key } from "../helpers/input.class";
 
 const kHandicapForDeplacement = 120;
 
@@ -34,7 +32,7 @@ export default class CreatureBehavior extends ScriptBehavior {
     }
 
     awake() {
-        this.actor.addSprite(
+        this.sprite = this.actor.addComponent(
             new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
             );
 
@@ -90,13 +88,15 @@ export default class CreatureBehavior extends ScriptBehavior {
             }
         }
 
-        this.sprite.playAnimation(this.hasVelocity ? "adventurer-run" : "adventurer-idle");
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
     }
 }
+
+ScriptBehavior.define("CreatureBehavior", CreatureBehavior);
 
 for (let i = 0; i < 5; i++) {
     EntityBuilder.define(`actor:creature${i}`, () => {
         return new Actor(`creature${i}`)
-        .addScriptedBehavior(new CreatureBehavior());
+            .createScriptedBehavior(new CreatureBehavior());
     });
 }
