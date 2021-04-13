@@ -5,24 +5,28 @@ import { sound } from "@pixi/sound";
 import { Actor, ScriptBehavior, AnimatedSpriteEx } from "../ECS";
 import { Timer, EntityBuilder, Key } from "../helpers";
 
-const PlayerState = {
+const playerState = {
     currentHp: "player.currentHp",
     maxHp: "player.maxHp"
 };
+const defaultStats = {
+    speed: 0.8,
+    currentHp: 1,
+    maxHp: 20
+}
 
 export default class PlayerBehavior extends ScriptBehavior {
-    constructor(speed = 0.4, currentHp = 1, maxHp = 20) {
-        super(PlayerState);
+    constructor(speed = defaultStats.speed, currentHp = defaultStats.currentHp, maxHp = defaultStats.maxHp) {
+        super(playerState);
 
-        this.count = 1;
         this.currentKey = null;
-        this.previousKey = null;
+        this.hasMovedPreviously = false;
         this.speed = speed;
         this.maxSpeed = 2;
         this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.time = new Timer(60);
-        this.speedDelay = new Timer(120);
+        this.isRunningTimer = new Timer(120, { autoStart: false, keepIterating: false });
     }
 
     awake() {
@@ -42,77 +46,50 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
-        this.currentKey = null;
         if (this.time.walk() && this.currentHp < this.maxHp) {
             this.currentHp += 1;
         }
 
         if (game.input.isKeyDown(Key.Q)) {
-            this.currentKey = Key.Q;
             this.actor.moveX(-this.speed);
             this.sprite.scale.x = -1;
         }
         else if (game.input.isKeyDown(Key.D)) {
-            this.currentKey = Key.D;
             this.actor.moveX(this.speed);
             this.sprite.scale.x = 1;
         }
 
         if (game.input.isKeyDown(Key.Z)) {
-            this.currentKey = Key.Z;
             this.actor.moveY(-this.speed);
         }
         else if (game.input.isKeyDown(Key.S)) {
-            this.currentKey = Key.S;
             this.actor.moveY(this.speed);
         }
 
         if (
-            (this.currentKey === Key.S ||
-            this.currentKey === Key.Z ||
-            this.currentKey === Key.D ||
-            this.currentKey === Key.Q) &&
-            (this.previousKey === Key.S ||
-            this.previousKey === Key.Z ||
-            this.previousKey === Key.D ||
-            this.previousKey === Key.Q)
+            this.actor.moving &&
+            this.hasMovedPreviously
             ) {
-            if (this.speedDelay.walk()) {
-                this.count +=1;
-                this.speed *= this.count;
+                if (!this.isRunningTimer.isStarted) {
+                    this.isRunningTimer.start();
+                }
+
+                if (this.isRunningTimer.tick !== 120) {
+                    this.isRunningTimer.walk();
+                }
+
+                this.speed += Math.pow((this.isRunningTimer.tick / 120), 2);
+
                 if (this.speed > this.maxSpeed) {
                     this.speed = this.maxSpeed;
                 }
-            }
-            else {
-                this.speed = this.speed;
-            }
         }
         else {
-            this.speed = 0.8;
-            this.count = 1;
-            this.previousKey = null;
+            this.speed = defaultStats.speed;
+            this.isRunningTimer.reset();
         }
 
-        if (game.input.isKeyDown(Key.Q)) {
-            this.previousKey = Key.Q;
-            this.actor.moveX(-this.speed);
-            this.sprite.scale.x = -1;
-        }
-        else if (game.input.isKeyDown(Key.D)) {
-            this.previousKey = Key.D;
-            this.actor.moveX(this.speed);
-            this.sprite.scale.x = 1;
-        }
-
-        if (game.input.isKeyDown(Key.Z)) {
-            this.previousKey = Key.Z;
-            this.actor.moveY(-this.speed);
-        }
-        else if (game.input.isKeyDown(Key.S)) {
-            this.previousKey = Key.S;
-            this.actor.moveY(this.speed);
-        }
+        this.hasMovedPreviously = this.actor.moving ? true : false;
 
         if (game.input.isKeyDown(Key.E)) {
             this.sprite.playAnimation("adventurer-die", { loop: false });
