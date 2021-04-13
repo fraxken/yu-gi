@@ -25,6 +25,13 @@ export default class Timer {
         return this;
     }
 
+    reset() {
+        this.isStarted = Timer.AutoStart;
+        this.tick = 0;
+
+        return this;
+    }
+
     walk() {
         if (!this.isStarted) {
             return false;
