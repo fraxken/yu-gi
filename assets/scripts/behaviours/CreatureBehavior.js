@@ -1,6 +1,3 @@
-// Import dependencies
-import * as PIXI from "pixi.js";
-
 import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
 import AnimatedSpriteEx from "../ECS/animatedsprite.class";
@@ -28,7 +25,7 @@ export default class CreatureBehavior extends ScriptBehavior {
         this.radius = 40;
         this.isInAction = false;
         this.action = null;
-        this.time = new Timer(60);
+        this.delayToMove = new Timer(60);
     }
 
     awake() {
@@ -48,7 +45,7 @@ export default class CreatureBehavior extends ScriptBehavior {
                 this.nextPos.y = null;
                 this.isInAction = false;
 
-                this.time = new Timer(120);
+                this.delayToMove = new Timer(120);
             }
             else {
                 if (this.actor.x !== this.nextPos.x) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
@@ -59,7 +56,7 @@ export default class CreatureBehavior extends ScriptBehavior {
 
     update() {
         if (!this.isInAction) {
-            if (this.time.walk()) {
+            if (this.delayToMove.walk()) {
                 this.isInAction = true;
                 this.action = "DEPLACEMENT";
                 const r = this.radius * Math.sqrt(Math.random());
@@ -80,7 +77,7 @@ export default class CreatureBehavior extends ScriptBehavior {
                     this.nextPos.y = null;
                     this.isInAction = false;
 
-                    this.time = new Timer(kHandicapForDeplacement);
+                    this.delayToMove = new Timer(kHandicapForDeplacement);
                 }
                 else {
                     this.execute();
