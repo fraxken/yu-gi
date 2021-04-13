@@ -1,5 +1,8 @@
 // Import third-party dependencies
 import * as PIXI from "pixi.js";
+import { sound } from "@pixi/sound";
+
+const kSoundsAssetExt = new Set(["mp3", "ogg", "wav"]);
 
 function center(gameObject, padding = { x: 0, y: 0 }) {
     const { width, height } = game.screenSize;
@@ -34,7 +37,7 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
     constructor() {
         super();
 
-        /** @type {Map<string, string>} */
+        /** @type {Map<string, { url: string; extension: string; }>} */
         this.assets = new Map();
     }
 
@@ -43,7 +46,12 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
      * @param {!string} assetURL
      */
     registerAsset(name, assetURL) {
-        this.assets.set(name, assetURL);
+        const extension = assetURL.split('.').pop();
+
+        this.assets.set(name, {
+            url: assetURL,
+            extension
+        });
 
         return this;
     }
@@ -56,8 +64,14 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
         const loadingContainer = AssetLoader.createLoadingScreen();
         this.app.stage.addChild(loadingContainer);
 
-        for (const [name, url] of this.assets.entries()) {
-            loader.add(name, url);
+        for (const [name, assetOptions] of this.assets.entries()) {
+            const { url, extension } = assetOptions;
+            if (kSoundsAssetExt.has(extension)) {
+                sound.add(name, url);
+            }
+            else {
+                loader.add(name, url);
+            }
         }
 
         const lazyCallback = () => setTimeout(() => {

@@ -10,6 +10,8 @@ const kAssetsDir = path.join(__dirname, "assets");
 const kPublicDir = path.join(__dirname, "public");
 const kOutDir = path.join(__dirname, "out");
 
+const kAssetsDirToMove = ["sprites", "tilemaps", "tilesets", "sounds"];
+
 fse.mkdirSync(kOutDir, { recursive: true });
 
 async function main() {
@@ -40,11 +42,10 @@ async function main() {
     fse.copyFileSync(path.join(kAssetsDir, "favicon.ico"), path.join(kOutDir, "favicon.ico"));
     fse.copyFileSync(path.join(__dirname, "editor.html"), path.join(kOutDir, "index.html"));
 
-    //Copy images folder
-    fse.copy(
-        path.join(kAssetsDir, "sprites"),
-        path.join(kOutDir, "sprites")
-    );
+    // Copy assets folders
+    await Promise.all(kAssetsDirToMove.map((name) => {
+        return fse.copy(path.join(kAssetsDir, name), path.join(kOutDir, name))
+    }))
 }
 
 main().catch(() => process.exit(1));

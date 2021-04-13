@@ -1,3 +1,6 @@
+// Import third-party dependencies
+import { sound } from "@pixi/sound";
+
 // Import dependencies
 import { Actor, ScriptBehavior, AnimatedSpriteEx } from "../ECS";
 import { Timer, EntityBuilder, Key } from "../helpers";
@@ -33,6 +36,9 @@ export default class PlayerBehavior extends ScriptBehavior {
             acceleration: 0.01,
             radius: 40
         });
+
+        this.deathSound = sound.find("death");
+        this.deathSound.volume = 0.1;
     }
 
     update() {
@@ -109,7 +115,10 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         if (game.input.isKeyDown(Key.E)) {
-            this.sprite.playAnimation("adventurer-die", { loop: false })
+            this.sprite.playAnimation("adventurer-die", { loop: false });
+            if (!this.deathSound.isPlaying) {
+                this.deathSound.play();
+            }
         } else {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
