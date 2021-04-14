@@ -15,10 +15,9 @@ export default class TiledSet {
 
         /** @type {Tiled.TileSet} */
         const data = findAsset(`${this.name}_json`).data;
-        this.baseTexture = new PIXI.BaseTexture(findAsset(`${this.name}_texture`), {
 
-        });
-        console.log(this.baseTexture);
+        const resource = findAsset(`${this.name}_texture`);
+        this.baseTexture = resource.texture.baseTexture;
 
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;

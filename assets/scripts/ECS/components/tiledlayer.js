@@ -13,9 +13,14 @@ export default class TiledLayer extends PIXI.Container {
     constructor(layer, parent) {
         super();
 
+        this.name = layer.name;
         this.parent = parent;
         this.alpha = layer.opacity;
         this.tiles = [];
+        for (const chunk of layer.chunks) {
+            chunk.data = JSON.parse(chunk.data);
+        }
+
         this.setLayerTiles(layer);
     }
 
@@ -28,14 +33,15 @@ export default class TiledLayer extends PIXI.Container {
 
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
-                const i = x + (y * width);
+                const tileIndex = x + (y * width);
+                console.log({ x, y, tileIndex });
 
-                if (this.tileExists(layer, i)) {
-                    const tile = this.createTile(layer, { i, x, y });
+                // if (this.tileExists(layer, i)) {
+                //     const tile = this.createTile(layer, { i, x, y });
 
-                    this.tiles.push(tile);
-                    this.addChild(tile);
-                }
+                //     this.tiles.push(tile);
+                //     this.addChild(tile);
+                // }
             }
         }
     }
@@ -44,7 +50,7 @@ export default class TiledLayer extends PIXI.Container {
      * @param {!Tiled.TileLayer} layer
      */
     tileExists(layer, pos) {
-        return layer.tiles[pos] && layer.tiles[pos].gid && layer.tiles[pos].gid !== 0;
+        return layer.chunks.d[pos];
     }
 
     createTile(layer, tileData) {

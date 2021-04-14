@@ -21,7 +21,6 @@ export default class TiledMap extends PIXI.Container {
         // TODO: handle tiled properties ?
 
         this.tiledsets = data.tilesets.forEach((options) => new TiledSet(options));
-        console.log(this.tiledsets);
 
         data.layers.filter((layer) => layer.type === "tilelayer").map((layer) => this.setTileLayer(layer));
         console.log(`[INFO] loaded TiledMap ${mapName}`);
