@@ -21,6 +21,7 @@ export default class TiledSet {
 
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;
+        this.tileCount = data.tilecount;
 
         const { margin, image } = data;
         for (let y = margin; y < image.height; y += this.tileHeight) {
@@ -29,6 +30,15 @@ export default class TiledSet {
                 this.textures.push(new PIXI.Texture(this.baseTexture, tileRectangle));
             }
         }
-        console.log(`[INFO] Loaded TiledSet name '${this.name}'`)
+        console.log(`[INFO] Loaded TiledSet name '${this.name}' with '${this.textures.length}' textures!`);
+    }
+
+    /**
+     * @param {!number} id
+     */
+    getTexture(id) {
+        const realId = id - this.firstgid;
+
+        return this.textures[realId];
     }
 }

@@ -16,12 +16,16 @@ export default class TiledLayer extends PIXI.Container {
         this.name = layer.name;
         this.parent = parent;
         this.alpha = layer.opacity;
+        this.startX = layer.startx;
+        this.startY = layer.starty;
+        this.visible = layer.visible;
         this.tiles = [];
         for (const chunk of layer.chunks) {
             chunk.data = JSON.parse(chunk.data);
         }
 
         this.setLayerTiles(layer);
+        console.log(`[INFO] Loaded TiledLayer '${this.name}'`);
     }
 
     /**
@@ -32,20 +36,25 @@ export default class TiledLayer extends PIXI.Container {
         for (const chunk of layer.chunks) {
             const { width, height } = chunk;
 
-            /** @type {number[]} */
-            const data = chunk.data.reverse();
+            createChunk: for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const tileIndex = x + (y * width);
+                    const textureId = chunk.data[tileIndex];
+                    if (textureId === 0) {
+                        continue;
+                    }
 
-            for (let y = chunk.y; y < height; y++) {
-                for (let x = chunk.x; x < width; x++) {
-                    const textureId = data.pop();
-
-                    // console.log({ x, y, textureId });
                     const texture = this.parent.getTexture(textureId);
+                    if (!texture) {
+                        console.log("[ERROR] Texture not found: ", textureId, texture);
+                        break createChunk;
+                    }
                     // console.log(textureId, texture);
 
                     const newTile = new PIXI.Sprite(texture);
-                    newTile.x = x * 16;
-                    newTile.y = y * 16;
+                    newTile.x = (chunk.x + x) * this.parent.tileWidth;
+                    newTile.y = (chunk.y + y) * this.parent.tileHeight;
+
                     this.addTile(newTile);
                 }
             }

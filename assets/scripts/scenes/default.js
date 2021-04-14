@@ -5,13 +5,13 @@ export default class DefaultScene extends Scene {
     constructor() {
         super({ useLRUCache: true });
 
-        this.add(EntityBuilder.create("actor:player"));
-        this.add(...EntityBuilder.createMany("actor:creature", 5));
-
         const map = new Actor("map");
-        map.visible = false;
+        map.visible = true;
         map.addComponent(new Components.TiledMap("map1"));
         this.add(map);
+
+        this.add(EntityBuilder.create("actor:player"));
+        this.add(...EntityBuilder.createMany("actor:creature", 5));
     }
 
     awake() {
