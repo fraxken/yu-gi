@@ -6,11 +6,12 @@ import { findAsset } from "../helpers";
 
 export default class TiledSet {
     /**
-     * @param {!Tiled.TileSet} options
+     * @param {!Tiled.TileSet} tiledData
      */
-    constructor(options) {
-        this.name = options.name;
-        this.firstgid = options.firstgid;
+    constructor(tiledData, options = {}) {
+        this.name = tiledData.name;
+        this.firstgid = tiledData.firstgid;
+        this.debug = options.debug;
         this.textures = [];
 
         /** @type {Tiled.TileSet} */
@@ -30,7 +31,9 @@ export default class TiledSet {
                 this.textures.push(new PIXI.Texture(this.baseTexture, tileRectangle));
             }
         }
-        console.log(`[INFO] Loaded TiledSet name '${this.name}' with '${this.textures.length}' textures!`);
+        if (this.debug) {
+            console.log(`[INFO] Loaded TiledSet name '${this.name}' with '${this.textures.length}' textures!`);
+        }
     }
 
     /**
