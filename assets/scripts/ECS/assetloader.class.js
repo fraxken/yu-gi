@@ -47,13 +47,19 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
      */
     registerAsset(name, assetURL) {
         const extension = assetURL.split('.').pop();
-
-        this.assets.set(name, {
-            url: assetURL,
-            extension
-        });
+        this.assets.set(name, { url: assetURL, extension });
 
         return this;
+    }
+
+    /**
+     * @param {!string} tileSetName
+     * @param {string} [fileName]
+     */
+    registerTileSet(tileSetName, fileName = tileSetName) {
+        return this
+            .registerAsset(`${tileSetName}_texture`, `tilesets/${fileName}.png`)
+            .registerAsset(`${tileSetName}_json`, `tilesets/${fileName}.json`);
     }
 
     /**

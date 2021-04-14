@@ -1,0 +1,15 @@
+{
+  "version": "1.5",
+  "tiledversion": "1.5.0",
+  "name": "TilesetHouse",
+  "tilewidth": 16,
+  "tileheight": 16,
+  "tilecount": 368,
+  "columns": 16,
+  "image": {
+    "source": "tilesets/TilesetHouse.png",
+    "width": 256,
+    "height": 368
+  },
+  "margin": 0
+}
