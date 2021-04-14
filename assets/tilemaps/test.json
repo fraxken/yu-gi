@@ -155,19 +155,23 @@
   "tilesets": [
     {
       "firstgid": 1,
-      "source": "tilesets/TilesetFloor.png"
+      "source": "tilesets/TilesetFloor.tsx",
+      "name": "TilesetFloor"
     },
     {
       "firstgid": 463,
-      "source": "tilesets/TilesetHouse.png"
+      "source": "tilesets/TilesetHouse.tsx",
+      "name": "TilesetHouse"
     },
     {
       "firstgid": 831,
-      "source": "tilesets/TilesetElement.png"
+      "source": "tilesets/TilesetElement.tsx",
+      "name": "TilesetElement"
     },
     {
       "firstgid": 1071,
-      "source": "tilesets/TilesetNature.png"
+      "source": "tilesets/TilesetNature.tsx",
+      "name": "TilesetNature"
     }
   ],
   "tilewidth": 16,

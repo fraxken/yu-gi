@@ -2,6 +2,17 @@ declare namespace Tiled {
     export interface TileSet {
         firstgid: number;
         source: string;
+        name: string;
+        tilewidth: number;
+        tileheight: number;
+        tilecount: number;
+        columns: number;
+        margin: number;
+        image: {
+            source: string;
+            width: number;
+            height: number;
+        }
     }
 
     export interface TileChunk {
