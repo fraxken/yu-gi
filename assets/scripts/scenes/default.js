@@ -7,6 +7,7 @@ export default class DefaultScene extends Scene {
 
         this.add(EntityBuilder.create("actor:player"));
         this.add(...EntityBuilder.createMany("actor:creature", 5));
+        this.add(EntityBuilder.create("actor:projectile", { startPos: { x: 10, y: 10 }, targetPos: { x: 100, y: 100 }}));
 
         const map = new Actor("map");
         map.addComponent(new Components.TiledMap("map1"));
