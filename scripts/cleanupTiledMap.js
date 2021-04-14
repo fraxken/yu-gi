@@ -52,10 +52,10 @@ for (const completeFilePath of readdirWithExt(kTileMapsDir, ".json")) {
     for (const tileset of data.tilesets) {
         const fileNameWithoutExt = path.basename(tileset.source, ".tsx");
         const fileBaseName = `${path.basename(tileset.source)}`;
+        tileset.source = `tilesets/${fileBaseName}`;
 
         const tileSetData = readXML(path.join(kAssetDir, tileset.source));
         tileSetData.image.source = `tilesets/${fileNameWithoutExt}.png`;
-        tileset.source = `tilesets/${fileBaseName}`;
         tileset.name = tileSetData.name;
 
         fs.writeFileSync(

@@ -9,6 +9,7 @@ export default class DefaultScene extends Scene {
         this.add(...EntityBuilder.createMany("actor:creature", 5));
 
         const map = new Actor("map");
+        map.visible = false;
         map.addComponent(new Components.TiledMap("map1"));
         this.add(map);
     }

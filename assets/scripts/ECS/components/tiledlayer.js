@@ -5,10 +5,6 @@ import * as PIXI from "pixi.js";
 // import TiledSet from "./tiledset";
 import TiledMap from "./tiledmap";
 
-class Tile extends PIXI.AnimatedSprite {
-
-}
-
 export default class TiledLayer extends PIXI.Container {
     /**
      * @param {!Tiled.TileLayer} layer
@@ -36,14 +32,21 @@ export default class TiledLayer extends PIXI.Container {
         for (const chunk of layer.chunks) {
             const { width, height } = chunk;
 
+            /** @type {number[]} */
+            const data = chunk.data.reverse();
+
             for (let y = chunk.y; y < height; y++) {
                 for (let x = chunk.x; x < width; x++) {
-                    // const tileIndex = x + (y * width);
-                    // console.log({ x, y });
+                    const textureId = data.pop();
 
-                    // if (this.tileExists(layer, i)) {
-                    // this.addTile(this.createTile(layer, { x, y }));
-                    // }
+                    // console.log({ x, y, textureId });
+                    const texture = this.parent.getTexture(textureId);
+                    // console.log(textureId, texture);
+
+                    const newTile = new PIXI.Sprite(texture);
+                    newTile.x = x * 16;
+                    newTile.y = y * 16;
+                    this.addTile(newTile);
                 }
             }
         }
