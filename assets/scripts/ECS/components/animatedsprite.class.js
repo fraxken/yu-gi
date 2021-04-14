@@ -2,8 +2,8 @@
 import * as PIXI from "pixi.js";
 
 // Import internal dependencies
-import { findAsset } from "./helpers";
-import * as Component from "./component";
+import { findAsset } from "../helpers";
+import * as Component from "../component";
 
 export default class AnimatedSpriteEx extends PIXI.AnimatedSprite {
     /**

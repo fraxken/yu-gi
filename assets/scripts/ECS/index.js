@@ -1,14 +1,20 @@
 import Actor from "./actor.class";
-import AnimatedSpriteEx from "./animatedsprite.class";
 import Engine from "./engine.class";
 import Scene from "./scene.class";
 import ScriptBehavior from "./scriptbehavior";
 import State from "./state.class";
 import { findAsset, getActor, getCurrentState, getTexture } from "./helpers";
 
+import AnimatedSpriteEx from "./components/animatedsprite.class";
+import TiledMap from "./components/tiledmap";
+
+const Components = {
+    AnimatedSpriteEx,
+    TiledMap
+}
+
 export {
     Actor,
-    AnimatedSpriteEx,
     Engine,
     Scene,
     ScriptBehavior,
@@ -16,5 +22,6 @@ export {
     findAsset,
     getActor,
     getCurrentState,
-    getTexture
+    getTexture,
+    Components
 }

@@ -1,5 +1,5 @@
 import { EntityBuilder } from "../helpers";
-import { Scene } from "../ECS";
+import { Scene, Actor, Components } from "../ECS";
 
 export default class DefaultScene extends Scene {
     constructor() {
@@ -7,6 +7,10 @@ export default class DefaultScene extends Scene {
 
         this.add(EntityBuilder.create("actor:player"));
         this.add(...EntityBuilder.createMany("actor:creature", 5));
+
+        const map = new Actor("map");
+        map.addComponent(new Components.TiledMap("map1"));
+        this.add(map);
     }
 
     awake() {

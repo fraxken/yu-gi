@@ -2,8 +2,11 @@
 import * as PIXI from "pixi.js";
 import Behavior from "./scriptbehavior.js";
 import ActorTree from "./actortree.class";
-import AnimatedSpriteEx from "./animatedsprite.class";
+
 import * as Component from "./component.js";
+
+import AnimatedSpriteEx from "./components/animatedsprite.class";
+import TiledMap from "./components/tiledmap.js";
 
 export default class Actor extends ActorTree {
     /**
@@ -20,6 +23,9 @@ export default class Actor extends ActorTree {
 
         /** @type {PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} */
         this.sprite = null;
+
+        /** @type {TiledMap} */
+        this.map = null;
 
         /** @type {Behavior[]} */
         this.behaviors = [];

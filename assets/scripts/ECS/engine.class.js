@@ -71,8 +71,6 @@ export default class Engine extends AssetLoader {
 
     init() {
         console.log(`[INFO] init engine`);
-        this.rootScene = new this.defaultRootScene();
-
         this.resizeRendererToScreenSize();
         this.loadAssets(this.app.loader, () => this.awake());
         this.emit("init");
@@ -82,6 +80,7 @@ export default class Engine extends AssetLoader {
 
     awake() {
         console.log(`[INFO] 'awake' phase start`);
+        this.rootScene = new this.defaultRootScene();
         this.app.stage.addChild(this.viewport);
 
         // Configure viewport

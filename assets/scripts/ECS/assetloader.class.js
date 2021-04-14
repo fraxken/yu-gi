@@ -77,6 +77,7 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
         const lazyCallback = () => setTimeout(() => {
             loadingContainer.destroy({ children: true });
             this.app.stage.removeChild(loadingContainer);
+            console.log("!!! ASSETS LOADED !!!");
             callback();
         }, 200);
 

@@ -1,6 +1,6 @@
 import Actor from "../ECS/actor.class";
 import ScriptBehavior from "../ECS/scriptbehavior";
-import AnimatedSpriteEx from "../ECS/animatedsprite.class";
+import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 
 import Timer from "../helpers/timer.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";

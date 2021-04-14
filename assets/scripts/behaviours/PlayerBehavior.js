@@ -2,7 +2,7 @@
 import { sound } from "@pixi/sound";
 
 // Import dependencies
-import { Actor, ScriptBehavior, AnimatedSpriteEx } from "../ECS";
+import { Actor, ScriptBehavior, Components } from "../ECS";
 import { Timer, EntityBuilder, EasingFunction, Key } from "../helpers";
 
 const playerState = {
@@ -32,7 +32,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     awake() {
         this.sprite = this.actor.addComponent(
-            new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
+            new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
 
         game.viewport.moveCenter(this.actor.x, this.actor.y);
