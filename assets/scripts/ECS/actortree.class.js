@@ -23,6 +23,7 @@ export default class ActorTree extends PIXI.Container {
             childrenActor.cleanupTree();
         }
 
+        this.emit("cleanup");
         this.triggerBehaviorEvent("destroy");
         this.actors.clear();
     }
@@ -33,17 +34,22 @@ export default class ActorTree extends PIXI.Container {
     appendActor(actor) {
         this.actors.set(actor.name, actor);
         this.addChild(actor);
+        this.emit("appendActor", actor);
 
         return this;
 
     }
 
     /**
+     * @param {boolean} [recursive=false]
      * @returns {IterableIterator<Actor>}
      */
-    *getRootActors() {
+    *getActors(recursive = false) {
         for (const actor of this.actors.values()) {
             yield actor;
+            if (recursive) {
+                yield* actor.getActors(recursive);
+            }
         }
     }
 

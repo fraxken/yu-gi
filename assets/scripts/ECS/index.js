@@ -1,4 +1,5 @@
 import Actor from "./actor.class";
+import ActorTree from "./actortree.class";
 import Engine from "./engine.class";
 import Scene from "./scene.class";
 import ScriptBehavior from "./scriptbehavior";
@@ -15,6 +16,7 @@ const Components = {
 
 export {
     Actor,
+    ActorTree,
     Engine,
     Scene,
     ScriptBehavior,
