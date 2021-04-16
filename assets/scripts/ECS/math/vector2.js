@@ -18,6 +18,9 @@ export default class Vector2 {
         return this;
     }
 
+    /**
+     * @returns {Vector2}
+     */
     clone() {
         return new this.constructor(this.x, this.y);
     }
