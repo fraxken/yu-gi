@@ -34,21 +34,28 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
     update() {
         if (!this.actor.destroyed) {
-            if (this.actor.x !== this.targetPos.x || this.actor.y !== this.targetPos.y) {
-                if (this.actor.x < this.targetPos.x) this.actor.moveX(1); this.sprite.scale.x = 1;
-                if (this.actor.x > this.targetPos.x) this.actor.moveX(-1); this.sprite.scale.x = -1;
+            console.log(this.actor.x, Math.round(this.targetPos.x));
+            console.log(this.actor.y, Math.round(this.targetPos.y));
+            if (this.actor.x !== Math.round(this.targetPos.x) || this.actor.y !== Math.round(this.targetPos.y)) {
+                if (this.actor.x < Math.round(this.targetPos.x)) {
+                    this.actor.moveX(1); this.sprite.scale.x = 1;
+                } else if (this.actor.x > Math.round(this.targetPos.x)) {
+                    this.actor.moveX(-1); this.sprite.scale.x = -1;
+                }
 
-                if (this.actor.y < this.targetPos.y) this.actor.moveY(1);
-                if (this.actor.y > this.targetPos.y) this.actor.moveY(-1);
+                if (this.actor.y < Math.round(this.targetPos.y)) {
+                    this.actor.moveY(1);
+                }
+                else if (this.actor.y > Math.round(this.targetPos.y)) {
+                    this.actor.moveY(-1);
+                }
 
 
                 this.actor.applyVelocity();
                 this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
             }
             else {
-                console.log("cleanup")
                 this.actor.cleanup();
-                console.log(this.actor);
             }
         }
     }
