@@ -7,6 +7,7 @@ import * as Component from "./component.js";
 
 import AnimatedSpriteEx from "./components/animatedsprite.class";
 import TiledMap from "./components/tiledmap.js";
+import Vector2 from "./math/vector2";
 
 export default class Actor extends ActorTree {
     /**

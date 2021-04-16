@@ -1,5 +1,5 @@
 // Import internal dependencies
-import { Actor, ActorTree } from "../ECS";
+import { Actor, ActorTree } from ".";
 
 // CONSTANTS
 const kAlwaysTrue = () => true;

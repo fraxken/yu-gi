@@ -2,8 +2,8 @@
 import { sound } from "@pixi/sound";
 
 // Import dependencies
-import { Actor, ScriptBehavior, Components } from "../ECS";
-import { Timer, EntityBuilder, EasingFunction, Key } from "../helpers";
+import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber } from "../ECS";
+import { EntityBuilder, Key } from "../helpers";
 
 const playerState = {
     currentHp: "player.currentHp",
@@ -19,14 +19,12 @@ export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = defaultStats.speed, currentHp = defaultStats.currentHp, maxHp = defaultStats.maxHp) {
         super(playerState);
 
-        this.defaultSpeed = speed;
-        this.maxSpeed = speed * 2;
         this.currentHp = currentHp;
         this.maxHp = maxHp;
 
         this.time = new Timer(60);
-        this.speedTimer = new Timer(90, {
-            autoStart: true, keepIterating: false
+        this.speed = new ProgressiveNumber(speed, speed * 2, {
+            easing: "easeInQuad", frame: 90
         });
     }
 
@@ -51,17 +49,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.currentHp += 1;
         }
 
-        let currentSpeed = this.defaultSpeed;
-        if (this.actor.moving && this.speedTimer.upTick()) {
-            const progression = this.speedTimer.progression("easeInQuad");
-            const dx = this.maxSpeed - this.defaultSpeed;
-
-            currentSpeed = this.defaultSpeed + dx * progression;
-        }
-        else {
-            this.speedTimer.reset();
-        }
-
+        const currentSpeed = this.speed.walk(!this.actor.moving);
         if (game.input.isKeyDown(Key.Q)) {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
