@@ -22,7 +22,7 @@ export default class CreatureBehavior extends ScriptBehavior {
             x: null,
             y: null
         };
-        this.radius = 40;
+        this.radius = 80;
         this.isInAction = false;
         this.action = null;
         this.delayToMove = new Timer(60);
@@ -59,7 +59,7 @@ export default class CreatureBehavior extends ScriptBehavior {
             if (this.delayToMove.walk()) {
                 this.isInAction = true;
                 this.action = "DEPLACEMENT";
-                const r = this.radius * Math.sqrt(Math.random());
+                const r = (this.radius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.position.x + r * Math.cos(theta));
                 const y = Math.round(this.position.y + r * Math.sin(theta));

@@ -20,7 +20,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
         this.startPos = startPos;
         this.targetPos = targetPos;
-        this.radius = 5;
+        this.radius = 15;
     }
 
     awake() {
@@ -30,27 +30,26 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
         this.actor.x = this.startPos.x;
         this.actor.y = this.startPos.y;
-
-        console.log(this.actor);
     }
 
     update() {
-        if (!this.actor._destroyed) {
+        if (!this.actor.destroyed) {
             if (this.actor.x !== this.targetPos.x || this.actor.y !== this.targetPos.y) {
-                if (this.actor.x < this.targetPos.x) this.actor.moveX(1); this.sprite.scale.x = -1;
-                if (this.actor.x > this.targetPos.x) this.actor.moveX(-1); this.sprite.scale.x = 1;
+                if (this.actor.x < this.targetPos.x) this.actor.moveX(1); this.sprite.scale.x = 1;
+                if (this.actor.x > this.targetPos.x) this.actor.moveX(-1); this.sprite.scale.x = -1;
 
                 if (this.actor.y < this.targetPos.y) this.actor.moveY(1);
                 if (this.actor.y > this.targetPos.y) this.actor.moveY(-1);
 
 
                 this.actor.applyVelocity();
+                this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
             }
             else {
-                this.actor.destroy();
+                console.log("cleanup")
+                this.actor.cleanup();
+                console.log(this.actor);
             }
-
-            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
         }
     }
 }
