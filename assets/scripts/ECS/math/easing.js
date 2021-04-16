@@ -137,7 +137,7 @@ export function easeInOutBounce(t, b, c, d) {
         return (easeInBounce((t * 2), 0, c, d) * 0.5) + b;
     }
 
-    return ((Math.easeOutBounce(((t * 2) - d), 0, c, d) * 0.5) + (c * 0.5)) + b;
+    return ((easeOutBounce(((t * 2) - d), 0, c, d) * 0.5) + (c * 0.5)) + b;
 }
 
 export function easeInBack(t, b, c, d, s) {
