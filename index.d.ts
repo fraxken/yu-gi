@@ -52,7 +52,10 @@ declare namespace Tiled {
         backgroundcolor?: string;
         compressionlevel: number;
         editorsettings: {
-            export: {};
+            export: {
+                format: "json";
+                target: string;
+            };
         };
         width: number;
         height: number;

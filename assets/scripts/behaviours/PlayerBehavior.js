@@ -67,6 +67,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         if (game.input.isKeyDown(Key.E)) {
+            console.log(this.actor.pos);
             this.sprite.playAnimation("adventurer-die", { loop: false });
             if (!this.deathSound.isPlaying) {
                 this.deathSound.play();

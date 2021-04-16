@@ -65,7 +65,7 @@ export default class Actor extends ActorTree {
     }
 
     get pos() {
-        return new Vector2(this.actor.x, this.actor.y);
+        return new Vector2(this.x, this.y);
     }
 
     applyVelocity() {

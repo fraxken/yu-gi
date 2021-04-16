@@ -29,7 +29,7 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
     // .registerTileSet("TilesetHole")
     // .registerTileSet("TilesetInterior")
     // .registerTileSet("TilesetInteriorFloor")
-    // .registerTileSet("TilesetLogic")
+    .registerTileSet("TilesetLogic")
     // .registerTileSet("TilesetRelief")
     // .registerTileSet("TilesetReliefDetail")
     // .registerTileSet("TilesetWater")
@@ -40,19 +40,19 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
     .registerAsset("death", "sounds/death.wav")
     .init();
 
-new BackgroundMediaPlayer({
-    defaultTrack: "default",
-    defaultFilters: [
-        new filters.DistortionFilter(0.05),
-        new filters.ReverbFilter(1, 9)
-    ],
-    tracks: {
-        default: [
-            { name: "ambient-sound", volume: 0.025 },
-            { name: "ambient-void", volume: 0.025 }
-        ]
-    }
-}).bindToEngine(game);
+// new BackgroundMediaPlayer({
+//     defaultTrack: "default",
+//     defaultFilters: [
+//         new filters.DistortionFilter(0.05),
+//         new filters.ReverbFilter(1, 9)
+//     ],
+//     tracks: {
+//         default: [
+//             { name: "ambient-sound", volume: 0.025 },
+//             { name: "ambient-void", volume: 0.025 }
+//         ]
+//     }
+// }).bindToEngine(game);
 
 game.on("awake", () => {
     loadHUD("test_hud");
