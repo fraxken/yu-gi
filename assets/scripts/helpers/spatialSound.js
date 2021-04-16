@@ -46,6 +46,18 @@ export default class SpatialSound {
 
         /** @type {Sound} */
         this.sound = sound.find(assetName);
+
+        // @see https://pixijs.io/sound/docs/Sound.html (context & instances)
+        /** @type {AudioContext} */
+        this.audioCtx = this.sound.context;
+
+        // @see https://developer.mozilla.org/en-US/docs/Web/API/StereoPannerNode
+        this.panNode = this.audioCtx.createStereoPanner();
+        for (const source of this.sound.instances) {
+            source.connect(this.panNode);
+        }
+        this.panNode.connect(this.audioCtx.destination);
+
         this.sound.volume = this.maxsound;
         this.sound.loop = this.loop;
         this.sound.play();
@@ -102,7 +114,7 @@ export default class SpatialSound {
             // -- si le résultat est positif alors le point est à gauche de la droite
             // -- si le résultat est négatif alors le point est à droite de la droite
             // -- si le résultat est nul alors le point est sur la droite
-            // this.sound.pan = determinent >= 0 ? pan : -pan;
+            this.panNode.pan.setValueAtTime(determinent >= 0 ? pan : -pan, this.audioCtx.currentTime);
         }
         else {
             this.sound.volume = 0;
