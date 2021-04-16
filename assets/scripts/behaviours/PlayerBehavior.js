@@ -10,24 +10,24 @@ const playerState = {
     maxHp: "player.maxHp"
 };
 const defaultStats = {
-    speed: 0.8,
+    speed: 1,
     currentHp: 1,
     maxHp: 20
 }
-const kDefaultVelocityScallFrames = 240;
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = defaultStats.speed, currentHp = defaultStats.currentHp, maxHp = defaultStats.maxHp) {
         super(playerState);
 
-        this.currentKey = null;
-        this.hasMovedPreviously = false;
-        this.speed = speed;
-        this.maxSpeed = 2.5;
+        this.defaultSpeed = speed;
+        this.maxSpeed = speed * 2;
         this.currentHp = currentHp;
         this.maxHp = maxHp;
+
         this.time = new Timer(60);
-        this.velocityScallTimer = new Timer(kDefaultVelocityScallFrames, { autoStart: false, keepIterating: false });
+        this.speedTimer = new Timer(90, {
+            autoStart: true, keepIterating: false
+        });
     }
 
     awake() {
@@ -51,52 +51,40 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.currentHp += 1;
         }
 
+        let currentSpeed = this.defaultSpeed;
+        if (this.actor.moving && this.speedTimer.upTick()) {
+            const progression = this.speedTimer.progression("easeInQuad");
+            const dx = this.maxSpeed - this.defaultSpeed;
+
+            currentSpeed = this.defaultSpeed + dx * progression;
+        }
+        else {
+            this.speedTimer.reset();
+        }
+
         if (game.input.isKeyDown(Key.Q)) {
-            this.actor.moveX(-this.speed);
+            this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
         }
         else if (game.input.isKeyDown(Key.D)) {
-            this.actor.moveX(this.speed);
+            this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
 
         if (game.input.isKeyDown(Key.Z)) {
-            this.actor.moveY(-this.speed);
+            this.actor.moveY(-currentSpeed);
         }
         else if (game.input.isKeyDown(Key.S)) {
-            this.actor.moveY(this.speed);
+            this.actor.moveY(currentSpeed);
         }
-
-        if (
-            this.actor.moving &&
-            this.hasMovedPreviously
-        ) {
-            if (this.speed !== this.maxSpeed) {
-                if (!this.velocityScallTimer.isStarted) {
-                    this.velocityScallTimer.start();
-                }
-
-                if (!this.velocityScallTimer.walk()) {
-                    const t = EasingFunction.easeInOutQuad(this.velocityScallTimer.tick, 0, 1, kDefaultVelocityScallFrames);
-
-                    const dx = this.maxSpeed - defaultStats.speed;
-                    this.speed = defaultStats.speed + dx * t;
-                }
-            }
-        }
-        else {
-            this.speed = defaultStats.speed;
-            this.velocityScallTimer.reset();
-        }
-
-        this.hasMovedPreviously = this.actor.moving ? true : false;
 
         if (game.input.isKeyDown(Key.E)) {
             this.sprite.playAnimation("adventurer-die", { loop: false });
             if (!this.deathSound.isPlaying) {
                 this.deathSound.play();
             }
-        } else {
+        }
+        else {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
 

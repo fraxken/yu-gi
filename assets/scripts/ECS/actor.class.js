@@ -20,6 +20,7 @@ export default class Actor extends ActorTree {
         // Velocity properties
         this.vx = 0;
         this.vy = 0;
+        this.wasMoving = false;
 
         /** @type {PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} */
         this.sprite = null;
@@ -59,7 +60,7 @@ export default class Actor extends ActorTree {
     }
 
     get moving() {
-        return this.vx !== 0 || this.vy !== 0;
+        return this.wasMoving || this.vx !== 0 || this.vy !== 0;
     }
 
     get pos() {
@@ -67,13 +68,22 @@ export default class Actor extends ActorTree {
     }
 
     applyVelocity() {
-        if (!this.moving) {
+        if (this.vx === 0 && this.vy === 0) {
+            this.wasMoving = false;
+
             return;
+        }
+
+        if (this.vx !== 0 && this.vy !== 0) {
+            this.vx = this.vx / 1.5;
+            this.vy = this.vy / 1.5;
         }
 
         this.x += this.vx;
         this.y += this.vy;
+        this.wasMoving = true;
 
+        // TODO: stop net or apply friction ?
         this.vx = 0;
         this.vy = 0;
     }
