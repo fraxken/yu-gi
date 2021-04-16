@@ -9,9 +9,10 @@ import TiledSet from "./tiledset";
 import TiledLayer from "./tiledlayer";
 
 export default class TiledMap extends PIXI.Container {
-    constructor(mapName) {
+    constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
+        this.debug = options.debug || false;
 
         /** @type {Map<string, TiledLayer>} */
         this.layers = new Map();
@@ -26,28 +27,36 @@ export default class TiledMap extends PIXI.Container {
         const data = findAsset(mapName).data;
         // TODO: handle tiled properties ?
 
-        this.tiledsets = data.tilesets.map((options) => new TiledSet(options));
+        this.tileWidth = data.tilewidth;
+        this.tileHeight = data.tileheight;
+        this.tiledsets = data.tilesets.map((config) => new TiledSet(config, { debug: this.debug }));
 
         /** @type {TiledSet} */
         let lastTiledSet = null;
 
         for (const currentTiledSet of this.tiledsets) {
-            if (lastTiledSet === null) {
-                lastTiledSet = currentTiledSet;
-                continue;
+            if (lastTiledSet !== null) {
+                this.setMatcher(lastTiledSet, currentTiledSet.firstgid);
             }
-
-            const lastgid = lastTiledSet.firstgid;
-            const currentgid = currentTiledSet.firstgid;
-            const matchPattern = (id) => id >= lastgid && id < currentgid;
-            this.tiledSetMatcher.set(matchPattern, lastTiledSet);
-
             lastTiledSet = currentTiledSet;
         }
+        this.setMatcher(lastTiledSet, lastTiledSet.firstgid + lastTiledSet.tileCount);
 
         data.layers.filter((layer) => layer.type === "tilelayer").map((layer) => this.setTileLayer(layer));
-        console.log(`[INFO] loaded TiledMap ${mapName}`);
         this.textureIdCache.clear();
+        if (this.debug) {
+            console.log(`[INFO] loaded TiledMap ${mapName}`);
+        }
+    }
+
+    setMatcher(lastTiledSet, currentgid) {
+        const lastgid = lastTiledSet.firstgid;
+        const matchPattern = (id) => id >= lastgid && id < currentgid;
+        if (this.debug) {
+            console.log(`[DEBUG] Loaded gid: >= ${lastgid} && < ${currentgid} for tiledsed '${lastTiledSet.name}'`);
+        }
+
+        this.tiledSetMatcher.set(matchPattern, lastTiledSet);
     }
 
     /**
@@ -61,7 +70,7 @@ export default class TiledMap extends PIXI.Container {
 
         for (const [isMatching, tileSet] of this.tiledSetMatcher.entries()) {
             if (isMatching(id)) {
-                const texture = tileSet.textures[id];
+                const texture = tileSet.getTexture(id);
                 this.textureIdCache.set(id, texture);
 
                 return texture;
