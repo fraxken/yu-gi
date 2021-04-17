@@ -13,13 +13,31 @@ export default class ProgressiveNumber {
         if (max <= min) {
             throw new Error("max must be an higher value than min!");
         }
-        const { frame = 60, easing = "linearTween" } = options;
+        const { frame = 60, easing = "linearTween", reverse = false } = options;
 
         this.timer = new Timer(frame, { autoStart: true, keepIterating: false });
         this.min = min;
         this.max = max;
         this.dx = this.max - this.min;
         this.easing = easing;
+
+        this.reverted = reverse;
+    }
+
+    get baseValue() {
+        return this.reverted ? this.max : this.min;
+    }
+
+    revert() {
+        this.reverted = !this.reverted;
+        this.timer.reset();
+    }
+
+    getProgression() {
+        const progression = this.timer.progression(this.easing);
+        const factor = this.reverted ? 1 - progression : progression;
+
+        return this.min + this.dx * factor;
     }
 
     /**
@@ -30,15 +48,13 @@ export default class ProgressiveNumber {
         if (reset) {
             this.timer.reset();
 
-            return this.min;
+            return this.baseValue;
         }
 
         if (this.timer.upTick()) {
-            const progression = this.timer.progression(this.easing);
-
-            return this.min + this.dx * progression;
+            return this.getProgression();
         }
 
-        return this.min;
+        return this.baseValue;
     }
 }

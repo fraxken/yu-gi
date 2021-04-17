@@ -7,6 +7,7 @@ import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 import State from "./state.class";
 import AssetLoader from "./assetloader.class";
+import ProgressiveNumber from "./math/progressiveNumber";
 
 export default class Engine extends AssetLoader {
     /**
@@ -38,6 +39,7 @@ export default class Engine extends AssetLoader {
             interaction: this.app.renderer.plugins.interaction,
         });
         this.input = new Keyboard(this.app.view);
+        this.fade = new ProgressiveNumber(0, 1, { frame: 120, easing: "easeInSine" });
 
         this.defaultRootScene = options.defaultScene;
         /** @type {Scene} */
@@ -81,6 +83,7 @@ export default class Engine extends AssetLoader {
     awake() {
         console.log(`[INFO] 'awake' phase start`);
         this.rootScene = new this.defaultRootScene();
+        this.rootScene.alpha = 0;
         this.app.stage.addChild(this.viewport);
 
         // Configure viewport
@@ -107,6 +110,9 @@ export default class Engine extends AssetLoader {
     update(delta = 0) {
         this.input.update(delta);
         this.rootScene.update(delta);
+
+        // TODO: fadeIn and fadeOut currentScene
+        this.rootScene.alpha = this.fade.walk(false);
 
         this.emit("update", delta);
     }
