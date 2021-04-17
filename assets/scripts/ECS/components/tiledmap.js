@@ -183,7 +183,7 @@ export default class TiledMap extends PIXI.Container {
      */
     setTileLayer(layer) {
         if (kCollisionLayerName.has(layer.name.toLowerCase())) {
-            layer.visible = false;
+            layer.visible = true;
             this.layers.set("collision", new CollisionLayer(layer, this));
         }
         else {

@@ -1,4 +1,5 @@
-import TiledMap from "./tiledmap"
+import TiledMap from "./tiledmap";
+import TiledLayer from "./tiledlayer";
 
 export default class CollisionLayer {
     /**
@@ -14,19 +15,13 @@ export default class CollisionLayer {
 
         for (const chunk of layer.chunks) {
             chunk.data = JSON.parse(chunk.data);
-            const { width,  height } = chunk;
 
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const tileIndex = x + (y * width);
-
-                    /** @type {number} */
-                    const textureId = chunk.data[tileIndex];
-
-                    this.collisionsMap.push(textureId !== 0);
-                }
+            for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
+                this.collisionsMap.push(textureId !== 0);
             }
         }
+
+        console.log(this.collisionsMap);
     }
 
     /**

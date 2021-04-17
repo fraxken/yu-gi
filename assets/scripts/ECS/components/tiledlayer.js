@@ -18,9 +18,6 @@ export default class TiledLayer extends PIXI.Container {
 
                 /** @type {number} */
                 const textureId = chunk.data[tileIndex];
-                if (textureId === 0) {
-                    continue;
-                }
 
                 yield { x: chunk.x + x, y: chunk.y + y, textureId };
             }
@@ -54,6 +51,9 @@ export default class TiledLayer extends PIXI.Container {
         chunk.data = JSON.parse(chunk.data);
 
         for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
+            if (textureId === 0) {
+                continue;
+            }
             const tile = this.createTile(x, y, textureId);
 
             this.tiles.push(tile);
