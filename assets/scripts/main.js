@@ -3,7 +3,7 @@ import { filters } from "@pixi/sound";
 
 // Import Dependencies
 import { State, Engine } from "./ECS";
-import { BackgroundMediaPlayer } from "./helpers";
+import { BackgroundMediaPlayer, Key } from "./helpers";
 import * as Behaviors from "./behaviours";
 
 import DefaultScene from "./scenes/default";
@@ -56,4 +56,15 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
 
 game.on("awake", () => {
     loadHUD("test_hud");
+});
+
+game.on("update", () => {
+    if (game.input.wasKeyJustReleased(Key.ENTER)) {
+        if (game.fade.state === "in") {
+            game.fade.out();
+        }
+        else {
+            game.fade.in();
+        }
+    }
 });

@@ -70,6 +70,7 @@ export default class Scene extends ActorTree {
         if (this.destroyed) {
             return true;
         }
+        this.emit("update");
         this.emitEventForAllActors("update", delta);
 
         return false;

@@ -8,6 +8,7 @@ export default class ProgressiveNumber {
      * @param {object} options
      * @param {number} [options.frame=60]
      * @param {keyof Easing} [options.easing="linearTween"]
+     * @param {boolean} [options.reverse = false]
      */
     constructor(min, max, options = {}) {
         if (max <= min) {
@@ -28,8 +29,8 @@ export default class ProgressiveNumber {
         return this.reverted ? this.max : this.min;
     }
 
-    revert() {
-        this.reverted = !this.reverted;
+    revert(newValue = !this.reverted) {
+        this.reverted = newValue;
         this.timer.reset();
     }
 
