@@ -2,7 +2,8 @@
 import { sound } from "@pixi/sound";
 
 // Import dependencies
-import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber } from "../ECS";
+import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor } from "../ECS";
+import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key } from "../helpers";
 
 const playerState = {
@@ -42,12 +43,17 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.deathSound = sound.find("death");
         this.deathSound.volume = 0.1;
+
+        /** @type {CollisionLayer} */
+        this.collision = getActor("map").getComponent(Components.Types.TiledMap).collision;
     }
 
     update() {
         if (this.time.walk() && this.currentHp < this.maxHp) {
             this.currentHp += 1;
         }
+
+        // console.log(this.collision.isWalkable(this.actor.x, this.actor.y));
 
         const currentSpeed = this.speed.walk(!this.actor.moving);
         if (game.input.isKeyDown(Key.Q)) {

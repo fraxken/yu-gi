@@ -9,6 +9,9 @@ import TiledSet from "./tiledset";
 import TiledLayer from "./tiledlayer";
 import CollisionLayer from "./collisionLayer.class";
 
+// CONSTANTS
+const kCollisionLayerName = new Set(["collisions", "collision"]);
+
 export default class TiledMap extends PIXI.Container {
     static assignProperties(object, properties = []) {
         object.properties = Object.create(null);
@@ -70,7 +73,7 @@ export default class TiledMap extends PIXI.Container {
      * @returns {CollisionLayer}
      */
     get collision() {
-        return this.layers.get("collisions") || null;
+        return this.layers.get("collision") || null;
     }
 
     setMatcher(lastTiledSet, currentgid) {
@@ -160,15 +163,15 @@ export default class TiledMap extends PIXI.Container {
      * @param {Tiled.TileLayer} layer
      */
     setTileLayer(layer) {
-        if (layer.name.toLowerCase() === "collisions") {
+        if (kCollisionLayerName.has(layer.name.toLowerCase())) {
             layer.visible = false;
-            // this.layers.set("collisions", new CollisionLayer(layer, this));
-
-            return;
+            this.layers.set("collision", new CollisionLayer(layer, this));
         }
+        else {
+            const tileLayer = new TiledLayer(layer, this);
 
-        const tileLayer = new TiledLayer(layer, this);
-        this.layers.set(layer.name, tileLayer);
-        this.addChild(tileLayer);
+            this.layers.set(layer.name, tileLayer);
+            this.addChild(tileLayer);
+        }
     }
 }

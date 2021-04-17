@@ -8,6 +8,7 @@ import SearchTree from "./searchtree";
 import { findAsset, getActor, getCurrentState, getTexture } from "./helpers";
 
 // Components
+import { Types } from "./component";
 import AnimatedSpriteEx from "./components/animatedsprite.class";
 import TiledMap from "./components/tiledmap";
 
@@ -18,6 +19,7 @@ import Timer from "./math/timer.class";
 import ProgressiveNumber from "./math/progressiveNumber";
 
 const Components = {
+    Types,
     AnimatedSpriteEx,
     TiledMap
 }
