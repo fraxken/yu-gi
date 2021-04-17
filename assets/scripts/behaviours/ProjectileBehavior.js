@@ -3,9 +3,9 @@ import ScriptBehavior from "../ECS/scriptbehavior";
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 
 import * as EntityBuilder from "../helpers/entitybuilder.js";
+import { Timer } from "../helpers";
 
 const kDefaultFadeInFrames = 240;
-
 
 export default class ProjectileBehavior extends ScriptBehavior {
 
@@ -21,6 +21,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.startPos = startPos;
         this.targetPos = targetPos;
         this.radius = 15;
+        this.delayToFadeIn = new Timer(kDefaultFadeInFrames, { autoStart: true, keepIterating: false });
     }
 
     awake() {
@@ -34,8 +35,10 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
     update() {
         if (!this.actor.destroyed) {
-            console.log(this.actor.x, Math.round(this.targetPos.x));
-            console.log(this.actor.y, Math.round(this.targetPos.y));
+            if (this.delayToFadeIn.walk()) {
+                this.actor.cleanup();
+            }
+
             if (this.actor.x !== Math.round(this.targetPos.x) || this.actor.y !== Math.round(this.targetPos.y)) {
                 if (this.actor.x < Math.round(this.targetPos.x)) {
                     this.actor.moveX(1); this.sprite.scale.x = 1;
@@ -49,7 +52,6 @@ export default class ProjectileBehavior extends ScriptBehavior {
                 else if (this.actor.y > Math.round(this.targetPos.y)) {
                     this.actor.moveY(-1);
                 }
-
 
                 this.actor.applyVelocity();
                 this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");

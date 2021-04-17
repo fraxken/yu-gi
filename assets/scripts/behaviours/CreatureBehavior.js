@@ -6,6 +6,7 @@ import Timer from "../helpers/timer.class";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
+const kHandicapForShooting = 240;
 
 export default class CreatureBehavior extends ScriptBehavior {
 
@@ -26,6 +27,7 @@ export default class CreatureBehavior extends ScriptBehavior {
         this.isInAction = false;
         this.action = null;
         this.delayToMove = new Timer(60);
+        this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
     }
 
     awake() {
@@ -86,6 +88,23 @@ export default class CreatureBehavior extends ScriptBehavior {
         }
 
         this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+    }
+
+    canShoot() {
+        if (!this.delayToShoot.isStarted) {
+            this.delayToShoot.start();
+
+            return false
+        }
+
+        if (this.delayToShoot.walk()) {
+            this.delayToShoot.reset();
+
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 
