@@ -102,13 +102,15 @@ export default class SpatialSound {
                 // -- O->A * O->B = Vector2.Dot(A,B)   --   Dot = produit scalaire
                 // -- OA = Vector2:Length()
                 const dotProduct = normalizedListenerDirection.dot(soundDirection);
-                const lengthProd = normalizedListenerDirection.length() * soundDirection.length;
+                const lengthProd = normalizedListenerDirection.length() * soundDirection.length();
+                // console.log(normalizedListenerDirection.length(), soundDirection.length);
 
                 const resultAngle = deg(Math.acos(dotProduct / lengthProd));
                 pan = resultAngle > 90 ?
                     (90 - (resultAngle % 90)) / this.panBalancer :
                     resultAngle / this.panBalancer;
             }
+            // console.log(pan);
 
             // -- On utilise la formule du déterminent d'une matrice 2*2 (X,Z) pour savoir si le son est à notre droite ou à notre gauche en fonction de notre orientation
             // -- deter de la matrice 2x2 M : |a  b| -- a b = 1er vecteur 2D -- c d = 2em vecteur 2D
@@ -122,7 +124,7 @@ export default class SpatialSound {
             // // -- si le résultat est positif alors le point est à gauche de la droite
             // // -- si le résultat est négatif alors le point est à droite de la droite
             // // -- si le résultat est nul alors le point est sur la droite
-            // this.panNode.pan.setValueAtTime(determinent >= 0 ? pan : -pan, this.audioCtx.currentTime);
+            this.panNode.pan.setValueAtTime(determinent >= 0 ? pan : -pan, this.audioCtx.currentTime);
         }
         else {
             this.sound.volume = 0;
