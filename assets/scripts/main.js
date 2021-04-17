@@ -1,5 +1,7 @@
 // Import third-party Dependencies
 import { filters } from "@pixi/sound";
+import * as PIXI from "pixi.js";
+window.PIXI = PIXI;
 
 // Import Dependencies
 import { State, Engine } from "./ECS";
