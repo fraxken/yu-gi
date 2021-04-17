@@ -31,7 +31,7 @@ export default class Fade {
         });
     }
 
-    auto(callback) {
+    auto(callback = null) {
         const currentState = this.state;
         const autoCallback = callback === null ? null : () => {
             callback();
@@ -59,7 +59,7 @@ export default class Fade {
         this.innerFadePn.revert(false);
     }
 
-    in(callback) {
+    in(callback = null) {
         if (this.state === "in") {
             return;
         }
@@ -97,7 +97,9 @@ export default class Fade {
 
         if (this.callback !== null) {
             if (this.state === "out" && alpha >= 1 || this.state === "in" && alpha <= 0) {
-                this.callback();
+                if (typeof this.callback === "function") {
+                    this.callback();
+                }
                 this.callback = null;
             }
         }

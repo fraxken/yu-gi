@@ -83,13 +83,21 @@ export default class Engine extends AssetLoader {
     awake() {
         console.log(`[INFO] 'awake' phase start`);
         this.rootScene = new this.defaultRootScene();
-        this.fade = new Fade(this.rootScene, { frame: 30, delayIn: 20, delayOut: 20 }).autoUpdate();
+        const fadeGraphic = new PIXI.Graphics()
+            .beginFill(PIXI.utils.string2hex("#000"), 1)
+            .drawRect(0, 0, window.innerWidth, window.innerHeight)
+            .endFill();
+
+        this.fade = new Fade(fadeGraphic, {
+            frame: 30, delayIn: 20, delayOut: 20, defaultState: "in"
+        });
         this.app.stage.addChild(this.viewport);
 
         // Configure viewport
         this.viewport.zoomPercent(1);
         this.viewport.wheel({ smooth: 150, lineHeight: 300 });
         this.viewport.addChild(this.rootScene);
+        this.rootScene.addChild(fadeGraphic);
 
         this.rootScene.awake();
         this.emit("awake");
@@ -108,6 +116,7 @@ export default class Engine extends AssetLoader {
     }
 
     update(delta = 0) {
+        this.fade.update();
         this.input.update(delta);
         this.rootScene.update(delta);
 

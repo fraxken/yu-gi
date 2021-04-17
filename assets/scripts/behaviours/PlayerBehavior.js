@@ -72,6 +72,11 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
+        game.fade.displayObject.position.set(
+            this.actor.x - window.innerWidth / 2,
+            this.actor.y - window.innerHeight / 2
+        );
+
         if (!this.playable) {
             return;
         }
