@@ -19,6 +19,7 @@ export default class TiledSet {
 
         const resource = findAsset(`${this.name}_texture`);
         this.baseTexture = resource.texture.baseTexture;
+        this.baseTexture.scaleMode = PIXI.SCALE_MODES.NEAREST;
 
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;

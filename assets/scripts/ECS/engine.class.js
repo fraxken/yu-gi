@@ -28,8 +28,9 @@ export default class Engine extends AssetLoader {
             width: window.innerWidth,
             height: window.innerHeight,
             autoResize: true,
-            resolution: devicePixelRatio
+            antialias: false
         });
+
         window.game = this;
         this.viewport = new Viewport({
             screenWidth: window.innerWidth,

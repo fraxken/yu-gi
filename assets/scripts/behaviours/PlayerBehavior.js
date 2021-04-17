@@ -3,6 +3,7 @@ import { sound } from "@pixi/sound";
 
 // Import dependencies
 import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor } from "../ECS";
+import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key } from "../helpers";
 
@@ -42,9 +43,15 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     awake() {
-        this.sprite = this.actor.addComponent(
-            new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
-        );
+        {
+            const spriteComponent = new Components.AnimatedSpriteEx("adventurer", {
+                defaultAnimation: "adventurer-idle"
+            });
+            spriteComponent.oneToMany("idle", ["adventurer-idle", "adventurer-idle-2"]);
+
+            /** @type {AnimatedSpriteEx} */
+            this.sprite = this.actor.addComponent(spriteComponent);
+        }
 
         const map = getActor("map");
         const spawn = map.findChild("spawn", true);
@@ -92,16 +99,14 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         if (game.input.isKeyDown(Key.L)) {
-            console.log(this.actor.pos);
             this.sprite.playAnimation("adventurer-die", { loop: false });
+            // this.sprite.lock();
             if (!this.deathSound.isPlaying) {
                 this.deathSound.play();
             }
         }
-        else {
-            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
-        }
 
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
         this.actor.applyVelocity();
     }
 }
