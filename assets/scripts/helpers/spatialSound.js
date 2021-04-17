@@ -13,10 +13,6 @@ function deg(radians) {
     return radians * (180 / Math.PI);
 }
 
-// function normalize(val, min, max) {
-//     return (val - min) / (max - min);
-// }
-
 export default class SpatialSound {
     /**
      * @param {!string} assetName path of asset in Sound type
@@ -103,14 +99,12 @@ export default class SpatialSound {
                 // -- OA = Vector2:Length()
                 const dotProduct = normalizedListenerDirection.dot(soundDirection);
                 const lengthProd = normalizedListenerDirection.length() * soundDirection.length();
-                // console.log(normalizedListenerDirection.length(), soundDirection.length);
 
                 const resultAngle = deg(Math.acos(dotProduct / lengthProd));
                 pan = resultAngle > 90 ?
                     (90 - (resultAngle % 90)) / this.panBalancer :
                     resultAngle / this.panBalancer;
             }
-            // console.log(pan);
 
             // -- On utilise la formule du déterminent d'une matrice 2*2 (X,Z) pour savoir si le son est à notre droite ou à notre gauche en fonction de notre orientation
             // -- deter de la matrice 2x2 M : |a  b| -- a b = 1er vecteur 2D -- c d = 2em vecteur 2D
@@ -119,7 +113,6 @@ export default class SpatialSound {
             // -- vue que le vecteur ad est notre direction d'orientation et le vecteur cd notre point qui représente l'emplacement du son
             // -- nous allons pouvoir savoir si le son est a droite ou a gauche de la droite
             const determinent = listenerDirection.x * soundDirection.y - listenerDirection.y * soundDirection.x;
-            // console.log(determinent);
 
             // // -- si le résultat est positif alors le point est à gauche de la droite
             // // -- si le résultat est négatif alors le point est à droite de la droite

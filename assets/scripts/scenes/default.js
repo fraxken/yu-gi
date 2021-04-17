@@ -12,7 +12,7 @@ export default class DefaultScene extends Scene {
 
         this.add(EntityBuilder.create("actor:player"));
         this.add(...EntityBuilder.createMany("actor:creature", 5));
-        this.add(EntityBuilder.create("sound:3D"));
+        this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
     }
 
     awake() {
