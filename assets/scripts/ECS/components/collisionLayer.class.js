@@ -1,12 +1,15 @@
+import * as PIXI from "pixi.js";
+
 import TiledMap from "./tiledmap";
 import TiledLayer from "./tiledlayer";
 
-export default class CollisionLayer {
+export default class CollisionLayer extends PIXI.Container {
     /**
      * @param {Tiled.TileLayer} layer
      * @param {TiledMap} parent
      */
     constructor(layer, parent) {
+        super();
         this.width = layer.width;
         this.height = layer.height;
         this.tileWidth = parent.tileWidth;
@@ -18,6 +21,16 @@ export default class CollisionLayer {
 
             for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
                 this.collisionsMap.push(textureId !== 0);
+
+                // DRAW
+                // if (textureId !== 0) {
+                //     const texture = parent.getTexture(textureId);
+
+                //     const tile = new PIXI.Sprite(texture);
+                //     tile.x = x * parent.tileWidth;
+                //     tile.y = y * parent.tileHeight;
+                //     this.addChild(tile);
+                // }
             }
         }
 
