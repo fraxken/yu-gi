@@ -7,7 +7,7 @@ export default class DefaultScene extends Scene {
 
         const map = new Actor("map");
         map.visible = true;
-        map.addComponent(new Components.TiledMap("map1"));
+        map.addComponent(new Components.TiledMap("map1", { debug: true }));
         this.add(map);
 
         this.add(EntityBuilder.create("actor:player"));

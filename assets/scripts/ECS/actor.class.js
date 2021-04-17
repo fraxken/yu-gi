@@ -68,6 +68,17 @@ export default class Actor extends ActorTree {
         return new Vector2(this.x, this.y);
     }
 
+    /**
+     * @param {Vector2} vec
+     */
+    set pos(vec) {
+        this.position.set(vec.x, vec.y);
+    }
+
+    get centerPosition() {
+        return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
+    }
+
     applyVelocity() {
         if (this.vx === 0 && this.vy === 0) {
             this.wasMoving = false;

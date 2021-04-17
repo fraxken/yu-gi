@@ -14,9 +14,9 @@ const kCollisionLayerName = new Set(["collisions", "collision"]);
 
 export default class TiledMap extends PIXI.Container {
     static assignProperties(object, properties = []) {
-        object.properties = Object.create(null);
+        object.tileProperties = Object.create(null);
         for (const property of properties) {
-            object.properties[property.name] = property.value;
+            object.tileProperties[property.name] = property.value;
         }
     }
 
@@ -112,20 +112,28 @@ export default class TiledMap extends PIXI.Container {
      * @returns {Actor}
      */
     drawObjectShape(object) {
-        const { width, height, x, y } = object;
+        const { name, width, height, x, y } = object;
 
-        const actor = new Actor(object.name);
+        const actor = new Actor(name);
         actor.width = width;
         actor.height = height;
         actor.position.set(x, y);
 
-        if (this.debug) {
-            const shape = new PIXI.Graphics()
-                    .beginFill(PIXI.utils.string2hex("#FFF"), 0.5)
-                    .drawRect(0, 0, object.width, object.height)
-                    .endFill();
+        // Note: doesn't really work!
+        actor.rotation = object.rotation;
+        TiledMap.assignProperties(actor, object.properties);
 
-            const shapeName = new PIXI.Text(object.name.toLowerCase(), {
+        if (this.debug) {
+            const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
+            if (object.ellipse) {
+                areaGraphic.drawEllipse(0, 0, width, height)
+            }
+            else {
+                areaGraphic.drawRect(0, 0, width, height);
+            }
+            areaGraphic.endFill();
+
+            const areaNameText = new PIXI.Text(name.toLowerCase(), {
                 fill: "#12d94d",
                 fontFamily: "Verdana",
                 fontSize: 10,
@@ -136,10 +144,13 @@ export default class TiledMap extends PIXI.Container {
                 strokeThickness: 2,
                 align: "center"
             });
-            shapeName.position.set(shape.width / 2, shape.height / 2);
+            areaNameText.anchor.set(0.5, 0.5);
+            if (!object.ellipse) {
+                areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
+            }
 
-            shape.addChild(shapeName);
-            actor.addChild(shape);
+            areaGraphic.addChild(areaNameText);
+            actor.addChild(areaGraphic);
         }
         this.emit("object", actor);
 

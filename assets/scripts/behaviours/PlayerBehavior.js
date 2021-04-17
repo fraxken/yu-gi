@@ -34,18 +34,22 @@ export default class PlayerBehavior extends ScriptBehavior {
             new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
 
+        const map = getActor("map");
+        const spawn = map.findChild("spawn", true);
+        this.actor.pos = spawn.centerPosition;
+
         game.viewport.moveCenter(this.actor.x, this.actor.y);
         game.viewport.follow(this.actor, {
-            speed: 1,
+            speed: 1.5,
             acceleration: 0.01,
-            radius: 40
+            radius: 40,
         });
 
         this.deathSound = sound.find("death");
         this.deathSound.volume = 0.1;
 
         /** @type {CollisionLayer} */
-        this.collision = getActor("map").getComponent(Components.Types.TiledMap).collision;
+        this.collision = map.getComponent(Components.Types.TiledMap).collision;
     }
 
     update() {

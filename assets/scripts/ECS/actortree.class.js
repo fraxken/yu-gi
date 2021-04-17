@@ -54,6 +54,31 @@ export default class ActorTree extends PIXI.Container {
     }
 
     /**
+     *
+     * @returns {IterableIterator<Actor>}
+     */
+    *getActorsFromComponents() {
+        if (!this.components) {
+            return;
+        }
+
+        /** @type {PIXI.Container[]} */
+        const containers = this.components.filter((comp) => comp instanceof PIXI.Container);
+
+        for (const container of containers) {
+            if (container instanceof Actor) {
+                yield container;
+            }
+
+            for (const displayObject of container.children) {
+                if (displayObject instanceof Actor) {
+                    yield displayObject;
+                }
+            }
+        }
+    }
+
+    /**
      * @param {!string} actorName
      * @param {boolean} [recursive=false]
      * @returns {null | Actor}
@@ -69,7 +94,15 @@ export default class ActorTree extends PIXI.Container {
             return null;
         }
 
-        // TODO: search current actor components ?
+        for (const actor of this.getActorsFromComponents()) {
+            if (actor.name === actorName) {
+                if (this.useLRUCache) {
+                    this.actorsCache.set(actorName, actor);
+                }
+
+                return actor;
+            }
+        }
 
         for (const actor of this.actors.values()) {
             const childActor = actor.findChild(actorName, recursive);

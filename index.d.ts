@@ -33,6 +33,8 @@ declare namespace Tiled {
         visible: boolean;
         rotation: number;
         type: string;
+        ellipse?: boolean;
+        properties?: Property[];
     }
 
     export interface TileLayer {

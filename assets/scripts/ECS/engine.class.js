@@ -7,7 +7,6 @@ import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 import State from "./state.class";
 import AssetLoader from "./assetloader.class";
-import ProgressiveNumber from "./math/progressiveNumber";
 import Fade from "./math/fade";
 
 export default class Engine extends AssetLoader {
