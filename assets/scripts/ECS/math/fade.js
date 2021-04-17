@@ -24,13 +24,29 @@ export default class Fade {
         this.delayTimer = null;
         this.delayIn = delayIn;
         this.delayOut = delayOut;
+        this.callback = null;
 
         this.innerFadePn = new ProgressiveNumber(0, 1, {
             frame, easing, reverse: defaultState === "in"
         });
     }
 
-    out() {
+    auto(callback) {
+        const currentState = this.state;
+        const autoCallback = callback === null ? null : () => {
+            callback();
+            this[currentState]();
+        }
+
+        if (currentState === "out") {
+            this.in(autoCallback);
+        }
+        else {
+            this.out(autoCallback);
+        }
+    }
+
+    out(callback = null) {
         if (this.state === "out") {
             return;
         }
@@ -38,11 +54,12 @@ export default class Fade {
         if (this.delayOut !== null) {
             this.delayTimer = new Timer(this.delayOut, { autoStart: true, keepIterating: false });
         }
+        this.callback = callback;
         this.displayObject.alpha = 0;
         this.innerFadePn.revert(false);
     }
 
-    in() {
+    in(callback) {
         if (this.state === "in") {
             return;
         }
@@ -50,6 +67,7 @@ export default class Fade {
         if (this.delayIn !== null) {
             this.delayTimer = new Timer(this.delayIn, { autoStart: true, keepIterating: false });
         }
+        this.callback = callback;
         this.displayObject.alpha = 1;
         this.innerFadePn.revert(true);
     }
@@ -74,6 +92,14 @@ export default class Fade {
             this.delayTimer = null;
         }
 
-        this.displayObject.alpha = this.innerFadePn.walk(false);
+        const alpha = this.innerFadePn.walk(false);
+        this.displayObject.alpha = alpha;
+
+        if (this.callback !== null) {
+            if (this.state === "out" && alpha >= 1 || this.state === "in" && alpha <= 0) {
+                this.callback();
+                this.callback = null;
+            }
+        }
     }
 }

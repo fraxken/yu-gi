@@ -22,10 +22,22 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.currentHp = currentHp;
         this.maxHp = maxHp;
+        this.playable = true;
 
         this.time = new Timer(60);
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
+        });
+    }
+
+    teleport(position) {
+        console.log("player teleport at: ", position);
+        this.playable = false;
+
+        game.fade.auto(() => {
+            this.actor.pos = position;
+            game.viewport.moveCenter(this.actor.x, this.actor.y);
+            this.playable = true;
         });
     }
 
@@ -53,6 +65,9 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
+        if (!this.playable) {
+            return;
+        }
         if (this.time.walk() && this.currentHp < this.maxHp) {
             this.currentHp += 1;
         }
@@ -76,7 +91,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
-        if (game.input.isKeyDown(Key.E)) {
+        if (game.input.isKeyDown(Key.L)) {
             console.log(this.actor.pos);
             this.sprite.playAnimation("adventurer-die", { loop: false });
             if (!this.deathSound.isPlaying) {

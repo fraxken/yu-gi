@@ -136,6 +136,9 @@ export default class Actor extends ActorTree {
     createScriptedBehavior(scriptInstance, ...options) {
         if (typeof scriptInstance === "string") {
             const classInstance = Behavior.cache.get(scriptInstance);
+            if (typeof classInstance === "undefined") {
+                throw new Error(`Unable to found Behavior with name: ${scriptInstance}. Please make sure the script is exported in behaviours/index.js and well defined too!`);
+            }
             scriptInstance = new classInstance(...options);
         }
         scriptInstance.actor = this;
@@ -177,10 +180,16 @@ export default class Actor extends ActorTree {
      * @returns {void}
      */
     triggerBehaviorEvent(eventName, ...args) {
-        if (!this.destroyed) {
-            for (const behavior of this.behaviors) {
-                behavior[eventName](...args);
-            }
+        if (this.destroyed) {
+            return;
+        }
+
+        for (const actor of this.getActorsFromComponents()) {
+            actor.triggerBehaviorEvent(eventName, ...args);
+        }
+
+        for (const behavior of this.behaviors) {
+            behavior[eventName](...args);
         }
     }
 }

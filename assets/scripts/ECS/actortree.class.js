@@ -67,11 +67,12 @@ export default class ActorTree extends PIXI.Container {
 
         for (const container of containers) {
             if (container instanceof Actor) {
-                yield container;
+                yield* container.getActors(true);
+                break;
             }
 
             for (const displayObject of container.children) {
-                if (displayObject instanceof Actor) {
+                if (displayObject.constructor.name === "Actor") {
                     yield displayObject;
                 }
             }
@@ -123,6 +124,10 @@ export default class ActorTree extends PIXI.Container {
      * @param  {...any} args
      */
     emitEventForAllActors(eventName, ...args) {
+        for (const actor of this.getActorsFromComponents()) {
+            actor.triggerBehaviorEvent(eventName, ...args);
+        }
+
         for (const actor of this.actors.values()) {
             actor.triggerBehaviorEvent(eventName, ...args);
         }

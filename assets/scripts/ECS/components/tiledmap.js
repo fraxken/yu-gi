@@ -23,10 +23,14 @@ export default class TiledMap extends PIXI.Container {
     constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
+        this.name = mapName;
         this.debug = options.debug || false;
 
         /** @type {Map<string, TiledLayer>} */
         this.layers = new Map();
+
+        /** @type {Map<string, Actor>} */
+        this.objects = new Map();
 
         /** @type {Map<any, TiledSet>} */
         this.tiledSetMatcher = new Map();
@@ -41,6 +45,7 @@ export default class TiledMap extends PIXI.Container {
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;
         this.tiledsets = data.tilesets.map((config) => new TiledSet(config, { debug: this.debug }));
+        this.dataLayers = data.layers;
 
         /** @type {TiledSet} */
         let lastTiledSet = null;
@@ -51,8 +56,10 @@ export default class TiledMap extends PIXI.Container {
             lastTiledSet = currentTiledSet;
         }
         this.setMatcher(lastTiledSet, lastTiledSet.firstgid + lastTiledSet.tileCount);
+    }
 
-        for (const layer of data.layers) {
+    init() {
+        for (const layer of this.dataLayers) {
             switch(layer.type) {
                 case "tilelayer":
                     this.setTileLayer(layer);
@@ -64,8 +71,9 @@ export default class TiledMap extends PIXI.Container {
         }
 
         this.textureIdCache.clear();
+        this.dataLayers = null;
         if (this.debug) {
-            console.log(`[INFO] loaded TiledMap ${mapName}`);
+            console.log(`[INFO] loaded TiledMap ${this.name}`);
         }
     }
 
@@ -152,6 +160,7 @@ export default class TiledMap extends PIXI.Container {
             areaGraphic.addChild(areaNameText);
             actor.addChild(areaGraphic);
         }
+        this.objects.set(actor.name, actor);
         this.emit("object", actor);
 
         return actor;
@@ -165,8 +174,7 @@ export default class TiledMap extends PIXI.Container {
 
         for (const object of objects) {
             console.log(`[INFO] create object ${object.name}`);
-            const actor = this.drawObjectShape(object);
-            this.addChild(actor);
+            this.addChild(this.drawObjectShape(object));
         }
     }
 

@@ -18,6 +18,7 @@ export default class Scene extends ActorTree {
     /**
      * @param {object} options
      * @param {boolean} [options.useLRUCache=true]
+     * @param {boolean} [options.debug=false]
      */
     constructor(options = {}) {
         super({
@@ -28,8 +29,11 @@ export default class Scene extends ActorTree {
         this.awakened = false;
         this.started = false;
         this.destroyed = false;
+        this.debug = options.debug || false;
 
-        console.log(`[INFO] New scene '${this.name}' instanciated!`);
+        if (this.debug) {
+            console.log(`[INFO] New scene '${this.name}' instanciated!`);
+        }
     }
 
     /**
@@ -53,15 +57,29 @@ export default class Scene extends ActorTree {
     }
 
     awake() {
+        if (this.debug)  {
+            console.log(`[INFO] Scene '${this.name}' awake phase started!`);
+        }
+
         this.emitEventForAllActors("awake");
         this.awakened = true;
+        if (this.debug)  {
+            console.log(`[INFO] Scene '${this.name}' awake phase ended!`);
+        }
 
         return this;
     }
 
     start() {
+        if (this.debug)  {
+            console.log(`[INFO] Scene '${this.name}' start phase started!`);
+        }
+
         this.emitEventForAllActors("start");
         this.started = true;
+        if (this.debug)  {
+            console.log(`[INFO] Scene '${this.name}' start phase ended!`);
+        }
 
         return this;
     }
@@ -77,6 +95,10 @@ export default class Scene extends ActorTree {
     }
 
     cleanup() {
+        if (this.debug)  {
+            console.log(`[WARN] Scene '${this.name}' cleanup triggered!`);
+        }
+
         this.cleanupTree();
         this.destroy({ children: true });
         this.destroyed = true;
