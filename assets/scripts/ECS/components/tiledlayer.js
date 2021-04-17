@@ -38,6 +38,7 @@ export default class TiledLayer extends PIXI.Container {
         this.parent = parent;
         this.tiles = [];
 
+        TiledMap.assignProperties(this, layer.properties);
         if ("chunks" in layer) {
             layer.chunks.forEach((chunk) => this.generateChunk(chunk));
         }

@@ -11,7 +11,7 @@ export default class ActorTree extends PIXI.Container {
         this.useLRUCache = options.useLRUCache || false;
 
         /** @type {LRU<string, Actor>} */
-        this.actorsCache = this.useLRUCache ? new LRU({ max: 10 }) : null;
+        this.actorsCache = this.useLRUCache ? new LRU({ max: 50 }) : null;
 
         /** @type {Map<string, Actor>} */
         this.actors = new Map();
@@ -68,6 +68,8 @@ export default class ActorTree extends PIXI.Container {
         else if (!recursive) {
             return null;
         }
+
+        // TODO: search current actor components ?
 
         for (const actor of this.actors.values()) {
             const childActor = actor.findChild(actorName, recursive);

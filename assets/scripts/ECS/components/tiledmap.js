@@ -2,7 +2,7 @@
 import * as PIXI from "pixi.js";
 
 // Import internal dependencies
-import { findAsset } from "../helpers";
+import { findAsset, Actor } from "..";
 import * as Component from "../component";
 
 import TiledSet from "./tiledset";
@@ -10,6 +10,13 @@ import TiledLayer from "./tiledlayer";
 import CollisionLayer from "./collisionLayer.class";
 
 export default class TiledMap extends PIXI.Container {
+    static assignProperties(object, properties = []) {
+        object.properties = Object.create(null);
+        for (const property of properties) {
+            object.properties[property.name] = property.value;
+        }
+    }
+
     constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
@@ -34,7 +41,6 @@ export default class TiledMap extends PIXI.Container {
 
         /** @type {TiledSet} */
         let lastTiledSet = null;
-
         for (const currentTiledSet of this.tiledsets) {
             if (lastTiledSet !== null) {
                 this.setMatcher(lastTiledSet, currentTiledSet.firstgid);
@@ -43,7 +49,17 @@ export default class TiledMap extends PIXI.Container {
         }
         this.setMatcher(lastTiledSet, lastTiledSet.firstgid + lastTiledSet.tileCount);
 
-        data.layers.filter((layer) => layer.type === "tilelayer").map((layer) => this.setTileLayer(layer));
+        for (const layer of data.layers) {
+            switch(layer.type) {
+                case "tilelayer":
+                    this.setTileLayer(layer);
+                    break;
+                case "objectgroup":
+                    this.setObjects(layer);
+                    break;
+            }
+        }
+
         this.textureIdCache.clear();
         if (this.debug) {
             console.log(`[INFO] loaded TiledMap ${mapName}`);
@@ -86,6 +102,58 @@ export default class TiledMap extends PIXI.Container {
         }
 
         return null;
+    }
+
+    /**
+     * @param {!Tiled.TileObject} object
+     * @returns {Actor}
+     */
+    drawObjectShape(object) {
+        const { width, height, x, y } = object;
+
+        const actor = new Actor(object.name);
+        actor.width = width;
+        actor.height = height;
+        actor.position.set(x, y);
+
+        if (this.debug) {
+            const shape = new PIXI.Graphics()
+                    .beginFill(PIXI.utils.string2hex("#FFF"), 0.5)
+                    .drawRect(0, 0, object.width, object.height)
+                    .endFill();
+
+            const shapeName = new PIXI.Text(object.name.toLowerCase(), {
+                fill: "#12d94d",
+                fontFamily: "Verdana",
+                fontSize: 10,
+                fontVariant: "small-caps",
+                fontWeight: "bold",
+                letterSpacing: 1,
+                lineJoin: "round",
+                strokeThickness: 2,
+                align: "center"
+            });
+            shapeName.position.set(shape.width / 2, shape.height / 2);
+
+            shape.addChild(shapeName);
+            actor.addChild(shape);
+        }
+        this.emit("object", actor);
+
+        return actor;
+    }
+
+    /**
+     * @param {Tiled.TileLayer} layer
+     */
+    setObjects(layer) {
+        const objects = layer.objects || [];
+
+        for (const object of objects) {
+            console.log(`[INFO] create object ${object.name}`);
+            const actor = this.drawObjectShape(object);
+            this.addChild(actor);
+        }
     }
 
     /**
