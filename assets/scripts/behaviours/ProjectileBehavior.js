@@ -18,6 +18,8 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
         this.startPos = startPos;
         this.targetPos = targetPos;
+        this.targetPos.x = Math.round(this.targetPos.x);
+        this.targetPos.y = Math.round(this.targetPos.y);
         this.radius = 15;
         this.delayToFadeIn = new Timer(kDefaultFadeInFrames, { autoStart: true, keepIterating: false });
     }
@@ -36,17 +38,17 @@ export default class ProjectileBehavior extends ScriptBehavior {
             if (this.delayToFadeIn.walk()) {
                 this.actor.cleanup();
             } else {
-                if (this.actor.x !== Math.round(this.targetPos.x) || this.actor.y !== Math.round(this.targetPos.y)) {
-                    if (this.actor.x < Math.round(this.targetPos.x)) {
+                if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
+                    if (this.actor.x < this.targetPos.x) {
                         this.actor.moveX(1);
-                    } else if (this.actor.x > Math.round(this.targetPos.x)) {
+                    } else if (this.actor.x > this.targetPos.x) {
                         this.actor.moveX(-1);
                     }
 
-                    if (this.actor.y < Math.round(this.targetPos.y)) {
+                    if (this.actor.y < this.targetPos.y) {
                         this.actor.moveY(1);
                     }
-                    else if (this.actor.y > Math.round(this.targetPos.y)) {
+                    else if (this.actor.y > this.targetPos.y) {
                         this.actor.moveY(-1);
                     }
 
