@@ -12,6 +12,15 @@ export function getActor(name) {
     return game.rootScene.findChild(name, true);
 }
 
+// export function addActor(entity) {
+//     if (entity instanceof Actor) {
+//         game.rootScene.appendActor(entity);
+//         entity.triggerBehaviorEvent("awake");
+//     }
+
+//     return;
+// }
+
 /**
  * @param {!string} assetName
  * @returns {PIXI.ILoaderResource}

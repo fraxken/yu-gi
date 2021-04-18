@@ -1,9 +1,12 @@
 // Import third-party Dependencies
 import { filters } from "@pixi/sound";
+import * as PIXI from "pixi.js";
+window.PIXI = PIXI;
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
 // Import Dependencies
 import { State, Engine } from "./ECS";
-import { BackgroundMediaPlayer } from "./helpers";
+import { BackgroundMediaPlayer, Key } from "./helpers";
 import * as Behaviors from "./behaviours";
 
 import DefaultScene from "./scenes/default";
@@ -29,7 +32,7 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
     // .registerTileSet("TilesetHole")
     // .registerTileSet("TilesetInterior")
     // .registerTileSet("TilesetInteriorFloor")
-    // .registerTileSet("TilesetLogic")
+    .registerTileSet("TilesetLogic")
     // .registerTileSet("TilesetRelief")
     // .registerTileSet("TilesetReliefDetail")
     // .registerTileSet("TilesetWater")
@@ -40,20 +43,31 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
     .registerAsset("death", "sounds/death.wav")
     .init();
 
-new BackgroundMediaPlayer({
-    defaultTrack: "default",
-    defaultFilters: [
-        new filters.DistortionFilter(0.05),
-        new filters.ReverbFilter(1, 9)
-    ],
-    tracks: {
-        default: [
-            { name: "ambient-sound", volume: 0.025 },
-            { name: "ambient-void", volume: 0.025 }
-        ]
-    }
-}).bindToEngine(game);
+// new BackgroundMediaPlayer({
+//     defaultTrack: "default",
+//     defaultFilters: [
+//         new filters.DistortionFilter(0.05),
+//         new filters.ReverbFilter(1, 9)
+//     ],
+//     tracks: {
+//         default: [
+//             { name: "ambient-sound", volume: 0.025 },
+//             { name: "ambient-void", volume: 0.025 }
+//         ]
+//     }
+// }).bindToEngine(game);
 
 game.on("awake", () => {
     loadHUD("test_hud");
+});
+
+game.on("update", () => {
+    if (game.input.wasKeyJustReleased(Key.ENTER)) {
+        if (game.fade.state === "in") {
+            game.fade.out();
+        }
+        else {
+            game.fade.in();
+        }
+    }
 });

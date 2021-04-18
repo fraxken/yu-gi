@@ -45,30 +45,30 @@ export function define(entityName, action) {
 /**
  * @function create
  * @param {!string} entityName
- * @param {object} [options]
+ * @param {...any[]} options
  * @returns {any}
  */
-export function create(entityName, options = Object.create(null)) {
+export function create(entityName, ...options) {
     if (!cache.has(entityName)) {
         throw new Error(`No entity with name '${entityName}'`);
     }
     const action = cache.get(entityName);
 
-    return action(options);
+    return action(...options);
 }
 
 /**
  * @function createMany
  * @param {!string} entityName
  * @param {number} [count=1]
- * @param {object} [options]
+ * @param {...any[]} options
  * @returns {any}
  */
-export function createMany(entityName, count = 1, options = Object.create(null)) {
+export function createMany(entityName, count = 1, ...options) {
     const entities = [];
 
     for (let i = 0; i < count; i++) {
-        entities.push(create(entityName, options));
+        entities.push(create(entityName, ...options));
     }
 
     return entities;

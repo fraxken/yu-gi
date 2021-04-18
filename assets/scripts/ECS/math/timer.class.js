@@ -1,3 +1,6 @@
+// Import Internal Dependencies
+import * as Easing from "./easing";
+
 export default class Timer {
     static AutoStart = true;
     static KeepIterating = true;
@@ -14,9 +17,30 @@ export default class Timer {
 
         this.tickInterval = tickInterval;
         this.isStarted = autoStart;
+        this.defaultStarted = autoStart;
         this.keepIterating = keepIterating;
         this.callback = callback;
         this.tick = 0;
+    }
+
+    /**
+     * @param {keyof Easing} easingName
+     * @param {number} [start=0]
+     * @param {number} [end=0]
+     * @returns {number}
+     */
+    progression(easingName, start = 0, end = 1) {
+        return Easing[easingName](this.tick, start, end, this.tickInterval);
+    }
+
+    upTick() {
+        if (this.tick === this.tickInterval) {
+            return true;
+        }
+
+        this.tick++;
+
+        return this.tick <= this.tickInterval;
     }
 
     start() {
@@ -26,7 +50,7 @@ export default class Timer {
     }
 
     reset() {
-        this.isStarted = Timer.AutoStart;
+        this.isStarted = this.defaultStarted;
         this.tick = 0;
 
         return this;

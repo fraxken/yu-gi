@@ -1,4 +1,14 @@
 export default class Vector2 {
+    static randomCoordInRadius(radius = 100) {
+        const r = radius * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
+
+        return new Vector2(
+            Math.round(0 + r * Math.cos(theta)),
+            Math.round(0 + r * Math.sin(theta))
+        );
+    }
+
     constructor(x = 0, y = 0) {
         this.x = x;
         this.y = y;
@@ -18,6 +28,9 @@ export default class Vector2 {
         return this;
     }
 
+    /**
+     * @returns {Vector2}
+     */
     clone() {
         return new this.constructor(this.x, this.y);
     }

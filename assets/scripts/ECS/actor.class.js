@@ -7,6 +7,7 @@ import * as Component from "./component.js";
 
 import AnimatedSpriteEx from "./components/animatedsprite.class";
 import TiledMap from "./components/tiledmap.js";
+import Vector2 from "./math/vector2";
 
 export default class Actor extends ActorTree {
     /**
@@ -20,6 +21,7 @@ export default class Actor extends ActorTree {
         // Velocity properties
         this.vx = 0;
         this.vy = 0;
+        this.wasMoving = false;
 
         /** @type {PIXI.Sprite | PIXI.AnimatedSprite | AnimatedSpriteEx} */
         this.sprite = null;
@@ -59,21 +61,41 @@ export default class Actor extends ActorTree {
     }
 
     get moving() {
-        return this.vx !== 0 || this.vy !== 0;
+        return this.wasMoving || this.vx !== 0 || this.vy !== 0;
     }
 
     get pos() {
-        return new Vector2(this.actor.x, this.actor.y);
+        return new Vector2(this.x, this.y);
+    }
+
+    /**
+     * @param {Vector2} vec
+     */
+    set pos(vec) {
+        this.position.set(vec.x, vec.y);
+    }
+
+    get centerPosition() {
+        return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
     }
 
     applyVelocity() {
-        if (!this.moving) {
+        if (this.vx === 0 && this.vy === 0) {
+            this.wasMoving = false;
+
             return;
+        }
+
+        if (this.vx !== 0 && this.vy !== 0) {
+            this.vx = this.vx / 1.5;
+            this.vy = this.vy / 1.5;
         }
 
         this.x += this.vx;
         this.y += this.vy;
+        this.wasMoving = true;
 
+        // TODO: stop net or apply friction ?
         this.vx = 0;
         this.vy = 0;
     }
@@ -114,6 +136,9 @@ export default class Actor extends ActorTree {
     createScriptedBehavior(scriptInstance, ...options) {
         if (typeof scriptInstance === "string") {
             const classInstance = Behavior.cache.get(scriptInstance);
+            if (typeof classInstance === "undefined") {
+                throw new Error(`Unable to found Behavior with name: ${scriptInstance}. Please make sure the script is exported in behaviours/index.js and well defined too!`);
+            }
             scriptInstance = new classInstance(...options);
         }
         scriptInstance.actor = this;
@@ -155,10 +180,16 @@ export default class Actor extends ActorTree {
      * @returns {void}
      */
     triggerBehaviorEvent(eventName, ...args) {
-        if (!this.destroyed) {
-            for (const behavior of this.behaviors) {
-                behavior[eventName](...args);
-            }
+        if (this.destroyed) {
+            return;
+        }
+
+        for (const actor of this.getActorsFromComponents()) {
+            actor.triggerBehaviorEvent(eventName, ...args);
+        }
+
+        for (const behavior of this.behaviors) {
+            behavior[eventName](...args);
         }
     }
 }

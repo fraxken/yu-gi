@@ -23,6 +23,20 @@ declare namespace Tiled {
         y: number;
     }
 
+    export interface TileObject {
+        id: number;
+        name: string;
+        width: number;
+        height: number;
+        x: number;
+        y: number;
+        visible: boolean;
+        rotation: number;
+        type: string;
+        ellipse?: boolean;
+        properties?: Property[];
+    }
+
     export interface TileLayer {
         id: number;
         chunks: TileChunk[];
@@ -34,12 +48,12 @@ declare namespace Tiled {
         opacity: number;
         startx: number;
         starty: number;
-        type: "csv" | "tilelayer" | "base64";
+        type: "csv" | "tilelayer" | "base64" | "objectgroup";
         visible: boolean;
-        draworder?: "topdown" | "index" | "objectgroup";
+        draworder?: "topdown" | "index";
         properties?: Property[];
         tintcolor?: string;
-        objects?: any[];
+        objects?: TileObject[];
     }
 
     export interface Property {
@@ -52,7 +66,10 @@ declare namespace Tiled {
         backgroundcolor?: string;
         compressionlevel: number;
         editorsettings: {
-            export: {};
+            export: {
+                format: "json";
+                target: string;
+            };
         };
         width: number;
         height: number;

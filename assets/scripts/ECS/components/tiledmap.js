@@ -2,20 +2,35 @@
 import * as PIXI from "pixi.js";
 
 // Import internal dependencies
-import { findAsset } from "../helpers";
+import { findAsset, Actor } from "..";
 import * as Component from "../component";
 
 import TiledSet from "./tiledset";
 import TiledLayer from "./tiledlayer";
+import CollisionLayer from "./collisionLayer.class";
+
+// CONSTANTS
+const kCollisionLayerName = new Set(["collisions", "collision"]);
 
 export default class TiledMap extends PIXI.Container {
+    static assignProperties(object, properties = []) {
+        object.tileProperties = Object.create(null);
+        for (const property of properties) {
+            object.tileProperties[property.name] = property.value;
+        }
+    }
+
     constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
+        this.name = mapName;
         this.debug = options.debug || false;
 
         /** @type {Map<string, TiledLayer>} */
         this.layers = new Map();
+
+        /** @type {Map<string, Actor>} */
+        this.objects = new Map();
 
         /** @type {Map<any, TiledSet>} */
         this.tiledSetMatcher = new Map();
@@ -30,10 +45,10 @@ export default class TiledMap extends PIXI.Container {
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;
         this.tiledsets = data.tilesets.map((config) => new TiledSet(config, { debug: this.debug }));
+        this.dataLayers = data.layers;
 
         /** @type {TiledSet} */
         let lastTiledSet = null;
-
         for (const currentTiledSet of this.tiledsets) {
             if (lastTiledSet !== null) {
                 this.setMatcher(lastTiledSet, currentTiledSet.firstgid);
@@ -41,12 +56,32 @@ export default class TiledMap extends PIXI.Container {
             lastTiledSet = currentTiledSet;
         }
         this.setMatcher(lastTiledSet, lastTiledSet.firstgid + lastTiledSet.tileCount);
+    }
 
-        data.layers.filter((layer) => layer.type === "tilelayer").map((layer) => this.setTileLayer(layer));
-        this.textureIdCache.clear();
-        if (this.debug) {
-            console.log(`[INFO] loaded TiledMap ${mapName}`);
+    init() {
+        for (const layer of this.dataLayers) {
+            switch(layer.type) {
+                case "tilelayer":
+                    this.setTileLayer(layer);
+                    break;
+                case "objectgroup":
+                    this.setObjects(layer);
+                    break;
+            }
         }
+
+        this.textureIdCache.clear();
+        this.dataLayers = null;
+        if (this.debug) {
+            console.log(`[INFO] loaded TiledMap ${this.name}`);
+        }
+    }
+
+    /**
+     * @returns {CollisionLayer}
+     */
+    get collision() {
+        return this.layers.get("collision") || null;
     }
 
     setMatcher(lastTiledSet, currentgid) {
@@ -81,15 +116,81 @@ export default class TiledMap extends PIXI.Container {
     }
 
     /**
+     * @param {!Tiled.TileObject} object
+     * @returns {Actor}
+     */
+    drawObjectShape(object) {
+        const { name, width, height, x, y } = object;
+
+        const actor = new Actor(name);
+        actor.width = width;
+        actor.height = height;
+        actor.position.set(x, y);
+
+        // Note: doesn't really work!
+        actor.rotation = object.rotation;
+        TiledMap.assignProperties(actor, object.properties);
+
+        if (this.debug) {
+            const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
+            if (object.ellipse) {
+                areaGraphic.drawEllipse(0, 0, width, height)
+            }
+            else {
+                areaGraphic.drawRect(0, 0, width, height);
+            }
+            areaGraphic.endFill();
+
+            const areaNameText = new PIXI.Text(name.toLowerCase(), {
+                fill: "#12d94d",
+                fontFamily: "Verdana",
+                fontSize: 10,
+                fontVariant: "small-caps",
+                fontWeight: "bold",
+                letterSpacing: 1,
+                lineJoin: "round",
+                strokeThickness: 2,
+                align: "center"
+            });
+            areaNameText.anchor.set(0.5, 0.5);
+            if (!object.ellipse) {
+                areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
+            }
+
+            areaGraphic.addChild(areaNameText);
+            actor.addChild(areaGraphic);
+        }
+        this.objects.set(actor.name, actor);
+        this.emit("object", actor);
+
+        return actor;
+    }
+
+    /**
+     * @param {Tiled.TileLayer} layer
+     */
+    setObjects(layer) {
+        const objects = layer.objects || [];
+
+        for (const object of objects) {
+            console.log(`[INFO] create object ${object.name}`);
+            this.addChild(this.drawObjectShape(object));
+        }
+    }
+
+    /**
      * @param {Tiled.TileLayer} layer
      */
     setTileLayer(layer) {
-        if (layer.name === "Collisions") {
-            // TODO: handle collisions here
+        if (kCollisionLayerName.has(layer.name.toLowerCase())) {
+            layer.visible = true;
+            this.layers.set("collision", new CollisionLayer(layer, this));
         }
+        else {
+            const tileLayer = new TiledLayer(layer, this);
 
-        const tileLayer = new TiledLayer(layer, this);
-        this.layers.set(layer.name, tileLayer);
-        this.addChild(tileLayer);
+            this.layers.set(layer.name, tileLayer);
+            this.addChild(tileLayer);
+        }
     }
 }

@@ -1,16 +1,21 @@
-import { EntityBuilder, Timer } from "../helpers";
-import { Scene, Actor, Components } from "../ECS";
+import { EntityBuilder } from "../helpers";
+import { Scene, Actor, Components, Timer } from "../ECS";
 
 const kHandicapForShooting = 120;
 
 export default class DefaultScene extends Scene {
     constructor() {
-        super({ useLRUCache: true });
+        super({ useLRUCache: true, debug: true });
 
-        const map = new Actor("map");
-        map.visible = true;
-        map.addComponent(new Components.TiledMap("map1"));
-        this.add(map);
+        {
+            const map = new Actor("map");
+            map.visible = true;
+            const tiledMap = new Components.TiledMap("map1", { debug: true });
+            tiledMap.on("object", this.build.bind(this));
+            tiledMap.init();
+            map.addComponent(tiledMap);
+            this.add(map);
+        }
 
         this.add(EntityBuilder.create("actor:player"));
         this.add(...EntityBuilder.createMany("actor:creature", 5));
@@ -27,23 +32,22 @@ export default class DefaultScene extends Scene {
             }
         }
         this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
+        this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
+    }
+
+    /**
+     * @param {!Actor} actor
+     */
+    build(actor) {
+        if (actor.name.startsWith("door")) {
+            actor.createScriptedBehavior("DoorBehavior");
+        }
     }
 
     awake() {
         super.awake();
 
         console.log("Default Scene Awake");
-    }
-
-    update() {
-        super.update();
-
-        for (const creature of this.creatures) {
-            const isInside = Math.pow(creature[1].position.x - this.player[1].x, 2) + Math.pow(creature[1].position.y - this.player[1].y, 2) <= creature[1].behaviors[0].radius * creature[1].behaviors[0].radius;
-            if (creature[1].behaviors[0].canShoot() && isInside) {
-                this.add(EntityBuilder.create("actor:projectile", { startPos: { x: creature[1].position.x, y: creature[1].position.y }, targetPos: { x: this.player[1].x, y: this.player[1].y }}));
-            }
-        }
     }
 }
 

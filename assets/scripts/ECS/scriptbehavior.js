@@ -2,7 +2,6 @@
 import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
 import { getCurrentState } from "./helpers";
-import Vector2 from "../helpers/vector2";
 
 const voidFunction = () => void 0;
 

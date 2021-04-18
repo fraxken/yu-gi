@@ -11,7 +11,7 @@ export default class ActorTree extends PIXI.Container {
         this.useLRUCache = options.useLRUCache || false;
 
         /** @type {LRU<string, Actor>} */
-        this.actorsCache = this.useLRUCache ? new LRU({ max: 10 }) : null;
+        this.actorsCache = this.useLRUCache ? new LRU({ max: 50 }) : null;
 
         /** @type {Map<string, Actor>} */
         this.actors = new Map();
@@ -23,6 +23,7 @@ export default class ActorTree extends PIXI.Container {
             childrenActor.cleanupTree();
         }
 
+        this.emit("cleanup");
         this.triggerBehaviorEvent("destroy");
         this.actors.clear();
     }
@@ -33,17 +34,48 @@ export default class ActorTree extends PIXI.Container {
     appendActor(actor) {
         this.actors.set(actor.name, actor);
         this.addChild(actor);
+        this.emit("appendActor", actor);
 
         return this;
 
     }
 
     /**
+     * @param {boolean} [recursive=false]
      * @returns {IterableIterator<Actor>}
      */
-    *getRootActors() {
+    *getActors(recursive = false) {
         for (const actor of this.actors.values()) {
             yield actor;
+            if (recursive) {
+                yield* actor.getActors(recursive);
+            }
+        }
+    }
+
+    /**
+     *
+     * @returns {IterableIterator<Actor>}
+     */
+    *getActorsFromComponents() {
+        if (!this.components) {
+            return;
+        }
+
+        /** @type {PIXI.Container[]} */
+        const containers = this.components.filter((comp) => comp instanceof PIXI.Container);
+
+        for (const container of containers) {
+            if (container instanceof Actor) {
+                yield* container.getActors(true);
+                break;
+            }
+
+            for (const displayObject of container.children) {
+                if (displayObject.constructor.name === "Actor") {
+                    yield displayObject;
+                }
+            }
         }
     }
 
@@ -61,6 +93,16 @@ export default class ActorTree extends PIXI.Container {
         }
         else if (!recursive) {
             return null;
+        }
+
+        for (const actor of this.getActorsFromComponents()) {
+            if (actor.name === actorName) {
+                if (this.useLRUCache) {
+                    this.actorsCache.set(actorName, actor);
+                }
+
+                return actor;
+            }
         }
 
         for (const actor of this.actors.values()) {
@@ -82,6 +124,10 @@ export default class ActorTree extends PIXI.Container {
      * @param  {...any} args
      */
     emitEventForAllActors(eventName, ...args) {
+        for (const actor of this.getActorsFromComponents()) {
+            actor.triggerBehaviorEvent(eventName, ...args);
+        }
+
         for (const actor of this.actors.values()) {
             actor.triggerBehaviorEvent(eventName, ...args);
         }

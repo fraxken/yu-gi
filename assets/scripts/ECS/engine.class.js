@@ -7,6 +7,7 @@ import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 import State from "./state.class";
 import AssetLoader from "./assetloader.class";
+import Fade from "./math/fade";
 
 export default class Engine extends AssetLoader {
     /**
@@ -27,8 +28,9 @@ export default class Engine extends AssetLoader {
             width: window.innerWidth,
             height: window.innerHeight,
             autoResize: true,
-            resolution: devicePixelRatio
+            antialias: false
         });
+
         window.game = this;
         this.viewport = new Viewport({
             screenWidth: window.innerWidth,
@@ -81,6 +83,7 @@ export default class Engine extends AssetLoader {
     awake() {
         console.log(`[INFO] 'awake' phase start`);
         this.rootScene = new this.defaultRootScene();
+        this.fade = new Fade(this.rootScene, { frame: 30, delayIn: 20, delayOut: 20 }).autoUpdate();
         this.app.stage.addChild(this.viewport);
 
         // Configure viewport

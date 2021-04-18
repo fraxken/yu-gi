@@ -1,9 +1,7 @@
-import Actor from "../ECS/actor.class";
-import ScriptBehavior from "../ECS/scriptbehavior";
-import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 
-import * as EntityBuilder from "../helpers/entitybuilder.js";
-import { Timer } from "../helpers";
+import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
+import { Actor, ScriptBehavior, Timer } from "../ECS";
+import { EntityBuilder } from "../helpers";
 
 const kDefaultFadeInFrames = 240;
 
@@ -37,27 +35,27 @@ export default class ProjectileBehavior extends ScriptBehavior {
         if (!this.actor.destroyed) {
             if (this.delayToFadeIn.walk()) {
                 this.actor.cleanup();
-            }
+            } else {
+                if (this.actor.x !== Math.round(this.targetPos.x) || this.actor.y !== Math.round(this.targetPos.y)) {
+                    if (this.actor.x < Math.round(this.targetPos.x)) {
+                        this.actor.moveX(1); this.sprite.scale.x = 1;
+                    } else if (this.actor.x > Math.round(this.targetPos.x)) {
+                        this.actor.moveX(-1); this.sprite.scale.x = -1;
+                    }
 
-            if (this.actor.x !== Math.round(this.targetPos.x) || this.actor.y !== Math.round(this.targetPos.y)) {
-                if (this.actor.x < Math.round(this.targetPos.x)) {
-                    this.actor.moveX(1); this.sprite.scale.x = 1;
-                } else if (this.actor.x > Math.round(this.targetPos.x)) {
-                    this.actor.moveX(-1); this.sprite.scale.x = -1;
-                }
+                    if (this.actor.y < Math.round(this.targetPos.y)) {
+                        this.actor.moveY(1);
+                    }
+                    else if (this.actor.y > Math.round(this.targetPos.y)) {
+                        this.actor.moveY(-1);
+                    }
 
-                if (this.actor.y < Math.round(this.targetPos.y)) {
-                    this.actor.moveY(1);
+                    this.actor.applyVelocity();
+                    this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
                 }
-                else if (this.actor.y > Math.round(this.targetPos.y)) {
-                    this.actor.moveY(-1);
+                else {
+                    this.actor.cleanup();
                 }
-
-                this.actor.applyVelocity();
-                this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
-            }
-            else {
-                this.actor.cleanup();
             }
         }
     }
