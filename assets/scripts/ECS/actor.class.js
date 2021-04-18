@@ -189,6 +189,7 @@ export default class Actor extends ActorTree {
         }
 
         for (const behavior of this.behaviors) {
+            behavior.emit(eventName, ...args);
             behavior[eventName](...args);
         }
     }

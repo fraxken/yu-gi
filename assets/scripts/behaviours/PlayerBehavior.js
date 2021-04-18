@@ -7,19 +7,18 @@ import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key } from "../helpers";
 
-const playerState = {
-    currentHp: "player.currentHp",
-    maxHp: "player.maxHp"
-};
-const defaultStats = {
+const kPlayerStats = {
     speed: 1,
     currentHp: 1,
     maxHp: 20
 }
 
 export default class PlayerBehavior extends ScriptBehavior {
-    constructor(speed = defaultStats.speed, currentHp = defaultStats.currentHp, maxHp = defaultStats.maxHp) {
-        super(playerState);
+    constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
+        super({
+            currentHp: "player.currentHp",
+            maxHp: "player.maxHp"
+        });
 
         this.currentHp = currentHp;
         this.maxHp = maxHp;

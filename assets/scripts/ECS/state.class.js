@@ -7,8 +7,8 @@ import ScriptBehavior from "./scriptbehavior";
 
 export default class State extends PIXI.utils.EventEmitter {
     /**
-     * @param {!string} name 
-     * @param {*} defaultState 
+     * @param {!string} name
+     * @param {*} defaultState
      */
     constructor(name, defaultState = {}) {
         super();
@@ -35,27 +35,29 @@ export default class State extends PIXI.utils.EventEmitter {
     }
 
     /**
-     * @param {!string} key 
-     * @param {*} value 
+     * @param {!string} key
+     * @param {*} value
      */
     setState(key, value = null) {
+        console.log(key, value);
+
         set(this.data, key, value);
         this.emit(key, value);
         this.save();
     }
 
     /**
-     * @param {!string} key 
-     * @returns 
+     * @param {!string} key
+     * @returns
      */
     getState(key) {
         return get(this.data, key);
     }
 
     /**
-     * 
-     * @param {!ScriptBehavior} behavior 
-     * @param {*} config 
+     *
+     * @param {!ScriptBehavior} behavior
+     * @param {*} config
      */
     attachToBehavior(behavior, config = {}) {
         if (typeof config === "undefined") {
@@ -64,7 +66,8 @@ export default class State extends PIXI.utils.EventEmitter {
 
         for (const [behaviorKey, stateKey] of Object.entries(config)) {
             const defaultValue = behavior[behaviorKey] || null;
-            this.setState(stateKey, defaultValue);
+            const currentStateValue = this.getState(stateKey);
+            this.setState(stateKey, currentStateValue || defaultValue);
 
             Object.defineProperty(behavior, behaviorKey, {
                 get: () => this.getState(stateKey),
