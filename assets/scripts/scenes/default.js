@@ -19,19 +19,6 @@ export default class DefaultScene extends Scene {
 
         this.add(EntityBuilder.create("actor:player"));
         this.add(...EntityBuilder.createMany("actor:creature", 5));
-
-        this.player;
-        this.creatures = [];
-        for (let actor of this.actors) {
-            if (actor[0].startsWith("creature")) {
-                this.creatures.push(actor);
-            }
-
-            if (actor[0] === "player") {
-                this.player = actor;
-            }
-        }
-        this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
         this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
     }
 
