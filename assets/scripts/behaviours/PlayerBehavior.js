@@ -53,8 +53,16 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         const map = getActor("map");
-        const spawn = map.findChild("spawn", true);
-        this.actor.pos = spawn.centerPosition;
+        if (map) {
+            const spawn = map.findChild("spawn", true);
+            this.actor.pos = spawn.centerPosition;
+
+            /** @type {CollisionLayer} */
+            this.collision = map.getComponent(Components.Types.TiledMap).collision;
+        }
+        else {
+            this.actor.position.set(0, 0);
+        }
 
         game.viewport.moveCenter(this.actor.x, this.actor.y);
         game.viewport.follow(this.actor, {
@@ -65,9 +73,6 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.deathSound = sound.find("death");
         this.deathSound.volume = 0.1;
-
-        /** @type {CollisionLayer} */
-        this.collision = map.getComponent(Components.Types.TiledMap).collision;
     }
 
     update() {

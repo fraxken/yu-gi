@@ -39,8 +39,6 @@ export default class State extends PIXI.utils.EventEmitter {
      * @param {*} value
      */
     setState(key, value = null) {
-        console.log(key, value);
-
         set(this.data, key, value);
         this.emit(key, value);
         this.save();

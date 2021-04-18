@@ -2,6 +2,7 @@
 // import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
 import ActorTree from "./actortree.class";
+import Engine from "./engine.class";
 
 export default class Scene extends ActorTree {
     /** @type {Map<string, Scene>} */
@@ -34,6 +35,22 @@ export default class Scene extends ActorTree {
         if (this.debug) {
             console.log(`[INFO] New scene '${this.name}' instanciated!`);
         }
+    }
+
+    /**
+     * @param {Engine} [controller]
+     */
+    init(controller = null) {
+        this.awake();
+        if (controller !== null) {
+            controller.emit("awake");
+        }
+        this.start();
+        if (controller !== null) {
+            controller.emit("start");
+        }
+
+        game.app.ticker.add(this.update.bind(this));
     }
 
     /**
@@ -99,6 +116,7 @@ export default class Scene extends ActorTree {
             console.log(`[WARN] Scene '${this.name}' cleanup triggered!`);
         }
 
+        game.app.ticker.remove(this.update.bind(this));
         this.cleanupTree();
         this.destroy({ children: true });
         this.destroyed = true;

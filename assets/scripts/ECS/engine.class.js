@@ -68,26 +68,64 @@ export default class Engine extends AssetLoader {
         return this.app.renderer;
     }
 
-    loadScene(sceneName) {
-        // TODO
+    /**
+     * @param {!string} sceneName
+     * @param  {...any} options
+     */
+    loadScene(sceneName, ...options) {
+        const sceneInstance = Scene.cache.get(sceneName);
+        if (typeof sceneInstance === "undefined") {
+            throw new Error(`Unable to found scene with name '${sceneName}'`);
+        }
+
+        this.fade.out(() => {
+            this._destroyRootScene();
+            this._initRootScene(sceneInstance, ...options);
+        });
     }
 
-    appendScene(sceneName) {
-        // TODO
+    /**
+     * @param {!string} sceneName
+     * @param  {...any} options
+     */
+    appendScene(sceneName, ...options) {
+        const sceneInstance = Scene.cache.get(sceneName);
+        if (typeof sceneInstance === "undefined") {
+            throw new Error(`Unable to found scene with name '${sceneName}'`);
+        }
+
+        this.rootScene.add(new sceneInstance(...options));
     }
 
     init() {
         console.log(`[INFO] init engine`);
         this.resizeRendererToScreenSize();
-        this.loadAssets(this.app.loader, () => this.awake());
+        this.loadAssets(this.app.loader, () => this._initStage());
         this.emit("init");
 
         return this;
     }
 
-    awake() {
-        console.log(`[INFO] 'awake' phase start`);
-        this.rootScene = new this.defaultRootScene();
+    _initStage() {
+        console.log(`[INFO] initStage start`);
+        this.app.stage.addChild(this.viewport);
+
+        // Configure viewport
+        this.viewport.zoomPercent(1);
+        this.viewport.wheel({ smooth: 150, lineHeight: 300 });
+        this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
+
+        this._initRootScene(this.defaultRootScene);
+        this.app.ticker.add(this.update.bind(this));
+        console.log(`[INFO] initStage end`);
+    }
+
+    /**
+     * @param {!Scene} sceneInstance
+     * @param {...any} options
+     */
+    _initRootScene(sceneInstance, ...options) {
+        this.rootScene = new sceneInstance(...options);
         const fadeGraphic = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)
             .drawRect(0, 0, window.innerWidth, window.innerHeight)
@@ -96,36 +134,26 @@ export default class Engine extends AssetLoader {
         this.fade = new Fade(fadeGraphic, {
             frame: 30, delayIn: 20, delayOut: 20, defaultState: "in"
         });
-        this.app.stage.addChild(this.viewport);
 
-        // Configure viewport
-        this.viewport.zoomPercent(1);
-        this.viewport.wheel({ smooth: 150, lineHeight: 300 });
-        this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
         this.viewport.addChild(this.rootScene);
         this.rootScene.addChild(fadeGraphic);
-
-        this.rootScene.awake();
-        this.emit("awake");
-        console.log(`[INFO] 'awake' phase done`);
-
-        this.start();
+        this.rootScene.init();
     }
 
-    start() {
-        console.log(`[INFO] 'start' phase start`);
-        this.rootScene.start();
-        this.emit("start");
-        console.log(`[INFO] 'start' phase done`);
+    _destroyRootScene() {
+        this.fade.displayObject.destroy({ children: true });
+        this.fade = null;
+        this.rootScene.cleanup();
 
-        this.app.ticker.add((delta) => this.update(delta));
+        this.viewport.removeChild(this.rootScene);
     }
 
     update(delta = 0) {
-        this.fade.update();
-        this.rootScene.update(delta);
-        this.emit("update", delta);
+        if (this.fade !== null){
+            this.fade.update();
+        }
 
+        this.emit("update", delta);
         this.input.update(delta);
     }
 

@@ -10,6 +10,7 @@ import { BackgroundMediaPlayer, Key } from "./helpers";
 import * as Behaviors from "./behaviours";
 
 import DefaultScene from "./scenes/default";
+import "./scenes/market";
 
 Behaviors.init();
 
@@ -61,8 +62,8 @@ game.on("awake", () => {
     loadHUD("test_hud");
 });
 
-// game.on("update", () => {
-//     if (game.input.wasKeyJustPressed(Key.ENTER)) {
-//         console.log("ENTER");
-//     }
-// });
+game.on("update", () => {
+    if (game.input.wasKeyJustPressed(Key.ENTER)) {
+        game.loadScene("market");
+    }
+});

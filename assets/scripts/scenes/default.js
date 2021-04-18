@@ -30,12 +30,6 @@ export default class DefaultScene extends Scene {
             actor.createScriptedBehavior("DoorBehavior");
         }
     }
-
-    awake() {
-        super.awake();
-
-        console.log("Default Scene Awake");
-    }
 }
 
 Scene.define("default", DefaultScene);

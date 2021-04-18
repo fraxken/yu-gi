@@ -24,7 +24,7 @@ export default class ActorTree extends PIXI.Container {
         }
 
         this.emit("cleanup");
-        this.triggerBehaviorEvent("destroy");
+        this.emitEventForAllActors("destroy");
         this.actors.clear();
     }
 
