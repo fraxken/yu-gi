@@ -30,6 +30,7 @@ export default class Engine extends AssetLoader {
             autoResize: true,
             antialias: false
         });
+        this.app.stage.interactive = true;
 
         window.game = this;
         this.viewport = new Viewport({
@@ -39,7 +40,11 @@ export default class Engine extends AssetLoader {
             worldHeight: 500,
             interaction: this.app.renderer.plugins.interaction,
         });
+
         this.input = new Keyboard(this.app.view);
+        this.app.renderer.view.addEventListener("mousedown", () => {
+            this.input.lockMouse();
+        }, { once: true });
 
         this.defaultRootScene = options.defaultScene;
         /** @type {Scene} */
