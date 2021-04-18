@@ -102,7 +102,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
-        if (game.input.isKeyDown(Key.L)) {
+        if (game.input.wasKeyJustPressed(Key.L)) {
             this.sprite.playAnimation("adventurer-die", { loop: false });
             // this.sprite.lock();
             if (!this.deathSound.isPlaying) {

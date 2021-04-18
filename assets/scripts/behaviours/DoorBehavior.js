@@ -26,7 +26,7 @@ export default class DoorBehavior extends ScriptBehavior {
         }
 
         const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (distance < 50 && game.input.wasKeyJustReleased(Key.E)) {
+        if (distance < 50 && game.input.wasKeyJustPressed(Key.E)) {
             this.warp();
         }
     }

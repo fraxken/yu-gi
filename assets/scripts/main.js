@@ -61,8 +61,8 @@ game.on("awake", () => {
     loadHUD("test_hud");
 });
 
-game.on("update", () => {
-    if (game.input.wasKeyJustReleased(Key.ENTER)) {
-        game.input.lockMouse();
-    }
-});
+// game.on("update", () => {
+//     if (game.input.wasKeyJustPressed(Key.ENTER)) {
+//         console.log("ENTER");
+//     }
+// });
