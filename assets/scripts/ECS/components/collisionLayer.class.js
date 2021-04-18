@@ -14,27 +14,45 @@ export default class CollisionLayer extends PIXI.Container {
         this.height = layer.height;
         this.tileWidth = parent.tileWidth;
         this.tileHeight = parent.tileHeight;
-        this.collisionsMap = [];
+        this.collisionsMap = new Set();
 
         for (const chunk of layer.chunks) {
             chunk.data = JSON.parse(chunk.data);
 
             for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
-                this.collisionsMap.push(textureId !== 0);
-
-                // DRAW
-                // if (textureId !== 0) {
-                //     const texture = parent.getTexture(textureId);
-
-                //     const tile = new PIXI.Sprite(texture);
-                //     tile.x = x * parent.tileWidth;
-                //     tile.y = y * parent.tileHeight;
-                //     this.addChild(tile);
-                // }
+                if (textureId !== 0) {
+                    this.collisionsMap.add(`${x}|${y}`);
+                }
             }
         }
+    }
 
-        console.log(this.collisionsMap);
+    getNeighBourWalkable(x, y) {
+        const posx = Math.floor(x / this.tileWidth);
+        const posy = Math.floor(y / this.tileHeight);
+
+        // Neighbours tile position in 4 directions
+        const leftX = posx - 1;
+        const rightX = posx + 1;
+        const topY = posy - 1;
+        const bottomY = posy + 1;
+
+        // Calcule dx/dy to avoid collision at factor 1?
+
+        return {
+            left: this.isRawWalkable(leftX, posy),
+            right: this.isRawWalkable(rightX, posy),
+            top: this.isRawWalkable(posx, topY),
+            bottom: this.isRawWalkable(posx, bottomY)
+        }
+    }
+
+    /**
+     * @param {!number} x
+     * @param {!number} y
+     */
+    isRawWalkable(x, y) {
+        return this.collisionsMap.has(`${x}|${y}`);
     }
 
     /**
@@ -46,22 +64,6 @@ export default class CollisionLayer extends PIXI.Container {
         const posx = Math.floor(x / this.tileWidth);
         const posy = Math.floor(y / this.tileHeight);
 
-        return this.collisionsMap[posx + posy * this.width];
+        return this.collisionsMap.has(`${posx}|${posy}`);
     }
-
-    // *getCollidables() {
-    //     for (let i = 0; i < this.tilesMap.length; ++i) {
-    //         if (typeof this.tilesMap[i] !== "undefined") {
-    //             const column = i % this.width;
-    //             const row = Math.floor(i / this.width);
-
-    //             yield {
-    //                 x: column * this.tileWidth,
-    //                 y: row * this.tileHeight,
-    //                 width: this.tileWidth,
-    //                 height: this.tileHeight
-    //             }
-    //         }
-    //     }
-    // }
 }

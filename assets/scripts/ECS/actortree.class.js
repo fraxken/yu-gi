@@ -1,8 +1,8 @@
-// Import dependencies
+// Import internal dependencies
 import * as PIXI from "pixi.js";
 import Actor from "./actor.class";
 
-// Import Third-party
+// Import Third-party dependencies
 import LRU from "lru-cache";
 
 export default class ActorTree extends PIXI.Container {
