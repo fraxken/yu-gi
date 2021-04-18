@@ -11,8 +11,13 @@ const kPublicDir = path.join(__dirname, "public");
 const kOutDir = path.join(__dirname, "out");
 
 const kAssetsDirToMove = ["sprites", "tilemaps", "tilesets", "sounds"];
+const kExtensionToExclude = new Set([".tsx", ".tmx"]);
 
 fse.mkdirSync(kOutDir, { recursive: true });
+
+function filterFiles(fileName) {
+    return !kExtensionToExclude.has(path.extname(fileName));
+}
 
 async function main() {
     await esbuild.build({
@@ -44,7 +49,7 @@ async function main() {
 
     // Copy assets folders
     await Promise.all(kAssetsDirToMove.map((name) => {
-        return fse.copy(path.join(kAssetsDir, name), path.join(kOutDir, name))
+        return fse.copy(path.join(kAssetsDir, name), path.join(kOutDir, name), { filter: filterFiles })
     }))
 }
 

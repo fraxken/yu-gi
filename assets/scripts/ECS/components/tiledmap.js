@@ -134,7 +134,7 @@ export default class TiledMap extends PIXI.Container {
         if (this.debug) {
             const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
             if (object.ellipse) {
-                areaGraphic.drawEllipse(0, 0, width, height)
+                areaGraphic.drawEllipse(0, 0, width, height);
             }
             else {
                 areaGraphic.drawRect(0, 0, width, height);
