@@ -1,5 +1,7 @@
 import { EntityBuilder } from "../helpers";
-import { Scene, Actor, Components } from "../ECS";
+import { Scene, Actor, Components, Timer } from "../ECS";
+
+const kHandicapForShooting = 120;
 
 export default class DefaultScene extends Scene {
     constructor() {
