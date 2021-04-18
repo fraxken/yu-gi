@@ -1,9 +1,26 @@
+/**
+ * ORIGINAL CODE CREATED BY Elisee MAURER for Superpowers
+ * https://github.com/superpowers/superpowers-game/tree/master/SupEngine/src
+ */
+
 // Import dependencies
 import * as PIXI from "pixi.js";
 
 export default class Input extends PIXI.utils.EventEmitter {
-    constructor() {
+    /**
+     * @param {HTMLCanvasElement} canvas
+     */
+    constructor(canvas) {
         super();
+
+        this.canvas = canvas;
+        this.canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitPointerLockElement;
+        document.addEventListener("pointerlockchange", this.onPointerLockChange.bind(this), false);
+        document.addEventListener("mozpointerlockchange", this.onPointerLockChange.bind(this), false);
+        document.addEventListener("webkitpointerlockchange", this.onPointerLockChange.bind(this), false);
+
+        this.wantsPointerLock = false;
+        this.wasPointerLocked = false;
         this.autoRepeatedKey = null;
         this.keyboardButtons = new Map();
         this.keyboardButtonsDown = new Set();
@@ -15,6 +32,41 @@ export default class Input extends PIXI.utils.EventEmitter {
     destroy() {
         document.removeEventListener("keydown", this.onKeyDown, true);
         document.removeEventListener("keyup", this.onKeyUp, true);
+    }
+
+    lockMouse() {
+        this.wantsPointerLock = true;
+        this.canvas.requestPointerLock();
+    }
+
+    unlockMouse() {
+        this.wantsPointerLock = false;
+        this.wasPointerLocked = false;
+        if (!this.isPointerLocked()) {
+            return;
+        }
+
+        document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+        document.exitPointerLock();
+    }
+
+    isPointerLocked() {
+        return document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
+    }
+
+    onPointerLockChange() {
+        const isPointerLocked = this.isPointerLocked();
+        if (this.wasPointerLocked !== isPointerLocked) {
+            this.emit("mouseLockStateChange", isPointerLocked ? "active" : "suspended");
+            this.wasPointerLocked = isPointerLocked;
+        }
+    }
+
+    onPointerLockError() {
+        if (this.wasPointerLocked) {
+            this.emit("mouseLockStateChange", "suspended");
+            this.wasPointerLocked = false;
+        }
     }
 
     reset() {

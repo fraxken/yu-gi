@@ -63,11 +63,6 @@ game.on("awake", () => {
 
 game.on("update", () => {
     if (game.input.wasKeyJustReleased(Key.ENTER)) {
-        if (game.fade.state === "in") {
-            game.fade.out();
-        }
-        else {
-            game.fade.in();
-        }
+        game.input.lockMouse();
     }
 });
