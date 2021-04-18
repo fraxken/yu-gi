@@ -96,6 +96,7 @@ export default class Engine extends AssetLoader {
         // Configure viewport
         this.viewport.zoomPercent(1);
         this.viewport.wheel({ smooth: 150, lineHeight: 300 });
+        this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
         this.viewport.addChild(this.rootScene);
         this.rootScene.addChild(fadeGraphic);
 
