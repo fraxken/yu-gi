@@ -23,7 +23,9 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
         this.actor = null;
 
         if (state !== null) {
-            getCurrentState().attachToBehavior(this, state);
+            this.once("awake", () => {
+                getCurrentState().attachToBehavior(this, state);
+            });
         }
 
         for (const methodName of ScriptBehavior.AvailableMethods) {
