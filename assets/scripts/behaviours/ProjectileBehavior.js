@@ -38,9 +38,9 @@ export default class ProjectileBehavior extends ScriptBehavior {
             } else {
                 if (this.actor.x !== Math.round(this.targetPos.x) || this.actor.y !== Math.round(this.targetPos.y)) {
                     if (this.actor.x < Math.round(this.targetPos.x)) {
-                        this.actor.moveX(1); this.sprite.scale.x = 1;
+                        this.actor.moveX(1);
                     } else if (this.actor.x > Math.round(this.targetPos.x)) {
-                        this.actor.moveX(-1); this.sprite.scale.x = -1;
+                        this.actor.moveX(-1);
                     }
 
                     if (this.actor.y < Math.round(this.targetPos.y)) {
