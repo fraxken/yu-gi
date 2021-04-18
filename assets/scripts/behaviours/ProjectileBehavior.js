@@ -1,6 +1,6 @@
 
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
-import { Actor, ScriptBehavior, Timer } from "../ECS";
+import { Actor, ScriptBehavior } from "../ECS";
 import { EntityBuilder } from "../helpers";
 
 const kDefaultFadeInFrames = 240;
@@ -21,44 +21,47 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.targetPos.x = Math.round(this.targetPos.x);
         this.targetPos.y = Math.round(this.targetPos.y);
         this.radius = 15;
-        this.delayToFadeIn = new Timer(kDefaultFadeInFrames, { autoStart: true, keepIterating: false });
     }
 
     awake() {
+        console.log(`Projectile with name: ${this.actor.name} created`);
         this.sprite = this.actor.addComponent(
             new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
-            );
+        );
+        this.actor.pos = this.startPos;
+        this.tick = 0;
+    }
 
-        this.actor.x = this.startPos.x;
-        this.actor.y = this.startPos.y;
+    die(cause) {
+        console.log("projectile die because: ", cause);
+        this.actor.cleanup();
     }
 
     update() {
-        if (!this.actor.destroyed) {
-            if (this.delayToFadeIn.walk()) {
-                this.actor.cleanup();
-            } else {
-                if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
-                    if (this.actor.x < this.targetPos.x) {
-                        this.actor.moveX(1);
-                    } else if (this.actor.x > this.targetPos.x) {
-                        this.actor.moveX(-1);
-                    }
+        this.tick++;
 
-                    if (this.actor.y < this.targetPos.y) {
-                        this.actor.moveY(1);
-                    }
-                    else if (this.actor.y > this.targetPos.y) {
-                        this.actor.moveY(-1);
-                    }
-
-                    this.actor.applyVelocity();
-                    this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
-                }
-                else {
-                    this.actor.cleanup();
-                }
+        if (this.tick >= kDefaultFadeInFrames) {
+            this.die("timeout");
+        }
+        else if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
+            if (this.actor.x < this.targetPos.x) {
+                this.actor.moveX(1);
+            } else if (this.actor.x > this.targetPos.x) {
+                this.actor.moveX(-1);
             }
+
+            if (this.actor.y < this.targetPos.y) {
+                this.actor.moveY(1);
+            }
+            else if (this.actor.y > this.targetPos.y) {
+                this.actor.moveY(-1);
+            }
+
+            this.actor.applyVelocity();
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
+        }
+        else {
+            this.die("hit");
         }
     }
 }
@@ -66,6 +69,6 @@ export default class ProjectileBehavior extends ScriptBehavior {
 ScriptBehavior.define("ProjectileBehavior", ProjectileBehavior);
 
 EntityBuilder.define("actor:projectile", (options = {}) => {
-    return new Actor("projectile")
+    return new Actor(EntityBuilder.increment("projectile"))
         .createScriptedBehavior(new ProjectileBehavior(options));
 });

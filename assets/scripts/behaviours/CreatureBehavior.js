@@ -1,6 +1,6 @@
 
 
-import { Actor, ScriptBehavior, Components, Timer, getActor } from "../ECS";
+import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
@@ -11,19 +11,14 @@ export default class CreatureBehavior extends ScriptBehavior {
     constructor() {
         super();
 
-        const r = 200 * Math.sqrt(Math.random());
-        const theta = Math.random() * 2 * Math.PI;
-        this.position = {
-            x: Math.round(0 + r * Math.cos(theta)),
-            y: Math.round(0 + r * Math.sin(theta))
-        };
-        this.nextPos = {
-            x: null,
-            y: null
-        };
+        const { x, y } = Vector2.randomCoordInRadius(200);
+        this.position = { x, y };
+        this.nextPos = { x: null, y: null };
+
         this.radius = 80;
         this.isInAction = false;
         this.action = null;
+
         this.delayToMove = new Timer(kHandicapForDeplacement, { autoStart: true, keepIterating: false });
         this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
     }
@@ -33,9 +28,7 @@ export default class CreatureBehavior extends ScriptBehavior {
             new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
 
-        this.actor.y = this.position.y;
-        this.actor.x = this.position.x;
-        this.start();
+        this.actor.position.set(this.position.x, this.position.y);
     }
 
     start() {
@@ -85,17 +78,16 @@ export default class CreatureBehavior extends ScriptBehavior {
 
                 return true;
             }
-            else {
-                return false;
-            }
         }
-        else {
-            return false;
-        }
+
+        return false;
     }
 
     initShoot() {
-        game.rootScene.add(EntityBuilder.create("actor:projectile", { startPos: { x: this.actor.x, y: this.actor.y }, targetPos: { x: this.target.x, y: this.target.y }}));
+        game.rootScene.add(EntityBuilder.create("actor:projectile", {
+            startPos: { x: this.actor.x, y: this.actor.y },
+            targetPos: { x: this.target.x, y: this.target.y }
+        }));
     }
 
     goTo() {
