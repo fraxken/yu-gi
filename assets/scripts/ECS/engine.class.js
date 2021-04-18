@@ -123,10 +123,10 @@ export default class Engine extends AssetLoader {
 
     update(delta = 0) {
         this.fade.update();
-        this.input.update(delta);
         this.rootScene.update(delta);
-
         this.emit("update", delta);
+
+        this.input.update(delta);
     }
 
     resizeRendererToScreenSize() {

@@ -130,6 +130,9 @@ export default class Input extends PIXI.utils.EventEmitter {
         }
         else {
             this.keyboardButtonsDown.add(key);
+            const button = this.key(key);
+            button.wasJustPressed = true;
+            button.isDown = true;
         }
 
         return !isControlKey;
@@ -137,21 +140,13 @@ export default class Input extends PIXI.utils.EventEmitter {
 
     onKeyUp(event) {
         const key = event.which || event.keyCode;
-
         this.keyboardButtonsDown.delete(key);
     }
 
     update() {
-        for (const buttonDown of this.keyboardButtonsDown) {
-            const button = this.key(buttonDown);
-            button.isDown = true;
-        }
-
         for (const [code, keyboardButton] of this.keyboardButtons) {
             const wasDown = keyboardButton.isDown;
             keyboardButton.isDown = this.keyboardButtonsDown.has(code);
-
-            keyboardButton.wasJustPressed = !wasDown && keyboardButton.isDown;
             keyboardButton.wasJustAutoRepeated = false;
             keyboardButton.wasJustReleased = wasDown && !keyboardButton.isDown;
 
@@ -164,6 +159,7 @@ export default class Input extends PIXI.utils.EventEmitter {
             if (keyboardButton.wasJustPressed) {
                 this.emit("wasJustPressed", code);
             }
+            keyboardButton.wasJustPressed = false;
         }
 
         if (this.autoRepeatedKey !== null) {
