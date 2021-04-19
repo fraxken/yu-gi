@@ -100,7 +100,9 @@ export default class Engine extends AssetLoader {
     init() {
         console.log(`[INFO] init engine`);
         this.resizeRendererToScreenSize();
-        this.loadAssets(this.app.loader, () => this._initStage());
+        this.loadAsync(() => {
+            this.loadAssets(this.app.loader, () => this._initStage());
+        });
         this.emit("init");
 
         return this;

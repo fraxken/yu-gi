@@ -39,6 +39,33 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
 
         /** @type {Map<string, { url: string; extension: string; }>} */
         this.assets = new Map();
+
+        this.assetsFilesLoading = [];
+    }
+
+    _parseAssetFile(data) {
+        const tilesets = data.tilesets || [];
+        const assets = data.assets || {};
+
+        for (const tileSetName of tilesets) {
+            this.registerTileSet(tileSetName);
+        }
+
+        for (const [name, assetURL] of Object.entries(assets)) {
+            this.registerAsset(name, assetURL);
+        }
+    }
+
+    /**
+     * @param {!string | URL} fileURL
+     */
+    loadAssetFromFile(fileURL) {
+        const promise = fetch(fileURL)
+            .then((raw) => raw.json())
+            .then(this._parseAssetFile.bind(this));
+        this.assetsFilesLoading.push(promise);
+
+        return this;
     }
 
     /**
@@ -60,6 +87,15 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
         return this
             .registerAsset(`${tileSetName}_texture`, `tilesets/${fileName}.png`)
             .registerAsset(`${tileSetName}_json`, `tilesets/${fileName}.json`);
+    }
+
+    loadAsync(callback) {
+        if (this.assetsFilesLoading.length === 0) {
+            callback();
+        }
+        else {
+            Promise.all(this.assetsFilesLoading).then(callback);
+        }
     }
 
     /**
@@ -88,7 +124,7 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
         }, 200);
 
         loader.onLoad.add((loader, _) => {
-            loadingContainer.children[1].text = `${loader.progress}%`;
+            loadingContainer.children[1].text = `${loader.progress.toFixed(2)}%`;
         });
         loader.load(lazyCallback);
     }

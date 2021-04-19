@@ -1,0 +1,24 @@
+{
+    "tilesets": [
+        "TilesetElement",
+        "TilesetFloor",
+        "TilesetHouse",
+        "TilesetNature",
+        "TilesetDungeon",
+        "TilesetFloorDetail",
+        "TilesetHole",
+        "TilesetInterior",
+        "TilesetInteriorFloor",
+        "TilesetLogic",
+        "TilesetRelief",
+        "TilesetReliefDetail",
+        "TilesetWater"
+    ],
+    "assets": {
+        "map1": "tilemaps/test.json",
+        "adventurer": "sprites/adventurer.json",
+        "ambient-sound": "sounds/back-ambient-sound.mp3",
+        "ambient-void": "sounds/back-ambient-void.ogg",
+        "death": "sounds/death.wav"
+    }
+}

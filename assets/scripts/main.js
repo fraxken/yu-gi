@@ -4,13 +4,15 @@ import * as PIXI from "pixi.js";
 window.PIXI = PIXI;
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 
-// Import Dependencies
+// Import ECS & Helpers Dependencies
 import { State, Engine } from "./ECS";
 import { BackgroundMediaPlayer, Key } from "./helpers";
-import * as Behaviors from "./behaviours";
 
-import DefaultScene from "./scenes/default";
-import "./scenes/market";
+// Import Behaviors and Scenes
+import * as Behaviors from "./behaviours";
+import { DefaultScene } from "./scenes";
+
+import assetsURL from "../assets.json";
 
 Behaviors.init();
 
@@ -23,25 +25,8 @@ const gameState = new State("gameState", {
 });
 
 const game = new Engine({ defaultScene: DefaultScene, state: gameState })
-    .registerTileSet("TilesetElement")
-    .registerTileSet("TilesetFloor")
-    .registerTileSet("TilesetHouse")
-    .registerTileSet("TilesetNature")
-    .registerTileSet("TilesetDungeon")
+    .loadAssetFromFile(assetsURL)
     // .registerTileSet("TilesetFloorB")
-    .registerTileSet("TilesetFloorDetail")
-    .registerTileSet("TilesetHole")
-    .registerTileSet("TilesetInterior")
-    .registerTileSet("TilesetInteriorFloor")
-    .registerTileSet("TilesetLogic")
-    .registerTileSet("TilesetRelief")
-    .registerTileSet("TilesetReliefDetail")
-    .registerTileSet("TilesetWater")
-    .registerAsset("map1", "tilemaps/test.json")
-    .registerAsset("adventurer", "sprites/adventurer.json")
-    .registerAsset("ambient-sound", "sounds/back-ambient-sound.mp3")
-    .registerAsset("ambient-void", "sounds/back-ambient-void.ogg")
-    .registerAsset("death", "sounds/death.wav")
     .init();
 
 // new BackgroundMediaPlayer({
