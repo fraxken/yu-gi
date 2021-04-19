@@ -9,12 +9,10 @@ import { State, Engine } from "./ECS";
 import { BackgroundMediaPlayer, Key } from "./helpers";
 
 // Import Behaviors and Scenes
-import * as Behaviors from "./behaviours";
+import "./behaviours";
 import { DefaultScene } from "./scenes";
 
 import assetsURL from "../assets.json";
-
-Behaviors.init();
 
 const gameState = new State("gameState", {
     player: {

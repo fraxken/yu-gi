@@ -5,6 +5,9 @@ const fse = require("fs-extra");
 // Import Third-party Dependencies
 const esbuild = require("esbuild");
 
+// Import internal dependencies
+const { generateImportExport } = require("./scripts/generator");
+
 // CONSTANTS
 const kAssetsDir = path.join(__dirname, "assets");
 const kPublicDir = path.join(__dirname, "public");
@@ -20,6 +23,9 @@ function filterFiles(fileName) {
 }
 
 async function main() {
+    generateImportExport(path.join(kAssetsDir, "scripts", "behaviours"));
+    generateImportExport(path.join(kAssetsDir, "scripts", "scenes"));
+
     await esbuild.build({
         entryPoints: [
             path.join(kAssetsDir, "scripts", "main.js"),

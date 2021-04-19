@@ -35,9 +35,11 @@
     "watch-cli": "^0.2.3"
   },
   "devDependencies": {
+    "astring": "^1.7.4",
     "cross-env": "^7.0.3",
     "esbuild": "^0.11.4",
     "http-server": "^0.12.3",
+    "node-estree": "^3.1.0",
     "xml2json": "^0.12.0"
   }
 }
