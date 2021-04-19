@@ -42,6 +42,9 @@ export default class Engine extends AssetLoader {
         });
 
         this.input = new Keyboard(this.app.view);
+        /** @type {PIXI.ObservablePoint} */
+        this.mousePosition = null;
+
         this.app.renderer.view.addEventListener("mousedown", () => {
             this.input.lockMouse();
         }, { once: true });
@@ -128,6 +131,21 @@ export default class Engine extends AssetLoader {
      */
     _initRootScene(sceneInstance, ...options) {
         this.rootScene = new sceneInstance(...options);
+
+        const cursorSprite = new PIXI.Graphics()
+            .beginFill(PIXI.utils.string2hex("#000"), 1)
+            .drawCircle(0, 0, 5)
+            .endFill();
+        // const cursorSprite = new PIXI.Sprite(getTexture("adventurer", "adventurer-air-attack-3-end-00.png"));
+        // cursorSprite.anchor.set(0.5, 0.5);
+
+        this.app.stage.on("pointermove", (event) => {
+            this.mousePosition = event.data.global;
+
+            const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
+            cursorSprite.position.set(localPos.x, localPos.y);
+        });
+
         const fadeGraphic = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)
             .drawRect(0, 0, window.innerWidth, window.innerHeight)
@@ -138,6 +156,8 @@ export default class Engine extends AssetLoader {
         });
 
         this.viewport.addChild(this.rootScene);
+
+        this.rootScene.addChild(cursorSprite);
         this.rootScene.addChild(fadeGraphic);
         this.rootScene.init();
     }
