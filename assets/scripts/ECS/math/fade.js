@@ -5,6 +5,7 @@ import * as PIXI from "pixi.js";
 import * as Easing from "./easing";
 import ProgressiveNumber from "./progressiveNumber";
 import Timer from "./timer.class";
+import Vector2 from "./vector2";
 
 export default class Fade {
     /**
@@ -29,6 +30,16 @@ export default class Fade {
         this.innerFadePn = new ProgressiveNumber(0, 1, {
             frame, easing, reverse: defaultState === "in"
         });
+    }
+
+    /**
+     * @param {!PIXI.ObservablePoint | Vector2}
+     */
+    set centerPosition(pos) {
+        this.displayObject.position.set(
+            pos.x - window.innerWidth / 2,
+            pos.y - window.innerHeight / 2
+        );
     }
 
     auto(callback = null) {

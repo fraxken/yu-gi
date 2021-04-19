@@ -35,6 +35,8 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.playable = false;
 
         game.fade.auto(() => {
+            game.fade.centerPosition = position;
+
             this.actor.pos = position;
             game.viewport.moveCenter(this.actor.x, this.actor.y);
             this.playable = true;
@@ -76,10 +78,7 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     update() {
-        game.fade.displayObject.position.set(
-            this.actor.x - window.innerWidth / 2,
-            this.actor.y - window.innerHeight / 2
-        );
+        game.fade.centerPosition = this.actor.pos;
 
         if (!this.playable) {
             return;
