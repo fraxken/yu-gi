@@ -104,3 +104,5 @@ dist
 .tern-port
 
 out/
+assets/scripts/behaviours/index.js
+assets/scripts/scenes/index.js
