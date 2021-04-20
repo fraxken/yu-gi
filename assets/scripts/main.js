@@ -44,9 +44,3 @@ const game = new Engine({ defaultScene: DefaultScene, state: gameState })
 game.on("awake", () => {
     loadHUD("test_hud");
 });
-
-game.on("update", () => {
-    if (game.input.wasKeyJustPressed(Key.ENTER)) {
-        game.loadScene("market");
-    }
-});

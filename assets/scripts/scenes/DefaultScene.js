@@ -27,6 +27,9 @@ export default class DefaultScene extends Scene {
         if (actor.name.startsWith("door")) {
             actor.createScriptedBehavior("DoorBehavior");
         }
+        else if (actor.name === "test") {
+            actor.createScriptedBehavior("DungeonDoorBehavior");
+        }
     }
 }
 
