@@ -11,6 +11,11 @@ import CollisionLayer from "./collisionLayer.class";
 
 // CONSTANTS
 const kCollisionLayerName = new Set(["collisions", "collision"]);
+const kLoadedTileSet = new Set();
+const kTiledSets = [];
+
+/** @type {CollisionLayer} */
+let sharedCollisionLayer = null;
 
 export default class TiledMap extends PIXI.Container {
     static assignProperties(object, properties = []) {
@@ -20,11 +25,19 @@ export default class TiledMap extends PIXI.Container {
         }
     }
 
+    /**
+     * @param {!string} mapName
+     * @param {object} options
+     * @param {boolean} [options.debug=false]
+     * @param {boolean} [options.useSharedCollision=false]
+     */
     constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
         this.name = mapName;
         this.debug = options.debug || false;
+        this.useSharedCollision = options.useSharedCollision || false;
+        this.collisionOffset = options.collisionOffset || null;
 
         /** @type {Map<string, TiledLayer>} */
         this.layers = new Map();
@@ -44,7 +57,14 @@ export default class TiledMap extends PIXI.Container {
 
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;
-        this.tiledsets = data.tilesets.map((config) => new TiledSet(config, { debug: this.debug }));
+        for (const config of data.tilesets) {
+            if (kLoadedTileSet.has(config.name)) {
+                continue;
+            }
+            kTiledSets.push(new TiledSet(config, { debug: this.debug }));
+            kLoadedTileSet.add(config.name);
+        }
+        this.tiledsets = kTiledSets;
         this.dataLayers = data.layers;
 
         /** @type {TiledSet} */
@@ -81,7 +101,7 @@ export default class TiledMap extends PIXI.Container {
      * @returns {CollisionLayer}
      */
     get collision() {
-        return this.layers.get("collision") || null;
+        return this.useSharedCollision ? sharedCollisionLayer : (this.layers.get("collision") || null);
     }
 
     setMatcher(lastTiledSet, currentgid) {
@@ -195,7 +215,29 @@ export default class TiledMap extends PIXI.Container {
     setTileLayer(layer) {
         if (kCollisionLayerName.has(layer.name.toLowerCase())) {
             layer.visible = true;
-            this.layers.set("collision", new CollisionLayer(layer, this));
+
+            /** @type {CollisionLayer} */
+            let colLayer = null;
+            if (this.useSharedCollision) {
+                if (sharedCollisionLayer === null) {
+                    colLayer = new CollisionLayer(layer, this);
+                    sharedCollisionLayer = colLayer;
+                }
+                else {
+                    colLayer = sharedCollisionLayer;
+
+                    if ("chunks" in layer) {
+                        layer.chunks.forEach((chunk) => sharedCollisionLayer.generate(chunk, this.collisionOffset));
+                    }
+                    else if ("data" in layer) {
+                        sharedCollisionLayer.generate(layer, this.collisionOffset);
+                    }
+                }
+            }
+            else {
+                colLayer = new CollisionLayer(layer, this);
+            }
+            this.layers.set("collision", colLayer);
         }
         else {
             const tileLayer = new TiledLayer(layer, this);

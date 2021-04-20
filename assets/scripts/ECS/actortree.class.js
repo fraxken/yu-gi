@@ -116,6 +116,15 @@ export default class ActorTree extends PIXI.Container {
             }
         }
 
+        if (this.childScenes)  {
+            for (const scene of this.childScenes) {
+                const actor = scene.findChild(actorName, recursive);
+                if (actor !== null) {
+                    return actor;
+                }
+            }
+        }
+
         return null;
     }
 
@@ -130,6 +139,12 @@ export default class ActorTree extends PIXI.Container {
 
         for (const actor of this.actors.values()) {
             actor.triggerBehaviorEvent(eventName, ...args);
+        }
+
+        if (this.childScenes)  {
+            for (const scene of this.childScenes) {
+                scene.emitEventForAllActors(eventName, ...args);
+            }
         }
     }
 }

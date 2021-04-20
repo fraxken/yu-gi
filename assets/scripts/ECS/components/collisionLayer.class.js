@@ -16,13 +16,23 @@ export default class CollisionLayer extends PIXI.Container {
         this.tileHeight = parent.tileHeight;
         this.collisionsMap = new Set();
 
-        for (const chunk of layer.chunks) {
-            chunk.data = JSON.parse(chunk.data);
+        if ("chunks" in layer) {
+            layer.chunks.forEach((chunk) => this.generate(chunk));
+        }
+        else if ("data" in layer) {
+            this.generate(layer);
+        }
+    }
 
-            for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
-                if (textureId !== 0) {
-                    this.collisionsMap.add(`${x}|${y}`);
-                }
+    generate(chunk, offset = null) {
+        chunk.data = typeof chunk.data === "string" ? JSON.parse(chunk.data) : chunk.data;
+        const xOffset = offset === null ? 0 : offset.x;
+        const yOffset = offset === null ? 0 : offset.y;
+        console.log("offset: ", xOffset, yOffset);
+
+        for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
+            if (textureId !== 0) {
+                this.collisionsMap.add(`${x + xOffset}|${y + yOffset}`);
             }
         }
     }

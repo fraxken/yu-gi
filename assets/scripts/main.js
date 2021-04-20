@@ -10,7 +10,7 @@ import { BackgroundMediaPlayer, Key } from "./helpers";
 
 // Import Behaviors and Scenes
 import "./behaviours";
-import { DefaultScene } from "./scenes";
+import { DungeonScene, DefaultScene } from "./scenes";
 
 import assetsURL from "../assets.json";
 

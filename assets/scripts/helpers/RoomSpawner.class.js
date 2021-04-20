@@ -24,6 +24,7 @@ class RoomSpawner {
      * @param {boolean} [options.includeSecretRoom=false]
      * @param {number} [options.roomWidth]
      * @param {number} [options.roomHeight]
+     * @param {number} [options.tileSize=16]
      */
     constructor(size = 10, options = {}) {
         this.floorSize = size;
@@ -32,8 +33,9 @@ class RoomSpawner {
         this.maxBoss = options.maxBoss || 1;
         this.specialRooms = options.specialRooms || 1;
         this.includeSecretRoom = options.includeSecretRoom || false;
-        this.roomWidth = options.roomWidth || 10;
-        this.roomHeight = options.roomHeight || 10;
+        this.tileSize = options.tileSize || 16;
+        this.roomWidth = (options.roomWidth || 10) * this.tileSize;
+        this.roomHeight = (options.roomHeight || 10) * this.tileSize;
 
         this.reset();
     }
@@ -217,19 +219,27 @@ class RoomSpawner {
         }
         visitedNodes.add(i);
 
-        yield { x, y, type: RoomSpawner.RoomName[this.floorPlan[i]] };
         const neighbours = this.getNeighboursNodes(i);
+        const hasLeft = neighbours.left !== 0;
+        const hasRight = neighbours.right !== 0;
+        const hasTop = neighbours.top !== 0;
+        const hasBottom = neighbours.bottom !== 0;
 
-        if (neighbours.left !== 0) {
+        yield {
+            x, y, doors: [hasTop, hasRight, hasBottom, hasLeft],
+            type: RoomSpawner.RoomName[this.floorPlan[i]]
+        };
+
+        if (hasLeft) {
             yield* this.explore(i - 1, x - this.roomWidth, y, visitedNodes);
         }
-        if (neighbours.right !== 0) {
+        if (hasRight) {
             yield* this.explore(i + 1, x + this.roomWidth, y, visitedNodes);
         }
-        if (neighbours.top !== 0) {
+        if (hasTop) {
             yield* this.explore(i - this.floorSize, x, y + this.roomHeight, visitedNodes);
         }
-        if (neighbours.bottom !== 0) {
+        if (hasBottom) {
             yield* this.explore(i + this.floorSize, x, y - this.roomHeight, visitedNodes);
         }
     }

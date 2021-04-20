@@ -97,7 +97,7 @@ export default class Engine extends AssetLoader {
             throw new Error(`Unable to found scene with name '${sceneName}'`);
         }
 
-        this.rootScene.add(new sceneInstance(...options));
+        return this.rootScene.add(new sceneInstance(...options));
     }
 
     init() {
@@ -118,7 +118,7 @@ export default class Engine extends AssetLoader {
         // Configure viewport
         this.viewport.zoomPercent(1);
         this.viewport.wheel({ smooth: 150, lineHeight: 300 });
-        this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
+        // this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
 
         this._initRootScene(this.defaultRootScene);
         this.app.ticker.add(this.update.bind(this));

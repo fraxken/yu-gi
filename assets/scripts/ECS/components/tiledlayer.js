@@ -37,7 +37,10 @@ export default class TiledLayer extends PIXI.Container {
 
         TiledMap.assignProperties(this, layer.properties);
         if ("chunks" in layer) {
-            layer.chunks.forEach((chunk) => this.generateChunk(chunk));
+            layer.chunks.forEach((chunk) => this.generate(chunk));
+        }
+        else if ("data" in layer) {
+            this.generate(layer);
         }
         if (this.parent.debug) {
             console.log(`[INFO] Loaded TiledLayer '${this.name}'`);
@@ -45,10 +48,10 @@ export default class TiledLayer extends PIXI.Container {
     }
 
     /**
-     * @param {!Tiled.TileChunk} chunk
+     * @param {!Tiled.TileChunk | Tiled.TileLayer} chunk
      */
-    generateChunk(chunk) {
-        chunk.data = JSON.parse(chunk.data);
+    generate(chunk) {
+        chunk.data = typeof chunk.data === "string" ? JSON.parse(chunk.data) : chunk.data;
 
         for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
             if (textureId === 0) {

@@ -32,6 +32,9 @@ export default class Scene extends ActorTree {
         this.destroyed = false;
         this.debug = options.debug || false;
 
+        /** @type {Scene[]} */
+        this.childScenes = [];
+
         if (this.debug) {
             console.log(`[INFO] New scene '${this.name}' instanciated!`);
         }
@@ -55,7 +58,6 @@ export default class Scene extends ActorTree {
 
     /**
      * @param {...(Actor | Scene)} entities
-     * @returns
      */
     add(...entities) {
         for (const entity of entities) {
@@ -66,7 +68,13 @@ export default class Scene extends ActorTree {
                 }
             }
             else if (entity instanceof Scene) {
-                console.log("[DEBUG] ADD SCENE NOT IMPLEMENTED YET!");
+                this.childScenes.push(entity);
+                this.addChild(entity);
+                if (this.awakened) {
+                    entity.init(null);
+                }
+
+                return entity;
             }
         }
 
@@ -78,6 +86,9 @@ export default class Scene extends ActorTree {
             console.log(`[INFO] Scene '${this.name}' awake phase started!`);
         }
 
+        for (const child of this.childScenes) {
+            child.awake();
+        }
         this.emitEventForAllActors("awake");
         this.awakened = true;
         if (this.debug)  {
@@ -92,6 +103,9 @@ export default class Scene extends ActorTree {
             console.log(`[INFO] Scene '${this.name}' start phase started!`);
         }
 
+        for (const child of this.childScenes) {
+            child.start();
+        }
         this.emitEventForAllActors("start");
         this.started = true;
         if (this.debug)  {
@@ -114,6 +128,10 @@ export default class Scene extends ActorTree {
     cleanup() {
         if (this.debug)  {
             console.log(`[WARN] Scene '${this.name}' cleanup triggered!`);
+        }
+
+        for (const child of this.childScenes) {
+            child.cleanup();
         }
 
         game.app.ticker.remove(this.update.bind(this));

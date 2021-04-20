@@ -54,16 +54,16 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.sprite = this.actor.addComponent(spriteComponent);
         }
 
-        const map = getActor("map");
+        const map = getActor("map") || getActor("start_room");
         if (map) {
             const spawn = map.findChild("spawn", true);
-            this.actor.pos = spawn.centerPosition;
+            if (spawn) {
+                this.actor.pos = spawn.centerPosition;
+            }
 
             /** @type {CollisionLayer} */
             this.collision = map.getComponent(Components.Types.TiledMap).collision;
-        }
-        else {
-            this.actor.position.set(0, 0);
+            console.log(this.collision.collisionsMap);
         }
 
         game.viewport.moveCenter(this.actor.x, this.actor.y);

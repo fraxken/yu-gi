@@ -39,6 +39,7 @@ declare namespace Tiled {
 
     export interface TileLayer {
         id: number;
+        data?: string;
         chunks: TileChunk[];
         width: number;
         height: number;
