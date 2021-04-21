@@ -104,7 +104,6 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
      */
     loadAssets(loader, callback) {
         const loadingContainer = AssetLoader.createLoadingScreen();
-        console.log(loadingContainer.position);
         this.app.stage.addChild(loadingContainer);
 
         for (const [name, assetOptions] of this.assets.entries()) {

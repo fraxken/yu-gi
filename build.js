@@ -29,6 +29,7 @@ async function main() {
     await esbuild.build({
         entryPoints: [
             path.join(kAssetsDir, "scripts", "main.js"),
+            path.join(kAssetsDir, "scripts", "layers.js"),
             path.join(kPublicDir, "hud.js"),
             path.join(kPublicDir, "css", "main.css")
         ],
@@ -59,4 +60,7 @@ async function main() {
     }))
 }
 
-main().catch(() => process.exit(1));
+main().catch((error) => {
+    console.error(error);
+    process.exit(1)
+});

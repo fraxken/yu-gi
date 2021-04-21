@@ -189,7 +189,7 @@ export default class Engine extends AssetLoader {
 
         this.rootScene.addChild(this.cursorSprite);
         this.rootScene.addChild(fadeGraphic);
-        this.rootScene.init();
+        this.rootScene.init(this);
     }
 
     _destroyRootScene() {

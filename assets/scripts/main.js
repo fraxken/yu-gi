@@ -1,6 +1,8 @@
 // Import third-party Dependencies
 import { filters } from "@pixi/sound";
-import * as PIXI from "pixi.js";
+const PIXI = require("pixi.js");
+
+PIXI.display = {};
 // import FontFaceObserver from "fontfaceobserver";
 window.PIXI = PIXI;
 
@@ -48,6 +50,10 @@ async function main() {
 
     game.on("awake", () => {
         loadHUD("test_hud");
+
+        // TODO: we have to successfully build this!
+        const layer = new PIXI.display.Layer();
+        console.log(layer);
     });
 }
 main().catch(console.error);

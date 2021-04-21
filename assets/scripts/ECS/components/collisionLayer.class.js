@@ -49,6 +49,12 @@ export default class CollisionLayer extends PIXI.Container {
         // Calcule dx/dy to avoid collision at factor 1?
 
         return {
+            diag: {
+                leftTop: this.isRawWalkable(leftX, topY),
+                rightTop: this.isRawWalkable(rightX, topY),
+                leftBottom: this.isRawWalkable(leftX, bottomY),
+                bottom: this.isRawWalkable(rightX, bottomY)
+            },
             left: this.isRawWalkable(leftX, posy),
             right: this.isRawWalkable(rightX, posy),
             top: this.isRawWalkable(posx, topY),

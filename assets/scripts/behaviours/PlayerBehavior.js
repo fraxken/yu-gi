@@ -69,7 +69,6 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             /** @type {CollisionLayer} */
             this.collision = map.getComponent(Components.Types.TiledMap).collision;
-            console.log(this.collision.collisionsMap);
         }
 
         game.viewport.moveCenter(this.actor.x, this.actor.y);
@@ -105,7 +104,6 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
-
         if (game.input.isKeyDown(Key.Z) && isTopWalkable) {
             this.actor.moveY(-currentSpeed);
         }
