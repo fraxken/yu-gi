@@ -1,5 +1,5 @@
 // Import dependencies
-import { ScriptBehavior, getActor, Timer } from "../ECS";
+import { ScriptBehavior, getActor, Timer, hitTestRectangle } from "../ECS";
 import { Key } from "../helpers";
 // import { EntityBuilder, SpatialSound } from "../helpers";
 
@@ -25,8 +25,7 @@ export default class DoorBehavior extends ScriptBehavior {
             return;
         }
 
-        const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (distance < 50 && game.input.wasKeyJustPressed(Key.E)) {
+        if (game.input.wasKeyJustPressed(Key.E) && hitTestRectangle(this.actor, this.target)) {
             this.warp();
         }
     }
