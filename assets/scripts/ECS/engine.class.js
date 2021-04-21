@@ -92,6 +92,7 @@ export default class Engine extends AssetLoader {
             TiledSet.cache = [];
             TiledSet.loaded.clear();
             TiledMap.sharedCollisionLayer = null;
+            this.rootScene = null;
 
             this._initRootScene(sceneInstance, ...options);
         });

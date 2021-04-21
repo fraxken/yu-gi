@@ -26,9 +26,8 @@ export default class CollisionLayer extends PIXI.Container {
 
     generate(chunk, offset = null) {
         chunk.data = typeof chunk.data === "string" ? JSON.parse(chunk.data) : chunk.data;
-        const xOffset = offset === null ? 0 : offset.x;
-        const yOffset = offset === null ? 0 : offset.y;
-        console.log("offset: ", xOffset, yOffset);
+        const xOffset = offset === null ? 0 : (offset.x / this.tileWidth);
+        const yOffset = offset === null ? 0 : (offset.y / this.tileHeight);
 
         for (const { x, y, textureId } of TiledLayer.iter(chunk)) {
             if (textureId !== 0) {
@@ -55,6 +54,13 @@ export default class CollisionLayer extends PIXI.Container {
             top: this.isRawWalkable(posx, topY),
             bottom: this.isRawWalkable(posx, bottomY)
         }
+    }
+
+    getTilePosition(x, y) {
+        return {
+            x: Math.floor(x / this.tileWidth),
+            y: Math.floor(y / this.tileHeight)
+        };
     }
 
     /**

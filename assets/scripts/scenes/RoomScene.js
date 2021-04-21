@@ -24,8 +24,6 @@ export default class RoomScene extends Scene {
             // tiledMap.on("object", this.build.bind(this));
             tiledMap.init();
             map.addComponent(tiledMap);
-
-            console.log(map);
         }
 
         console.log(`Init room '${roomName}': ${type} - ${doors}`);
