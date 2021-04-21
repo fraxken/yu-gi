@@ -109,7 +109,7 @@ export default class Engine extends AssetLoader {
         const params = options.params || [];
         const loaded = options.loaded || null;
 
-        if (this.rootScene === null) {
+        if (this.rootScene === null || this.rootScene.constructor.name !== sceneInstance.constructor.name) {
             this.waitingScenes.push({
                 scene: new sceneInstance(...params),
                 callback: loaded
@@ -161,6 +161,7 @@ export default class Engine extends AssetLoader {
             callback(scene);
         }
         this.waitingScenes = [];
+        console.log("[INFO] Waiting scenes added to current scene!");
 
         this.cursorSprite = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)

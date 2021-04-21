@@ -42,7 +42,11 @@ export default class Actor extends ActorTree {
         if (this.sprite) {
             this.sprite.destroy();
         }
-        this.destroy();
+        this.destroy({
+            children: true,
+            texture: true,
+            baseTexture: true
+        });
         this.destroyed = true;
     }
 

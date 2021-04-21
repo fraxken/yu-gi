@@ -42,6 +42,7 @@ export default class TiledLayer extends PIXI.Container {
         else if ("data" in layer) {
             this.generate(layer);
         }
+
         if (this.parent.debug) {
             console.log(`[INFO] Loaded TiledLayer '${this.name}'`);
         }

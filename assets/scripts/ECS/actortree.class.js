@@ -91,9 +91,6 @@ export default class ActorTree extends PIXI.Container {
         else if (this.useLRUCache && this.actorsCache.has(actorName)) {
             return this.actorsCache.get(actorName);
         }
-        else if (!recursive) {
-            return null;
-        }
 
         for (const actor of this.getActorsFromComponents()) {
             if (actor.name === actorName) {
@@ -116,7 +113,7 @@ export default class ActorTree extends PIXI.Container {
             }
         }
 
-        if (this.childScenes)  {
+        if (Array.isArray(this.childScenes))  {
             for (const scene of this.childScenes) {
                 const actor = scene.findChild(actorName, recursive);
                 if (actor !== null) {

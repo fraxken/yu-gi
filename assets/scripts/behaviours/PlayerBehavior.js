@@ -90,43 +90,26 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.currentHp += 1;
         }
 
-        // const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
-        // const isLeftWalkable = !neighbours.left || neighbours.right;
-        // const isRightWalkable = !neighbours.right || neighbours.left;
-        // const isTopWalkable = !neighbours.top || neighbours.bottom;
-        // const isBottomWalkable = !neighbours.bottom || neighbours.top;
-
-        // const currentSpeed = this.speed.walk(!this.actor.moving);
-        // if (game.input.isKeyDown(Key.Q) && isLeftWalkable) {
-        //     this.actor.moveX(-currentSpeed);
-        //     this.sprite.scale.x = -1;
-        // }
-        // else if (game.input.isKeyDown(Key.D) && isRightWalkable) {
-        //     this.actor.moveX(currentSpeed);
-        //     this.sprite.scale.x = 1;
-        // }
-
-        // if (game.input.isKeyDown(Key.Z) && isTopWalkable) {
-        //     this.actor.moveY(-currentSpeed);
-        // }
-        // else if (game.input.isKeyDown(Key.S) && isBottomWalkable) {
-        //     this.actor.moveY(currentSpeed);
-        // }
+        const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
+        const isLeftWalkable = !neighbours.left || neighbours.right;
+        const isRightWalkable = !neighbours.right || neighbours.left;
+        const isTopWalkable = !neighbours.top || neighbours.bottom;
+        const isBottomWalkable = !neighbours.bottom || neighbours.top;
 
         const currentSpeed = this.speed.walk(!this.actor.moving);
-        if (game.input.isKeyDown(Key.Q)) {
+        if (game.input.isKeyDown(Key.Q) && isLeftWalkable) {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
         }
-        else if (game.input.isKeyDown(Key.D)) {
+        else if (game.input.isKeyDown(Key.D) && isRightWalkable) {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
 
-        if (game.input.isKeyDown(Key.Z)) {
+        if (game.input.isKeyDown(Key.Z) && isTopWalkable) {
             this.actor.moveY(-currentSpeed);
         }
-        else if (game.input.isKeyDown(Key.S)) {
+        else if (game.input.isKeyDown(Key.S) && isBottomWalkable) {
             this.actor.moveY(currentSpeed);
         }
 

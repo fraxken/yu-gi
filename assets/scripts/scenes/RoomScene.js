@@ -13,17 +13,19 @@ export default class RoomScene extends Scene {
 
         {
             const map = new Actor(roomName);
-            map.visible = true;
+            this.add(map);
+            // map.visible = true;
 
             const tiledMap = new Components.TiledMap("room", {
-                debug: true,
+                debug: false,
                 useSharedCollision: true,
                 collisionOffset: { x, y }
             });
             // tiledMap.on("object", this.build.bind(this));
             tiledMap.init();
             map.addComponent(tiledMap);
-            this.add(map);
+
+            console.log(map);
         }
 
         console.log(`Init room '${roomName}': ${type} - ${doors}`);

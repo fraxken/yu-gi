@@ -31,6 +31,7 @@ export default class Scene extends ActorTree {
         this.started = false;
         this.destroyed = false;
         this.debug = options.debug || false;
+        this.isUpdated = false;
 
         /** @type {Scene[]} */
         this.childScenes = [];
@@ -53,6 +54,15 @@ export default class Scene extends ActorTree {
             controller.emit("start");
         }
 
+        this.setupUpdateTick();
+    }
+
+    setupUpdateTick() {
+        if (this.isUpdated){
+            return;
+        }
+
+        this.isUpdated = true;
         game.app.ticker.add(this.update.bind(this));
     }
 
@@ -110,6 +120,9 @@ export default class Scene extends ActorTree {
         this.started = true;
         if (this.debug)  {
             console.log(`[INFO] Scene '${this.name}' start phase ended!`);
+        }
+        for (const child of this.childScenes) {
+            child.setupUpdateTick();
         }
 
         return this;
