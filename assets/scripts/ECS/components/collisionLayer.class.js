@@ -44,8 +44,8 @@ export default class CollisionLayer extends PIXI.Container {
         // Neighbours tile position in 4 directions
         const leftX = posx - 1;
         const rightX = posx + 1;
-        const topY = posy;
-        const bottomY = posy + 1;
+        const topY = posy - 1;
+        const bottomY = posy;
 
         // Calcule dx/dy to avoid collision at factor 1?
 

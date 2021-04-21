@@ -17,7 +17,7 @@ export default class DoorBehavior extends ScriptBehavior {
         this.warpTimer.start();
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
-        script.sendMessage("teleport", this.connectedTo.position);
+        script.sendMessage("teleport", this.connectedTo.centerPosition);
     }
 
     update() {

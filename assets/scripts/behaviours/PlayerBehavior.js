@@ -48,6 +48,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             const spriteComponent = new Components.AnimatedSpriteEx("adventurer", {
                 defaultAnimation: "adventurer-idle"
             });
+            spriteComponent.anchor.set(0.5, 1);
             spriteComponent.oneToMany("idle", ["adventurer-idle", "adventurer-idle-2"]);
 
             /** @type {AnimatedSpriteEx} */
