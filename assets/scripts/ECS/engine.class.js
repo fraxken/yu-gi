@@ -8,6 +8,8 @@ import Scene from "./scene.class.js";
 import State from "./state.class";
 import AssetLoader from "./assetloader.class";
 import Fade from "./math/fade";
+import TiledSet from "./components/tiledset";
+import TiledMap from "./components/tiledmap";
 
 export default class Engine extends AssetLoader {
     /**
@@ -18,11 +20,9 @@ export default class Engine extends AssetLoader {
      */
     constructor(options = Object.create(null)) {
         super();
-
-        // TODO: use this for scene loading
-        this.alreadyStarted = false;
         this.debug = options.debug || false;
         this.state = options.state || new State({});
+        this.waitingScenes = [];
 
         this.app = new PIXI.Application({
             width: window.innerWidth,
@@ -57,6 +57,10 @@ export default class Engine extends AssetLoader {
         window.addEventListener("resize", this.resizeRendererToScreenSize.bind(this));
     }
 
+    get resolution() {
+        return PIXI.settings.RESOLUTION * 2;
+    }
+
     get screenSize() {
         const { width, height } = this.app.renderer.view;
 
@@ -83,21 +87,40 @@ export default class Engine extends AssetLoader {
 
         this.fade.out(() => {
             this._destroyRootScene();
+
+            // Reset components cache
+            TiledSet.cache = [];
+            TiledSet.loaded.clear();
+            TiledMap.sharedCollisionLayer = null;
+
             this._initRootScene(sceneInstance, ...options);
         });
     }
 
     /**
      * @param {!string} sceneName
-     * @param  {...any} options
+     * @param {object} [options]
      */
-    appendScene(sceneName, ...options) {
+    appendScene(sceneName, options = {}) {
         const sceneInstance = Scene.cache.get(sceneName);
         if (typeof sceneInstance === "undefined") {
             throw new Error(`Unable to found scene with name '${sceneName}'`);
         }
+        const params = options.params || [];
+        const loaded = options.loaded || null;
 
-        return this.rootScene.add(new sceneInstance(...options));
+        if (this.rootScene === null) {
+            this.waitingScenes.push({
+                scene: new sceneInstance(...params),
+                callback: loaded
+            });
+        }
+        else {
+            const scene = this.rootScene.add(new sceneInstance(...params));
+            if (loaded !== null) {
+                loaded(scene);
+            }
+        }
     }
 
     init() {
@@ -131,8 +154,15 @@ export default class Engine extends AssetLoader {
      */
     _initRootScene(sceneInstance, ...options) {
         this.rootScene = new sceneInstance(...options);
+        this.viewport.addChild(this.rootScene);
 
-        const cursorSprite = new PIXI.Graphics()
+        for (const { scene, callback } of this.waitingScenes) {
+            this.rootScene.add(scene);
+            callback(scene);
+        }
+        this.waitingScenes = [];
+
+        this.cursorSprite = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)
             .drawCircle(0, 0, 5)
             .endFill();
@@ -143,7 +173,7 @@ export default class Engine extends AssetLoader {
             this.mousePosition = event.data.global;
 
             const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
-            cursorSprite.position.set(localPos.x, localPos.y);
+            this.cursorSprite.position.set(localPos.x, localPos.y);
         });
 
         const fadeGraphic = new PIXI.Graphics()
@@ -155,14 +185,15 @@ export default class Engine extends AssetLoader {
             frame: 30, delayIn: 20, delayOut: 20, defaultState: "in"
         });
 
-        this.viewport.addChild(this.rootScene);
-
-        this.rootScene.addChild(cursorSprite);
+        this.rootScene.addChild(this.cursorSprite);
         this.rootScene.addChild(fadeGraphic);
         this.rootScene.init();
     }
 
     _destroyRootScene() {
+        this.app.stage.removeAllListeners("pointermove");
+
+        this.cursorSprite.destroy();
         this.fade.displayObject.destroy({ children: true });
         this.fade = null;
         this.rootScene.cleanup();

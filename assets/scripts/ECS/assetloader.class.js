@@ -7,8 +7,8 @@ const kSoundsAssetExt = new Set(["mp3", "ogg", "wav"]);
 function center(gameObject, padding = { x: 0, y: 0 }) {
     const { width, height } = game.screenSize;
 
-    gameObject.x = (width / 2) + (padding.x || 0);
-    gameObject.y = (height / 2) + (padding.y || 0);
+    gameObject.x = (width / game.resolution) + (padding.x || 0);
+    gameObject.y = (height / game.resolution) + (padding.y || 0);
 }
 
 export default class AssetLoader extends PIXI.utils.EventEmitter {
@@ -104,6 +104,7 @@ export default class AssetLoader extends PIXI.utils.EventEmitter {
      */
     loadAssets(loader, callback) {
         const loadingContainer = AssetLoader.createLoadingScreen();
+        console.log(loadingContainer.position);
         this.app.stage.addChild(loadingContainer);
 
         for (const [name, assetOptions] of this.assets.entries()) {

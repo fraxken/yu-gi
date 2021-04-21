@@ -6,14 +6,17 @@ export default class RoomScene extends Scene {
         super({ useLRUCache: true, debug: false });
 
         const { x, y, type, doors } = options;
+        this.roomName = roomName;
         this.position.set(x, y);
+        this.type = type;
+        this.doors = doors;
 
         {
             const map = new Actor(roomName);
             map.visible = true;
 
             const tiledMap = new Components.TiledMap("room", {
-                debug: false,
+                debug: true,
                 useSharedCollision: true,
                 collisionOffset: { x, y }
             });

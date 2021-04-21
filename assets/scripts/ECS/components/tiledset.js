@@ -5,10 +5,16 @@ import * as PIXI from "pixi.js";
 import { findAsset } from "../helpers";
 
 export default class TiledSet {
+    /** @type {TiledSet[]} */
+    static cache = [];
+    /** @type {Set<string>} */
+    static loaded = new Set();
+
     /**
      * @param {!Tiled.TileSet} tiledData
      */
     constructor(tiledData, options = {}) {
+        TiledSet.loaded.add(tiledData.name);
         this.name = tiledData.name;
         this.firstgid = tiledData.firstgid;
         this.debug = options.debug;
@@ -37,6 +43,7 @@ export default class TiledSet {
         if (this.debug) {
             console.log(`[INFO] Loaded TiledSet name '${this.name}' with '${this.textures.length}' textures!`);
         }
+        TiledSet.cache.push(this);
     }
 
     /**

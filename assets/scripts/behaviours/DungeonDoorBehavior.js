@@ -1,5 +1,5 @@
 // Import dependencies
-import { ScriptBehavior, getActor, Timer } from "../ECS";
+import { ScriptBehavior, getActor } from "../ECS";
 import { Key } from "../helpers";
 
 export default class DungeonDoorBehavior extends ScriptBehavior {
@@ -16,6 +16,7 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
         script.playable = false;
+        console.clear();
         console.log("load scene");
         game.loadScene("dungeon");
     }

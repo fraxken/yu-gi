@@ -11,13 +11,11 @@ import CollisionLayer from "./collisionLayer.class";
 
 // CONSTANTS
 const kCollisionLayerName = new Set(["collisions", "collision"]);
-const kLoadedTileSet = new Set();
-const kTiledSets = [];
-
-/** @type {CollisionLayer} */
-let sharedCollisionLayer = null;
 
 export default class TiledMap extends PIXI.Container {
+    /** @type {CollisionLayer} */
+    static sharedCollisionLayer = null;
+
     static assignProperties(object, properties = []) {
         object.tileProperties = Object.create(null);
         for (const property of properties) {
@@ -57,19 +55,15 @@ export default class TiledMap extends PIXI.Container {
 
         this.tileWidth = data.tilewidth;
         this.tileHeight = data.tileheight;
-        for (const config of data.tilesets) {
-            if (kLoadedTileSet.has(config.name)) {
-                continue;
-            }
-            kTiledSets.push(new TiledSet(config, { debug: this.debug }));
-            kLoadedTileSet.add(config.name);
-        }
-        this.tiledsets = kTiledSets;
+
+        data.tilesets
+            .filter((config) => !TiledSet.loaded.has(config.name))
+            .forEach((config) => new TiledSet(config, { debug: this.debug }));
         this.dataLayers = data.layers;
 
         /** @type {TiledSet} */
         let lastTiledSet = null;
-        for (const currentTiledSet of this.tiledsets) {
+        for (const currentTiledSet of TiledSet.cache) {
             if (lastTiledSet !== null) {
                 this.setMatcher(lastTiledSet, currentTiledSet.firstgid);
             }
@@ -101,7 +95,7 @@ export default class TiledMap extends PIXI.Container {
      * @returns {CollisionLayer}
      */
     get collision() {
-        return this.useSharedCollision ? sharedCollisionLayer : (this.layers.get("collision") || null);
+        return this.useSharedCollision ? TiledMap.sharedCollisionLayer : (this.layers.get("collision") || null);
     }
 
     setMatcher(lastTiledSet, currentgid) {
@@ -219,18 +213,18 @@ export default class TiledMap extends PIXI.Container {
             /** @type {CollisionLayer} */
             let colLayer = null;
             if (this.useSharedCollision) {
-                if (sharedCollisionLayer === null) {
+                if (TiledMap.sharedCollisionLayer === null) {
                     colLayer = new CollisionLayer(layer, this);
-                    sharedCollisionLayer = colLayer;
+                    TiledMap.sharedCollisionLayer = colLayer;
                 }
                 else {
-                    colLayer = sharedCollisionLayer;
+                    colLayer = TiledMap.sharedCollisionLayer;
 
                     if ("chunks" in layer) {
-                        layer.chunks.forEach((chunk) => sharedCollisionLayer.generate(chunk, this.collisionOffset));
+                        layer.chunks.forEach((chunk) => colLayer.generate(chunk, this.collisionOffset));
                     }
                     else if ("data" in layer) {
-                        sharedCollisionLayer.generate(layer, this.collisionOffset);
+                        colLayer.generate(layer, this.collisionOffset);
                     }
                 }
             }

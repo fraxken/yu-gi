@@ -55,6 +55,11 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.sprite = this.actor.addComponent(spriteComponent);
         }
 
+        this.deathSound = sound.find("death");
+        this.deathSound.volume = 0.1;
+    }
+
+    start() {
         const map = getActor("map") || getActor("start_room");
         if (map) {
             const spawn = map.findChild("spawn", true);
@@ -73,9 +78,6 @@ export default class PlayerBehavior extends ScriptBehavior {
             acceleration: 0.01,
             radius: 40,
         });
-
-        this.deathSound = sound.find("death");
-        this.deathSound.volume = 0.1;
     }
 
     update() {
@@ -88,26 +90,43 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.currentHp += 1;
         }
 
-        const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
-        const isLeftWalkable = !neighbours.left || neighbours.right;
-        const isRightWalkable = !neighbours.right || neighbours.left;
-        const isTopWalkable = !neighbours.top || neighbours.bottom;
-        const isBottomWalkable = !neighbours.bottom || neighbours.top;
+        // const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
+        // const isLeftWalkable = !neighbours.left || neighbours.right;
+        // const isRightWalkable = !neighbours.right || neighbours.left;
+        // const isTopWalkable = !neighbours.top || neighbours.bottom;
+        // const isBottomWalkable = !neighbours.bottom || neighbours.top;
+
+        // const currentSpeed = this.speed.walk(!this.actor.moving);
+        // if (game.input.isKeyDown(Key.Q) && isLeftWalkable) {
+        //     this.actor.moveX(-currentSpeed);
+        //     this.sprite.scale.x = -1;
+        // }
+        // else if (game.input.isKeyDown(Key.D) && isRightWalkable) {
+        //     this.actor.moveX(currentSpeed);
+        //     this.sprite.scale.x = 1;
+        // }
+
+        // if (game.input.isKeyDown(Key.Z) && isTopWalkable) {
+        //     this.actor.moveY(-currentSpeed);
+        // }
+        // else if (game.input.isKeyDown(Key.S) && isBottomWalkable) {
+        //     this.actor.moveY(currentSpeed);
+        // }
 
         const currentSpeed = this.speed.walk(!this.actor.moving);
-        if (game.input.isKeyDown(Key.Q) && isLeftWalkable) {
+        if (game.input.isKeyDown(Key.Q)) {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
         }
-        else if (game.input.isKeyDown(Key.D) && isRightWalkable) {
+        else if (game.input.isKeyDown(Key.D)) {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
 
-        if (game.input.isKeyDown(Key.Z) && isTopWalkable) {
+        if (game.input.isKeyDown(Key.Z)) {
             this.actor.moveY(-currentSpeed);
         }
-        else if (game.input.isKeyDown(Key.S) && isBottomWalkable) {
+        else if (game.input.isKeyDown(Key.S)) {
             this.actor.moveY(currentSpeed);
         }
 
