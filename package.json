@@ -23,6 +23,7 @@
   "homepage": "https://github.com/fraxken/pixi-experimental#readme",
   "dependencies": {
     "@pixi/sound": "^4.0.1",
+    "fontfaceobserver": "^2.1.0",
     "fs-extra": "^9.1.0",
     "lit-element": "^2.4.0",
     "lodash.clonedeep": "^4.5.0",
