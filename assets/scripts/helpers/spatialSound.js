@@ -45,20 +45,24 @@ export default class SpatialSound {
 
         /** @type {Sound} */
         this.sound = sound.find(assetName);
+        this.sound.volume = this.maxsound;
+        this.sound.loop = this.loop;
 
-        // @see https://pixijs.io/sound/docs/Sound.html (context & instances)
+        // @see https://pixijs.io/sound/docs/Sound.html (context & media)
         /** @type {AudioContext} */
         this.audioCtx = this.sound.context._ctx;
+        // console.log(this.audioCtx);
 
         // @see https://developer.mozilla.org/en-US/docs/Web/API/StereoPannerNode
         this.panNode = this.audioCtx.createStereoPanner();
-        for (const source of this.sound.instances) {
-            source.connect(this.panNode);
-        }
+
+        this.soundSource = this.sound.media._source;
+        // console.log(this.sound.media);
+        // console.log(this.soundSource);
+
+        this.soundSource.connect(this.panNode);
         this.panNode.connect(this.audioCtx.destination);
 
-        this.sound.volume = this.maxsound;
-        this.sound.loop = this.loop;
         this.sound.play();
     }
 
@@ -114,10 +118,10 @@ export default class SpatialSound {
             // -- nous allons pouvoir savoir si le son est a droite ou a gauche de la droite
             const determinent = listenerDirection.x * soundDirection.y - listenerDirection.y * soundDirection.x;
 
-            // // -- si le résultat est positif alors le point est à gauche de la droite
-            // // -- si le résultat est négatif alors le point est à droite de la droite
-            // // -- si le résultat est nul alors le point est sur la droite
-            this.panNode.pan.setValueAtTime(determinent >= 0 ? pan : -pan, this.audioCtx.currentTime);
+            // -- si le résultat est positif alors le point est à gauche de la droite
+            // -- si le résultat est négatif alors le point est à droite de la droite
+            // -- si le résultat est nul alors le point est sur la droite
+            this.panNode.pan.value = determinent >= 0 ? pan : -pan;
         }
         else {
             this.sound.volume = 0;

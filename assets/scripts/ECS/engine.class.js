@@ -46,7 +46,7 @@ export default class Engine extends AssetLoader {
         this.mousePosition = null;
 
         this.app.renderer.view.addEventListener("mousedown", () => {
-            this.input.lockMouse();
+            // this.input.lockMouse();
         }, { once: true });
 
         this.defaultRootScene = options.defaultScene;

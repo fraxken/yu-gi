@@ -8,7 +8,7 @@ export default class DefaultScene extends Scene {
         {
             const map = new Actor("map");
             map.visible = true;
-            const tiledMap = new Components.TiledMap("map1", { debug: true });
+            const tiledMap = new Components.TiledMap("map1", { debug: false });
             tiledMap.on("object", this.build.bind(this));
             tiledMap.init();
             map.addComponent(tiledMap);
@@ -16,7 +16,7 @@ export default class DefaultScene extends Scene {
         }
 
         this.add(EntityBuilder.create("actor:player"));
-        this.add(...EntityBuilder.createMany("actor:creature", 5));
+        // this.add(...EntityBuilder.createMany("actor:creature", 5));
         this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
     }
 

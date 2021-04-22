@@ -19,7 +19,7 @@ export default class SpatialSoundBehavior extends ScriptBehavior {
         const listener = getActor("player");
 
         this.sound = new SpatialSound(this.soundName, this.actor, listener, {
-            maxsound: 0.1, max: this.soundRadius, debug: true
+            maxsound: 0.5, max: this.soundRadius, debug: true
         });
     }
 
