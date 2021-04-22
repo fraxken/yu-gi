@@ -16,20 +16,30 @@ export default class Fade {
      * @param {"in" | "out"} [options.defaultState = "in"]
      * @param {number} [options.delayIn]
      * @param {number} [options.delayOut]
+     * @param {boolean} [options.debug=false]
      */
     constructor(displayObject, options = {}) {
         const { frame, easing, defaultState = "out", delayIn = null, delayOut = null } = options;
 
         this.displayObject = displayObject;
         this.displayObject.alpha = defaultState === "out" ? 0 : 1;
+        this.debug = options.debug || false;
         this.delayTimer = null;
         this.delayIn = delayIn;
         this.delayOut = delayOut;
         this.callback = null;
+        this.defaultState = defaultState;
 
         this.innerFadePn = new ProgressiveNumber(0, 1, {
             frame, easing, reverse: defaultState === "in"
         });
+    }
+
+    reset() {
+        this.displayObject.alpha = this.defaultState === "out" ? 0 : 1;
+        this.innerFadePn.reset();
+        this.delayTimer = null;
+        this.callback = null;
     }
 
     /**
@@ -96,7 +106,7 @@ export default class Fade {
     update() {
         const hasDelayTimer = this.delayTimer !== null;
         if (hasDelayTimer && !this.delayTimer.walk()) {
-            return;
+            return false;
         }
 
         if (hasDelayTimer) {
@@ -106,13 +116,15 @@ export default class Fade {
         const alpha = this.innerFadePn.walk(false);
         this.displayObject.alpha = alpha;
 
-        if (this.callback !== null) {
-            if (this.state === "out" && alpha >= 1 || this.state === "in" && alpha <= 0) {
-                if (typeof this.callback === "function") {
-                    this.callback();
-                }
+        if (this.state === "out" && alpha >= 1 || this.state === "in" && alpha <= 0) {
+            if (typeof this.callback === "function") {
+                this.callback();
                 this.callback = null;
             }
+
+            return true;
         }
+
+        return false;
     }
 }

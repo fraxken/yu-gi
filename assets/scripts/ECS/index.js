@@ -16,6 +16,7 @@ import TiledMap from "./components/tiledmap";
 import Vector2 from "./math/vector2";
 import * as Easing from "./math/easing";
 import Timer from "./math/timer.class";
+import Fade from "./math/fade";
 import ProgressiveNumber from "./math/progressiveNumber";
 
 const Components = {
@@ -38,6 +39,7 @@ export {
     getTexture,
     Components,
     Vector2,
+    Fade,
     Easing,
     Timer,
     ProgressiveNumber,

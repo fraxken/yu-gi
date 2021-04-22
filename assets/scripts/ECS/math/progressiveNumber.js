@@ -22,7 +22,12 @@ export default class ProgressiveNumber {
         this.dx = this.max - this.min;
         this.easing = easing;
 
+        this.defaultReverse = reverse;
         this.reverted = reverse;
+    }
+
+    reset() {
+        this.revert(this.defaultReverse);
     }
 
     get baseValue() {
