@@ -1,14 +1,15 @@
 // Import third-party Dependencies
 import { filters } from "@pixi/sound";
 const PIXI = require("pixi.js");
-
-PIXI.display = {};
-// import FontFaceObserver from "fontfaceobserver";
 window.PIXI = PIXI;
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 PIXI.settings.RESOLUTION = 2;
 PIXI.settings.PRECISION_FRAGMENT = "highp";
+
+require("pixi-layers");
+
+// import FontFaceObserver from "fontfaceobserver";
 
 // Import ECS & Helpers Dependencies
 import { State, Engine } from "./ECS";

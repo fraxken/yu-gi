@@ -28,8 +28,9 @@ async function main() {
 
     await esbuild.build({
         entryPoints: [
+            // path.join(kAssetsDir, "scripts", "pixi.js"),
+            // path.join(kAssetsDir, "scripts", "layers.js"),
             path.join(kAssetsDir, "scripts", "main.js"),
-            path.join(kAssetsDir, "scripts", "layers.js"),
             path.join(kPublicDir, "hud.js"),
             path.join(kPublicDir, "css", "main.css")
         ],
