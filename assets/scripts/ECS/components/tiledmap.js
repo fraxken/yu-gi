@@ -46,7 +46,7 @@ export default class TiledMap extends PIXI.Container {
         /** @type {Map<any, TiledSet>} */
         this.tiledSetMatcher = new Map();
 
-        /** @type {Map<number, PIXI.Texture>} */
+        /** @type {Map<number, { gid: number; animated: boolean; texture: PIXI.Texture; frames: Tiled.AnimationFrame[]; }>} */
         this.textureIdCache = new Map();
 
         /** @type {Tiled.TileMap} */
@@ -110,7 +110,7 @@ export default class TiledMap extends PIXI.Container {
 
     /**
      * @param {!number} id
-     * @returns {PIXI.Texture}
+     * @returns {{ gid: number; animated: boolean; texture: PIXI.Texture; frames: Tiled.AnimationFrame[]; }}
      */
     getTexture(id) {
         if (this.textureIdCache.has(id)) {

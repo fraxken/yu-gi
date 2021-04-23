@@ -1,4 +1,17 @@
 declare namespace Tiled {
+    export interface AnimationFrame {
+        tileid: number;
+        duration: number;
+    }
+
+    export interface Tile {
+        id: number;
+        properties?: Property[];
+        animation: {
+            frame: AnimationFrame[];
+        }
+    }
+
     export interface TileSet {
         firstgid: number;
         source: string;
@@ -13,6 +26,7 @@ declare namespace Tiled {
             width: number;
             height: number;
         }
+        tile?: Tile | Tile[];
     }
 
     export interface TileChunk {

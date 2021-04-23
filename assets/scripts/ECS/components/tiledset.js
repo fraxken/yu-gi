@@ -31,6 +31,13 @@ export default class TiledSet {
         this.tileHeight = data.tileheight;
         this.tileCount = data.tilecount;
 
+        /** @type {Map<number, Tiled.AnimationFrame[]>} */
+        this.animatedTile = new Map();
+        if (data.tile) {
+            const tiles = Array.isArray(data.tile) ? data.tile : [data.tile];
+            tiles.forEach((tile) => this.addAnimatedTile(tile));
+        }
+
         const { margin, image } = data;
         for (let y = margin; y < image.height; y += this.tileHeight) {
             for (let x = margin; x < image.width; x += this.tileWidth) {
@@ -47,11 +54,28 @@ export default class TiledSet {
     }
 
     /**
+     * @param {!Tiled.Tile} tile
+     */
+    addAnimatedTile(tile) {
+        if (!tile.animation) {
+            return;
+        }
+
+        this.animatedTile.set(tile.id, tile.animation.frame);
+    }
+
+    /**
      * @param {!number} id
      */
     getTexture(id) {
         const realId = id - this.firstgid;
+        const animated = this.animatedTile.has(realId);
 
-        return this.textures[realId];
+        return {
+            gid: this.firstgid,
+            animated,
+            texture: this.textures[realId],
+            frames: animated ? this.animatedTile.get(realId) : null
+        };
     }
 }

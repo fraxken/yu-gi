@@ -26,6 +26,18 @@ function* readdirWithExt(dir, ext) {
     }
 }
 
+function cleanupTile(tile) {
+    tile.id = Number(tile.id);
+    if (!tile.animation || !tile.animation.frame) {
+        return;
+    }
+
+    for (const frame of tile.animation.frame) {
+        frame.tileid = Number(frame.tileid);
+        frame.duration = Number(frame.duration);
+    }
+}
+
 function readXML(xmlFilePath) {
     const fileStr = fs.readFileSync(xmlFilePath);
     const { tileset } = JSON.parse(parser.toJson(fileStr));
@@ -37,6 +49,11 @@ function readXML(xmlFilePath) {
     tileset.margin = Number(tileset.margin || "0");
     tileset.image.width = Number(tileset.image.width);
     tileset.image.height = Number(tileset.image.height);
+
+    if (tileset.tile) {
+        const tiles = Array.isArray(tileset.tile) ? tileset.tile : [tileset.tile];
+        tiles.forEach((tile) => cleanupTile(tile));
+    }
 
     return tileset;
 }

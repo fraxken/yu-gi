@@ -71,9 +71,22 @@ export default class TiledLayer extends PIXI.Container {
      * @param {!number} textureId
      */
     createTile(x, y, textureId) {
-        const texture = this.parent.getTexture(textureId);
+        const { gid, animated, texture, frames } = this.parent.getTexture(textureId);
 
-        const tile = new PIXI.Sprite(texture);
+        let tile;
+        if (animated) {
+            const textures = frames
+                .map((frame) => this.parent.getTexture(gid + frame.tileid).texture);
+
+            tile = new PIXI.AnimatedSprite(textures);
+            if (tile.textures.length > 1) {
+                tile.animationSpeed = 1000 / 60 / frames[0].duration;
+                tile.gotoAndPlay(0);
+            }
+        }
+        else {
+            tile = new PIXI.Sprite(texture);
+        }
         tile.x = x * this.parent.tileWidth;
         tile.y = y * this.parent.tileHeight;
 
