@@ -1,5 +1,5 @@
-import { EntityBuilder } from "../helpers";
-import { Scene, Actor, Components } from "../ECS";
+import { EntityBuilder, zIndexManager } from "../helpers";
+import { Scene, Actor, Components, getActor } from "../ECS";
 
 export default class DefaultScene extends Scene {
     constructor() {
@@ -15,9 +15,23 @@ export default class DefaultScene extends Scene {
             this.add(map);
         }
 
-        this.add(EntityBuilder.create("actor:player"));
+        const playerActor = EntityBuilder.create("actor:player");
+        this.add(playerActor);
         // this.add(...EntityBuilder.createMany("actor:creature", 5));
-        this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
+        // this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
+
+        this.graph = new Actor("graph");
+        {
+            const temp = new PIXI.Graphics()
+                .beginFill(PIXI.utils.string2hex("#000"), 1)
+                .drawCircle(0, 0, 30)
+                .endFill();
+            this.graph.addChild(temp);
+        }
+        this.graph.position.set(0, 0);
+        this.addChild(this.graph);
+
+        this.zManager = new zIndexManager(playerActor, [this.graph]);
     }
 
     /**
@@ -30,6 +44,12 @@ export default class DefaultScene extends Scene {
         else if (actor.name === "test") {
             actor.createScriptedBehavior("DungeonDoorBehavior");
         }
+    }
+
+    update() {
+        super.update();
+
+        this.zManager.update();
     }
 }
 

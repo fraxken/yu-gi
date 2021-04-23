@@ -15,6 +15,8 @@ export default class ActorTree extends PIXI.Container {
 
         /** @type {Map<string, Actor>} */
         this.actors = new Map();
+
+        this.sortableChildren = true;
     }
 
     cleanupTree() {

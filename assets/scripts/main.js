@@ -6,6 +6,7 @@ window.PIXI = PIXI;
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 PIXI.settings.RESOLUTION = 2;
 PIXI.settings.PRECISION_FRAGMENT = "highp";
+PIXI.settings.SORTABLE_CHILDREN = true;
 
 require("pixi-layers");
 
