@@ -12,8 +12,8 @@ export default class Minimap extends PIXI.Container {
      */
     constructor(options = {}) {
         super();
-        this.width = options.width || 500;
-        this.height = options.height || 400;
+        this.width = options.width || 300;
+        this.height = options.height || 200;
 
         this.content = this.addChild(
             new Viewport({
@@ -23,7 +23,7 @@ export default class Minimap extends PIXI.Container {
                 interaction: options.interaction
             })
         );
-        this.content.decelerate();
+        // this.content.decelerate();
         this.content.zoomPercent(1);
         this.interactive = true;
 

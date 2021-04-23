@@ -146,6 +146,13 @@ export default class Engine extends AssetLoader {
         console.log(`[INFO] initStage start`);
         this.app.stage.addChild(this.viewport);
         this.app.stage.addChild(this.minimap);
+        {
+            const box = this.minimap.content.addChild(new PIXI.Graphics());
+            box.beginFill(0xff0000, 1).drawRect(0, 0, 300, 200).endFill();
+
+            const { width, height } = this.screenSize;
+            this.minimap.position.set(width / 2, height / 2);
+        }
 
         // Configure viewport
         this.viewport.zoomPercent(1);
