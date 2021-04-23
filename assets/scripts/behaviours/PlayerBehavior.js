@@ -7,6 +7,8 @@ import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key } from "../helpers";
 
+import { Inputs } from "../keys";
+
 const kPlayerStats = {
     speed: 1,
     currentHp: 1,
@@ -96,18 +98,18 @@ export default class PlayerBehavior extends ScriptBehavior {
         const isBottomWalkable = !neighbours.bottom || neighbours.top;
 
         const currentSpeed = this.speed.walk(!this.actor.moving);
-        if (game.input.isKeyDown(Key.Q) && isLeftWalkable) {
+        if (Inputs.left() && isLeftWalkable) {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
         }
-        else if (game.input.isKeyDown(Key.D) && isRightWalkable) {
+        else if (Inputs.right() && isRightWalkable) {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
-        if (game.input.isKeyDown(Key.Z) && isTopWalkable) {
+        if (Inputs.up() && isTopWalkable) {
             this.actor.moveY(-currentSpeed);
         }
-        else if (game.input.isKeyDown(Key.S) && isBottomWalkable) {
+        else if (Inputs.down() && isBottomWalkable) {
             this.actor.moveY(currentSpeed);
         }
 

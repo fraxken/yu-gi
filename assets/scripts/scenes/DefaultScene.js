@@ -7,8 +7,7 @@ export default class DefaultScene extends Scene {
 
         {
             const map = new Actor("map");
-            map.visible = true;
-            const tiledMap = new Components.TiledMap("map1", { debug: false });
+            const tiledMap = new Components.TiledMap("map1", { debug: true });
             tiledMap.on("object", this.build.bind(this));
             tiledMap.init();
             map.addComponent(tiledMap);
@@ -34,6 +33,12 @@ export default class DefaultScene extends Scene {
         this.zManager = new zIndexManager(playerActor, [this.graph]);
     }
 
+    cleanup() {
+        this.zManager.stop();
+        this.zManager = null;
+        super.cleanup();
+    }
+
     /**
      * @param {!Actor} actor
      */
@@ -49,7 +54,9 @@ export default class DefaultScene extends Scene {
     update() {
         super.update();
 
-        this.zManager.update();
+        if (this.zManager !== null) {
+            this.zManager.update();
+        }
     }
 }
 

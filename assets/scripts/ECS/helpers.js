@@ -69,7 +69,7 @@ export function hitTestRectangle(r1, r2) {
 
     //Figure out the combined half-widths and half-heights
     const combinedHalfWidths = r1.halfWidth + r2.halfWidth;
-    const combinedHalfHeights = (r1.halfHeight + r2.halfHeight) / 1.2;
+    const combinedHalfHeights = r1.halfHeight + r2.halfHeight;
 
     //Check for a collision on the x axis
     if (vx < combinedHalfWidths) {

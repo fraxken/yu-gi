@@ -1,6 +1,6 @@
 // Import dependencies
 import { ScriptBehavior, getActor } from "../ECS";
-import { Key } from "../helpers";
+import { Inputs } from "../keys";
 
 export default class DungeonDoorBehavior extends ScriptBehavior {
     awake() {
@@ -27,7 +27,7 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
         }
 
         const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (distance < 50 && game.input.wasKeyJustPressed(Key.E)) {
+        if (distance < 50 && Inputs.use()) {
             this.warp();
         }
     }

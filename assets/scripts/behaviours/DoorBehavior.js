@@ -1,7 +1,7 @@
 // Import dependencies
 import { ScriptBehavior, getActor, Timer, hitTestRectangle } from "../ECS";
-import { Key } from "../helpers";
-// import { EntityBuilder, SpatialSound } from "../helpers";
+
+import { Inputs } from "../keys";
 
 export default class DoorBehavior extends ScriptBehavior {
     awake() {
@@ -25,7 +25,7 @@ export default class DoorBehavior extends ScriptBehavior {
             return;
         }
 
-        if (game.input.wasKeyJustPressed(Key.E) && hitTestRectangle(this.actor, this.target)) {
+        if (Inputs.use() && hitTestRectangle(this.actor, this.target)) {
             this.warp();
         }
     }

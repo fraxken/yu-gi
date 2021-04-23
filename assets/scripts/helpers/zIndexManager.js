@@ -13,6 +13,7 @@ export default class zIndexManager {
         this.target.zIndex = 2;
 
         this.items = new Set(items);
+        this.started = true;
     }
 
     /**
@@ -26,7 +27,16 @@ export default class zIndexManager {
         return this;
     }
 
+    stop() {
+        this.items = new Set();
+        this.started = false;
+    }
+
     update() {
+        if (!this.started || this.target === null) {
+            return;
+        }
+
         const targetY = this.target.position.y;
         for (const item of this.items) {
             // const midHeight = item.height / 2;

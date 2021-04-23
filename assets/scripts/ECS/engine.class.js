@@ -168,6 +168,7 @@ export default class Engine extends AssetLoader {
             .beginFill(PIXI.utils.string2hex("#000"), 1)
             .drawCircle(0, 0, 5)
             .endFill();
+        this.cursorSprite.zIndex = 29;
         // const cursorSprite = new PIXI.Sprite(getTexture("adventurer", "adventurer-air-attack-3-end-00.png"));
         // cursorSprite.anchor.set(0.5, 0.5);
 
@@ -182,6 +183,7 @@ export default class Engine extends AssetLoader {
             .beginFill(PIXI.utils.string2hex("#000"), 1)
             .drawRect(0, 0, window.innerWidth, window.innerHeight)
             .endFill();
+        fadeGraphic.zIndex = 30;
 
         this.fade = new Fade(fadeGraphic, {
             frame: 30, delayIn: 20, delayOut: 20, defaultState: "in"
