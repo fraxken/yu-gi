@@ -3,6 +3,7 @@ import * as PIXI from "pixi.js";
 import { Viewport } from "pixi-viewport";
 
 // Import internal dependencies
+import Minimap from "./minimap.class";
 import Keyboard from "../helpers/input.class.js";
 import Scene from "./scene.class.js";
 import State from "./state.class";
@@ -28,7 +29,8 @@ export default class Engine extends AssetLoader {
             width: window.innerWidth,
             height: window.innerHeight,
             autoResize: true,
-            antialias: false
+            antialias: false,
+            backgroundAlpha: 1
         });
         this.app.stage.interactive = true;
 
@@ -39,6 +41,11 @@ export default class Engine extends AssetLoader {
             worldWidth: 500,
             worldHeight: 500,
             interaction: this.app.renderer.plugins.interaction,
+        });
+        this.minimap = new Minimap({
+            width: 500,
+            height: 400,
+            interaction: this.app.renderer.plugins.interaction
         });
 
         this.input = new Keyboard(this.app.view);
@@ -138,6 +145,7 @@ export default class Engine extends AssetLoader {
     _initStage() {
         console.log(`[INFO] initStage start`);
         this.app.stage.addChild(this.viewport);
+        this.app.stage.addChild(this.minimap);
 
         // Configure viewport
         this.viewport.zoomPercent(1);
