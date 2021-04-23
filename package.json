@@ -1,8 +1,8 @@
 {
   "name": "pixi-experimental",
   "version": "1.0.0",
-  "description": "Experimentation with pixi.js",
-  "main": "index.js",
+  "description": "Game for ludum dare 48",
+  "main": "out/index.html",
   "scripts": {
     "start": "cross-env npm run build && http-server ./out",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/fraxken/pixi-experimental.git"
   },
-  "keywords": [],
+  "keywords": ["ludum", "dare", "48", "jam", "game"],
   "author": "GENTILHOMME Thomas <gentilhomme.thomas@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -24,7 +24,6 @@
   "dependencies": {
     "@pixi/sound": "^4.0.1",
     "fontfaceobserver": "^2.1.0",
-    "fs-extra": "^9.1.0",
     "lit-element": "^2.4.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
@@ -32,15 +31,16 @@
     "lru-cache": "^6.0.0",
     "pixi-layers": "^0.3.1",
     "pixi-viewport": "^4.23.1",
-    "pixi.js": "^6.0.2",
-    "watch-cli": "^0.2.3"
+    "pixi.js": "^6.0.2"
   },
   "devDependencies": {
     "astring": "^1.7.4",
     "cross-env": "^7.0.3",
     "esbuild": "^0.11.12",
+    "fs-extra": "^9.1.0",
     "http-server": "^0.12.3",
     "node-estree": "^3.1.0",
+    "watch-cli": "^0.2.3",
     "xml2json": "^0.12.0"
   }
 }

@@ -1,9 +1,22 @@
-# pixi-experimental
-Experimentation with pixi.js
+# Ludum-dare 48
+Ludum dare 48.
+
+## Team
+
+- GENTILHOMME Thomas
+- VENNET Adrien
+- LIONNET Cédric
+- LEPATELEY Quentin
+- HALLAERT Nicolas
+- GOREZ Tony
+
+## Required
+
+- [Node.js](https://nodejs.org/en/) v14 or higher (with the ability to compile native addons).
+- [GIT](https://git-scm.com/).
 
 ## Getting started
 
-### Start game locally
 ```
 git clone https://github.com/fraxken/pixi-experimental.git
 cd pixi-experimental
@@ -11,17 +24,11 @@ npm ci
 npm start
 ```
 
-### Start in dev mode
-
-Open a first terminal:
+If you want an auto-restart:
 ```
-git clone https://github.com/fraxken/pixi-experimental.git
-cd pixi-experimental
-npm ci
-npm start
+npm run watch
 ```
 
-Then, open an other terminal:
-```
-npm watch
-```
+## Scripts
+
+The command `npm run asset:cleanup` will cleanup TiledMap and TiledSet .json assets. The command must be run each time of the asset is updated.
