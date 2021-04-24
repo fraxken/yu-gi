@@ -1,12 +1,12 @@
 import { LitElement, html, css } from 'lit-element';
 
-import './product-detail';
+import './card-detail';
 
 class StoreModal extends LitElement {
   static get properties() {
     return {
-      selectedItemIndex: { type: Number },
-      items: { type: Array }
+      selectedCardIndex: { type: Number },
+      cards: { type: Array }
     }
   }
 
@@ -48,8 +48,8 @@ class StoreModal extends LitElement {
 
   constructor() {
     super();
-    this.selectedItemIndex = null;
-    this.items = buildFakeProducts(50);
+    this.selectedCardIndex = null;
+    this.cards = buildFakeCards(50);
   }
 
   render() {
@@ -57,16 +57,16 @@ class StoreModal extends LitElement {
       <div class="modal-store">
         <h1 class="modal-store-title">Store</h1>
         <div class="modal-store-column-wrapper">
-          <div class="modal-store-column product-list">
+          <div class="modal-store-column">
           <h3 class="list-name">
-            Available cards (${this.items.length})
+            Available cards (${this.cards.length})
           </h3>
           <div class="main-list">
-            ${this.renderProductList()}
+            ${this.renderCardList()}
           </div>
           </div>
-          <div class="modal-store-column product-detail">
-            <product-detail .product=${this.items[this.selectedItemIndex]}></product-detail>
+          <div class="modal-store-column">
+            <card-detail .product=${this.cards[this.selectedCardIndex]}></card-detail>
           </div>
         </div>
       </div>
@@ -74,14 +74,14 @@ class StoreModal extends LitElement {
   }
 
   handleSelectItem(id) {
-    const newIndex = this.items.findIndex(item => item.id === id)
-    this.selectedItemIndex = newIndex
+    const newIndex = this.cards.findIndex(item => item.id === id)
+    this.selectedCardIndex = newIndex
   }
 
-  renderProductList() {
+  renderCardList() {
     return html`
       <ul>
-        ${this.items.map((item, index) => html`
+        ${this.cards.map((item, index) => html`
           <li
             class=${index % 2 ? "odd" : "even"}
             @click=${() => this.handleSelectItem(item.id)}
@@ -100,19 +100,23 @@ customElements.define('modal-store', StoreModal);
  * STATIC IT -> MOVE THEME ELSEWHERE
  */
 
-function buildFakeProduct(id) {
+function buildFakeCard(id) {
   return {
     id,
     name: `Potion n ${id}`,
     description: `Awesome potion ${id}, take it.`,
-    gains: { property1: "Gain 1", property2: "Gain 2", property3: "Gain 3"}
+    properties: {
+      attack: "3",
+      passive: null,
+      consumable: null
+    }
   }
 }
 
-function buildFakeProducts(count) {
+function buildFakeCards(count) {
   const products = []
   for (let index = 0; index <= count; index++) {
-    products.push(buildFakeProduct(index))
+    products.push(buildFakeCard(index))
   }
 
   return products;

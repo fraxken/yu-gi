@@ -1,6 +1,6 @@
 import { LitElement, css, html } from 'lit-element'
 
-class ProductDetail extends LitElement {
+class CardDetail extends LitElement {
   static get properties() {
     return {
       product: { type: Object }
@@ -34,14 +34,14 @@ class ProductDetail extends LitElement {
     return html`
       <div>
         ${shouldRenderFallBack
-          ? this.renderProductDetailFallback()
-          : this.renderProductDetail()
+          ? this.renderCardDetailFallback()
+          : this.renderCardDetail()
         }
       </div>
     `;
   }
 
-  renderProductDetail() {
+  renderCardDetail() {
     const { name, description } = this.product;
 
     return html`
@@ -56,9 +56,9 @@ class ProductDetail extends LitElement {
     `;
   }
 
-  renderProductDetailFallback() {
+  renderCardDetailFallback() {
     return html`Please select a product.`;
   }
 }
 
-customElements.define('product-detail', ProductDetail);
+customElements.define('card-detail', CardDetail);
