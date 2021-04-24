@@ -1,9 +1,14 @@
 // Import dependencies
-import { Actor, ScriptBehavior, getActor, hitTestRectangle } from "../ECS";
+import { Actor, ScriptBehavior } from "../ECS";
 
 import { EntityBuilder } from "../helpers";
 
 export default class StoneControlBehavior extends ScriptBehavior {
+    constructor() {
+        super({
+            enabled: "dungeon.enabled"
+        });
+    }
 
     awake() {
         this.activatedStone = new Map([
@@ -13,10 +18,6 @@ export default class StoneControlBehavior extends ScriptBehavior {
         ]);
 
         this.allStonesHaveBeenActivated = false;
-    }
-
-    start() {
-
     }
 
     activateStone(name) {
@@ -45,6 +46,7 @@ export default class StoneControlBehavior extends ScriptBehavior {
     update() {
         if (!this.allStonesHaveBeenActivated && this.allStoneActivated()) {
             console.log("WELL PLAYED !!!");
+            this.enabled = true;
             this.allStonesHaveBeenActivated = true;
         }
     }

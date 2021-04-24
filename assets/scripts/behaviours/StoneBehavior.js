@@ -4,8 +4,10 @@ import { ScriptBehavior, getActor, hitTestRectangle } from "../ECS";
 import { Inputs } from "../keys";
 
 export default class StoneBehavior extends ScriptBehavior {
-
-    awake() {
+    constructor() {
+        super({
+            enabled: "dungeon.enabled"
+        });
     }
 
     start() {
@@ -18,6 +20,10 @@ export default class StoneBehavior extends ScriptBehavior {
     }
 
     update() {
+        if (this.enabled) {
+            return;
+        }
+
         if (Inputs.use() && hitTestRectangle(this.actor, this.target)) {
             this.activateStone();
         }
