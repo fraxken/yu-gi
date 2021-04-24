@@ -68,5 +68,6 @@ export const Inputs = {
     right: () => someKey("right", "isKeyDown"),
     up: () => someKey("top", "isKeyDown"),
     down: () => someKey("bottom", "isKeyDown"),
+    useBis: () => someKey("use", "isKeyDown"),
     use: () => someKey("use", "wasKeyJustPressed"),
 }

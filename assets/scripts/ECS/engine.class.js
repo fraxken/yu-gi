@@ -145,7 +145,6 @@ export default class Engine extends AssetLoader {
         // this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
 
         this._initRootScene(this.defaultRootScene);
-        this.app.ticker.add(this.update.bind(this));
         console.log(`[INFO] initStage end`);
     }
 
@@ -192,6 +191,8 @@ export default class Engine extends AssetLoader {
         this.rootScene.addChild(this.cursorSprite);
         this.rootScene.addChild(fadeGraphic);
         this.rootScene.init(this);
+
+        this.app.ticker.add(this.update.bind(this));
     }
 
     _destroyRootScene() {
@@ -201,7 +202,7 @@ export default class Engine extends AssetLoader {
         this.fade.displayObject.destroy({ children: true });
         this.fade = null;
         this.rootScene.cleanup();
-        this.input.reset();
+        this.app.ticker.remove(this.update.bind(this));
 
         this.viewport.removeChild(this.rootScene);
     }

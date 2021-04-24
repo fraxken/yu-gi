@@ -5,7 +5,7 @@ import { Inputs } from "../keys";
 
 export default class DungeonDoorBehavior extends ScriptBehavior {
     awake() {
-        this.warpTimer = new Timer(30, { autoStart: false, keepIterating: false });
+        this.warpTimer = new Timer(120, { autoStart: false, keepIterating: false });
     }
 
     start() {
@@ -30,7 +30,7 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
         }
 
         const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (distance < 50 && Inputs.use()) {
+        if (distance < 50 && Inputs.useBis()) {
             this.warp();
         }
     }
