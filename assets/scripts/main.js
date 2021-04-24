@@ -26,6 +26,9 @@ import assetsURL from "../assets.json";
 
 async function main() {
     const gameState = new State("gameState", {
+        dungeon: {
+            progression: "1.1"
+        },
         player: {
             name: "Thomas",
             currentHp: 1,
@@ -33,7 +36,7 @@ async function main() {
         }
     });
 
-    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
+    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         // .registerTileSet("TilesetFloorB")
         .init();
