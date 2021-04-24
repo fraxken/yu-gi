@@ -10,13 +10,9 @@ class ModalManager extends LitElement {
       .modal {
         pointer-events: all;
         font-family: "Helvetica";
-        background-color: rgba(0, 0, 0, 0.3);
+        color: white;
+        background-color: rgba(0, 0, 0, 0.7);
         padding: 20px;
-        /* position: absolute;
-        height: 80%; 
-        width: 80%; 
-        top: 10%; 
-        left: 10%;  */
       }
     `
   }

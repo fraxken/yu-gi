@@ -10,22 +10,52 @@ class StoreModal extends LitElement {
 
   static get styles() {
     return css`
-      /* .modal-store {
-        height: calc(100vh - 200px);
-      } */
-      .modal-store-title { 
-        color: white;
+      .modal-store {
+        min-width: 600px;
+      }
+      .modal-store-column-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: calc(100vh - 200px);
+        gap: 0px 8px;
       }
       .main-list {
         height: 100%;
         overflow-y: scroll;
-        background-color: rgba(255, 255, 255, 0.3);
       }
-      .modal-store-column-wrapper {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: calc(100vh - 200px);
-        gap: 0px 8px;
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 5px;
+      }
+      .list-name {
+        margin: 0;
+        margin-bottom: 10px;
+      }
+      .even {
+        background-color: red;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .title-detail {
+        margin: 0;
+        margin-bottom: 10px;
+      }
+
+      .buy-button{
+        text-align: center; 
+        display: inline-block;
+        margin: 5px;
+        font-weight: bold;
+        padding: 10px 10px 10px 10px ;
+        background-color: lightgray;
+        border-radius: 7px;
+        box-shadow: 0 .2em gray; 
+        cursor: pointer;
       }
     `
   }
@@ -37,23 +67,22 @@ class StoreModal extends LitElement {
   }
 
   render() {
-
     return html`
       <div class="modal-store">
         <h1 class="modal-store-title">Store</h1>
         <div class="modal-store-column-wrapper">
           <div class="modal-store-column product-list">
+          <h3 class="list-name">
+            Available cards (${this.items.length})
+          </h3>
           <div class="main-list">
-            List of cards (${this.items.length})
-            <ul>
-              ${this.items.map((item) => html`<li @click=${() => this.handleSelectItem(item.id)}>${item.name}</li>`)}
-            </ul>
+            ${this.renderProductList()}
           </div>
           </div>
           <div class="modal-store-column product-detail">
             <div>
               ${this.selectedItemIndex === undefined || this.selectedItemIndex === null
-                ? this.fallBackRender()
+                ? this.renderProductDetailFallback()
                 : this.renderProductDetail(this.selectedItemIndex)
               }
             </div>
@@ -67,8 +96,23 @@ class StoreModal extends LitElement {
     const newIndex = this.items.findIndex(item => item.id === id)
     this.selectedItemIndex = newIndex
   }
+
+  renderProductList() {
+    return html`
+      <ul>
+        ${this.items.map((item, index) => html`
+          <li
+            class=${index % 2 ? "odd" : "even"}
+            @click=${() => this.handleSelectItem(item.id)}
+          >
+            ${item.name}
+          </li>
+        `)}
+      </ul>
+    `;
+  }
   
-  fallBackRender() {
+  renderProductDetailFallback() {
     return html`Please select a product.`;
   }
 
@@ -77,8 +121,12 @@ class StoreModal extends LitElement {
 
     return html`
       <div>
-        <h2>Detail of ${name}</h2>
+        <h2 class="title-detail">Detail of ${name}</h2>
         <p>${description}</p>
+        <button
+          @click=${() => alert('Gimme the loot !')}
+          class="buy-button"
+        >Buy</button>
       </div>
     `;
   }
@@ -94,7 +142,7 @@ customElements.define('modal-store', StoreModal);
 function buildFakeProduct(id) {
   return {
     id,
-    name: "Potion",
+    name: `Potion n ${id}`,
     description: `Awesome potion ${id}, take it.`,
     gains: { property1: "Gain 1", property2: "Gain 2", property3: "Gain 3"}
   }
