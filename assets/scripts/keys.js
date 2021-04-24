@@ -1,5 +1,6 @@
 // Import internal Dependencies
 import { Key } from "./helpers";
+import { Button, StickDirection } from "./helpers/input.class";
 
 export const Keys = {
     left: [Key.Q, Key.LEFT],
@@ -22,11 +23,11 @@ function isDown(keyName) {
 }
 
 export const Inputs = {
-    left: () => isDown("left"),
-    right: () => isDown("right"),
-    up: () => isDown("top"),
-    down: () => isDown("bottom"),
+    left: () => isDown("left") || game.input.isLeftStick("LEFT"),
+    right: () => isDown("right") || game.input.isLeftStick("RIGHT"),
+    up: () => isDown("top") || game.input.isLeftStick("UP"),
+    down: () => isDown("bottom") || game.input.isLeftStick("DOWN"),
     use() {
-        return Keys.use.some((key) => game.input.wasKeyJustPressed(key));
+        return Keys.use.some((key) => game.input.wasKeyJustPressed(key) || game.input.wasGamepadButtonJustPressed(Button.A));
     }
 }
