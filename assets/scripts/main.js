@@ -65,6 +65,10 @@ async function main() {
         // const layer = new PIXI.display.Layer();
         // console.log(layer);
     });
+
+    game.on("interaction", ({ emitter, target }) => {
+        console.log(emitter, target);
+    });
 }
 main().catch(console.error);
 
