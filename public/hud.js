@@ -2,9 +2,8 @@ import "./components/simple-greeting.js";
 import "./components/player-hp.js";
 import "./components/positioning-grid.js";
 
-// Modals
-import "./components/modals/modal-manager.js";
-import "./components/modals/modal-store.js";
+// MODALS
+import "./components/modals/manager.js";
 
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");

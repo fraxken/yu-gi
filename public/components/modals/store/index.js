@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 
+import './product-detail';
+
 class StoreModal extends LitElement {
   static get properties() {
     return {
@@ -20,7 +22,7 @@ class StoreModal extends LitElement {
         gap: 0px 8px;
       }
       .main-list {
-        height: 100%;
+        height: calc(100% - 10px);
         overflow-y: scroll;
       }
       ul {
@@ -40,22 +42,6 @@ class StoreModal extends LitElement {
       .even {
         background-color: red;
         background-color: rgba(255, 255, 255, 0.2);
-      }
-      .title-detail {
-        margin: 0;
-        margin-bottom: 10px;
-      }
-
-      .buy-button{
-        text-align: center; 
-        display: inline-block;
-        margin: 5px;
-        font-weight: bold;
-        padding: 10px 10px 10px 10px ;
-        background-color: lightgray;
-        border-radius: 7px;
-        box-shadow: 0 .2em gray; 
-        cursor: pointer;
       }
     `
   }
@@ -80,12 +66,7 @@ class StoreModal extends LitElement {
           </div>
           </div>
           <div class="modal-store-column product-detail">
-            <div>
-              ${this.selectedItemIndex === undefined || this.selectedItemIndex === null
-                ? this.renderProductDetailFallback()
-                : this.renderProductDetail(this.selectedItemIndex)
-              }
-            </div>
+            <product-detail .product=${this.items[this.selectedItemIndex]}></product-detail>
           </div>
         </div>
       </div>
@@ -111,32 +92,12 @@ class StoreModal extends LitElement {
       </ul>
     `;
   }
-  
-  renderProductDetailFallback() {
-    return html`Please select a product.`;
-  }
-
-  renderProductDetail(index) {
-    const { name, description } = this.items[index];
-
-    return html`
-      <div>
-        <h2 class="title-detail">Detail of ${name}</h2>
-        <p>${description}</p>
-        <button
-          @click=${() => alert('Gimme the loot !')}
-          class="buy-button"
-        >Buy</button>
-      </div>
-    `;
-  }
-  
 }
 
 customElements.define('modal-store', StoreModal);
 
 /**
- * STATIC DATA -> MOVE THEME ELSEWHERE
+ * STATIC IT -> MOVE THEME ELSEWHERE
  */
 
 function buildFakeProduct(id) {

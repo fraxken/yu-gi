@@ -1,5 +1,8 @@
 import { LitElement, html, css } from "lit-element";
 
+// STORE MODAL
+import './store/index';
+
 class ModalManager extends LitElement {
   constructor() {
     super();
