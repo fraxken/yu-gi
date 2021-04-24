@@ -20,7 +20,8 @@ export default class DefaultScene extends Scene {
         this.add(playerActor);
         const objectActor = EntityBuilder.create("actor:object");
         this.add(objectActor);
-        // this.add(...EntityBuilder.createMany("actor:creature", 5));
+        // this.add(...EntityBuilder.createMany("actor:caster", 5));
+        // this.add(...EntityBuilder.createMany("actor:melee", 2));
         // this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
 
         const stoneControlActor = EntityBuilder.create("actor:stoneControl");
