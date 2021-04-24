@@ -1,6 +1,6 @@
 import { LitElement, css, html } from "lit-element";
 import { styleMap } from 'lit-html/directives/style-map';
-import { KeysPosition, PIXEL_GAP } from './keys-position.js';
+import { KeysPosition, PIXEL_GAP, PIXEL_SCALE, PIXEL_SCALE_MOUSE } from './keys-position.js';
 
 
 class KeyboardIcon extends LitElement {
@@ -16,27 +16,31 @@ class KeyboardIcon extends LitElement {
         return css`
             div {
                 background: url("../controllers-icon/keyboard.png");
-                transform: scale(1.8);
             }
         `;
     }
 
     constructor() {
         super();
-        this.key = "A";
+        this.key = "";
         this.isPress = false;
     }
 
     render() {
-        const { x, y, h, w } = KeysPosition[this.key];
-        const isPressButton = this.isPress && !['MOUSE', 'MOUSE_RIGHT_CLICK', 'MOUSE_LEFT_CLICK', 'MOUSE_FULL_CLICK'].includes(this.key);
+        if (!KeysPosition[this.key]) {
+            return null;
+        }
 
+        const { x, y, h, w } = KeysPosition[this.key];
+        const isMouseKey = ['MOUSE', 'MOUSE_RIGHT_CLICK', 'MOUSE_LEFT_CLICK', 'MOUSE_FULL_CLICK'].includes(this.key);
+        const isPressButton = this.isPress && !isMouseKey;
 
         return html`
             <div style=${styleMap({
             height: `${h}px`,
             width: `${w}px`,
-            backgroundPosition: `${x}px ${y + (isPressButton ? PIXEL_GAP : 0)}px`
+            backgroundPosition: `${x}px ${y + (isPressButton ? PIXEL_GAP : 0)}px`,
+            transform: `scale(${(isMouseKey ? PIXEL_SCALE_MOUSE : PIXEL_SCALE)})`
         })}>
             </div>
         `;
