@@ -27,3 +27,4 @@ window.addEventListener("DOMContentLoaded", () => {
     window.loadHUD = loadHUD;
 });
 
+window.document.addEventListener('contextmenu', event => event.preventDefault());
