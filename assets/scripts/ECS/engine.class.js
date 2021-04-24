@@ -80,10 +80,12 @@ export default class Engine extends AssetLoader {
      * @param  {...any} options
      */
     loadScene(sceneName, ...options) {
+        console.clear();
         const sceneInstance = Scene.cache.get(sceneName);
         if (typeof sceneInstance === "undefined") {
             throw new Error(`Unable to found scene with name '${sceneName}'`);
         }
+        console.log(`[DEBUG] Loading new scene '${sceneName}'`);
 
         this.fade.out(() => {
             this._destroyRootScene();

@@ -21,12 +21,12 @@ export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
         super({
             currentHp: "player.currentHp",
-            maxHp: "player.maxHp"
+            maxHp: "player.maxHp",
+            playable: "playable"
         });
 
         this.currentHp = currentHp;
         this.maxHp = maxHp;
-        this.playable = true;
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
@@ -50,23 +50,36 @@ export default class PlayerBehavior extends ScriptBehavior {
         });
     }
 
-    die(cause) {
+    enterDungeon() {
+        this.playable = false;
+        this.sprite.playAnimation("idle");
+
+        game.loadScene("dungeon");
+    }
+
+    die(cause = "no-pv") {
         this.playable = false;
         this.sprite.playAnimation("adventurer-die", { loop: false });
         if (!this.deathSound.isPlaying) {
             this.deathSound.play();
         }
 
-        // game.fade.auto(() => {
-        //     game.fade.centerPosition = position;
+        if (this.actor.isInDungeon) {
+            game.loadScene("default");
 
-        //     this.actor.pos = position;
-        //     game.viewport.moveCenter(this.actor.x, this.actor.y);
-        //     this.playable = true;
-        // });
+            return;
+        }
+        game.fade.auto(() => {
+            game.fade.centerPosition = this.spawn.centerPosition;
+
+            this.actor.pos = this.spawn.centerPosition;
+            game.viewport.moveCenter(this.actor.x, this.actor.y);
+            this.playable = true;
+        });
     }
 
     awake() {
+        this.playable = true;
         {
             const spriteComponent = new Components.AnimatedSpriteEx("adventurer", {
                 defaultAnimation: "adventurer-idle"
@@ -94,9 +107,9 @@ export default class PlayerBehavior extends ScriptBehavior {
     start() {
         const map = getActor("map") || getActor("start_room");
         if (map) {
-            const spawn = map.findChild("spawn", true);
-            if (spawn) {
-                this.actor.pos = spawn.centerPosition;
+            this.spawn = map.findChild("spawn", true);
+            if (this.spawn) {
+                this.actor.pos = this.spawn.centerPosition;
             }
 
             /** @type {CollisionLayer} */
@@ -178,11 +191,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT)) {
-            this.sprite.playAnimation("adventurer-die", { loop: false });
-            // this.sprite.lock();
-            if (!this.deathSound.isPlaying) {
-                this.deathSound.play();
-            }
+            this.die();
         }
 
         if (this.dashTimer.isStarted && !this.dashTimer.walk()) {

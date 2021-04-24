@@ -74,6 +74,8 @@ export default class DungeonScene extends Scene {
 
         /** @type {Actor} */
         const playerActor = EntityBuilder.create("actor:player");
+        playerActor.isInDungeon = true;
+
         const startCenter = {
             x: this.startRoom.x + (this.roomWidth * 16 / 2),
             y: this.startRoom.y + (this.roomHeight * 16 / 2)

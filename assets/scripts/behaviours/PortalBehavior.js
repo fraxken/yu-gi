@@ -3,7 +3,8 @@ import { ScriptBehavior, getActor } from "../ECS";
 import { Inputs } from "../keys";
 
 export default class PortalBehavior extends ScriptBehavior {
-    awake() {
+    constructor() {
+        super();
         this.teleporting = false;
     }
 
@@ -15,10 +16,7 @@ export default class PortalBehavior extends ScriptBehavior {
         this.teleporting = true;
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
-        script.playable = false;
-        console.clear();
-        console.log("load scene");
-        game.loadScene("dungeon");
+        script.sendMessage("enterDungeon");
     }
 
     update() {
