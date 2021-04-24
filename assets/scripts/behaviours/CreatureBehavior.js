@@ -16,10 +16,9 @@ export default class CreatureBehavior extends ScriptBehavior {
         this.nextPos = { x: null, y: null };
 
         this.radius = 80;
-        this.isInAction = false;
-        this.action = null;
 
-        this.delayToMove = new Timer(kHandicapForDeplacement, { autoStart: true, keepIterating: false });
+        this.isMoving = false;
+        this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
         this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
     }
 
@@ -42,8 +41,8 @@ export default class CreatureBehavior extends ScriptBehavior {
             return;
         }
 
-        if (!this.isInAction) {
-            if (this.delayToMove.walk()) {
+        if (this.delayToMove.walk() || this.isMoving) {
+            if (!this.isMoving) {
                 const r = (this.radius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.position.x + r * Math.cos(theta));
@@ -51,13 +50,8 @@ export default class CreatureBehavior extends ScriptBehavior {
 
                 this.nextPos.x = x;
                 this.nextPos.y = y;
-
-                this.isInAction = true;
-                this.action = "DEPLACEMENT";
-                this.goTo();
             }
-        }
-        else {
+
             this.goTo();
         }
 
@@ -91,17 +85,15 @@ export default class CreatureBehavior extends ScriptBehavior {
     }
 
     goTo() {
-        this.isInAction = true;
-
         if (this.nextPos.x === this.actor.x && this.nextPos.y === this.actor.y) {
-            this.action = null;
             this.nextPos.x = null;
             this.nextPos.y = null;
-            this.isInAction = false;
 
-            this.delayToMove = new Timer(kHandicapForDeplacement);
+            this.isMoving = false;
+            this.delayToMove.start();
         }
         else {
+            this.isMoving = true;
             if (this.actor.x !== this.nextPos.x) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
             if (this.actor.y !== this.nextPos.y) this.actor.y = this.actor.y < this.nextPos.y ? this.actor.y +1: this.actor.y -1;
         }
