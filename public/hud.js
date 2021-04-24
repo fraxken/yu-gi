@@ -6,9 +6,8 @@ import "./components/action-bar/action-card.js";
 import "./components/action-bar/refresh-action-card.js";
 import "./components/action-bar/action-button.js";
 
-// Modals
-import "./components/modals/modal-manager.js";
-import "./components/modals/modal-store.js";
+// MODALS
+import "./components/modals/manager.js";
 
 function newInputType(newType) {
     console.log("new input usage: ", newType);
