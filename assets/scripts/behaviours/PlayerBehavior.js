@@ -8,6 +8,7 @@ import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key, LifeBar } from "../helpers";
 import { Button } from "../helpers/input.class";
+import DieScreen from "../helpers/DieScreen";
 
 import { Inputs } from "../keys";
 
@@ -32,6 +33,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
         this.time = new Timer(60);
+        this.dieScreen = null;
 
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
@@ -85,12 +87,21 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             return;
         }
-        game.fade.auto(() => {
-            game.fade.centerPosition = this.spawn.centerPosition;
-
-            this.actor.pos = this.spawn.centerPosition;
+        game.fade.out(() => {
+            const centerPosition = this.spawn.centerPosition;
+            game.fade.centerPosition = centerPosition;
+            this.actor.pos = centerPosition;
             game.viewport.moveCenter(this.actor.x, this.actor.y);
-            this.playable = true;
+
+            this.dieScreen = new DieScreen();
+            this.dieScreen.once("cleanup", () => {
+                this.playable = true;
+                this.dieScreen = null;
+                game.fade.in();
+            });
+            this.dieScreen.zIndex = 31;
+            this.dieScreen.position.set(centerPosition.x, centerPosition.y);
+            game.rootScene.addChild(this.dieScreen);
         });
     }
 
@@ -143,6 +154,9 @@ export default class PlayerBehavior extends ScriptBehavior {
     update() {
         game.fade.centerPosition = this.actor.pos;
 
+        if (this.dieScreen !== null) {
+            this.dieScreen.update();
+        }
         if (!this.playable) {
             return;
         }
