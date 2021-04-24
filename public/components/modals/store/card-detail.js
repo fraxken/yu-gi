@@ -42,12 +42,28 @@ class CardDetail extends LitElement {
   }
 
   renderCardDetail() {
-    const { name, description } = this.product;
+    const {
+      name,
+      description,
+      offensiveSkill,
+      defensiveSkill,
+      passiveSkill,
+      consumableSkill,
+      stars
+     } = this.product;
 
     return html`
       <div>
         <h2 class="title-detail">Detail of ${name}</h2>
         <p>${description}</p>
+        <h4>Skills</h4>
+        <ul>
+          <li>Offense: ${offensiveSkill}</li>
+          <li>Defense: ${defensiveSkill}</li>
+          <li>Passive: ${passiveSkill}</li>
+          <li>Consumable: ${consumableSkill}</li>
+        </ul>
+        <h4>Stars: ${stars}</h4>
         <button
           @click=${() => alert('Gimme the loot !')}
           class="buy-button"

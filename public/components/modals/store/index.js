@@ -105,11 +105,11 @@ function buildFakeCard(id) {
     id,
     name: `Potion n ${id}`,
     description: `Awesome potion ${id}, take it.`,
-    properties: {
-      attack: "3",
-      passive: null,
-      consumable: null
-    }
+    offensiveSkill: 3,
+    defensiveSkill:  0,
+    passiveSkill:  1,
+    consumableSkill:  0,
+    stars:  5
   }
 }
 
