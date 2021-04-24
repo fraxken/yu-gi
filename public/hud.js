@@ -6,6 +6,10 @@ import "./components/positioning-grid.js";
 import "./components/modals/modal-manager.js";
 import "./components/modals/modal-store.js";
 
+function newInputType(newType) {
+    console.log("new input usage: ", newType);
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
     const hud = document.querySelector(".hud");
@@ -16,9 +20,11 @@ window.addEventListener("DOMContentLoaded", () => {
         if (window.currentActiveHUD === name) {
             return;
         }
-        hudevents.removeAllListeners();
-        const elementName = `#${name}`;
 
+        hudevents.removeAllListeners();
+        hudevents.on("input_type", newInputType);
+
+        const elementName = `#${name}`;
         const template = document.querySelector(elementName);
         if (!template) {
             throw new Error(`[ERROR] Unable to found HTML Template with name '${elementName}'`);
@@ -32,8 +38,6 @@ window.addEventListener("DOMContentLoaded", () => {
         console.log(`[INFO] hud '${elementName}' loaded!`)
     }
     window.loadHUD = loadHUD;
-
-    // TODO: exploit hudevents events
 });
 
 window.document.addEventListener('contextmenu', event => event.preventDefault());
