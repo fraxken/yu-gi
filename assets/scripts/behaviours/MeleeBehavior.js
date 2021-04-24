@@ -93,7 +93,7 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     initAttack() {
-        console.log("hitting");
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", 2);
     }
 
     goTo() {

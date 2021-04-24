@@ -67,6 +67,12 @@ export default class PlayerBehavior extends ScriptBehavior {
         game.loadScene("dungeon");
     }
 
+    takeDamage(damage) {
+        this.currentHp -= damage;
+
+        return this;
+    }
+
     die(cause = "no-pv") {
         this.playable = false;
         this.sprite.playAnimation("adventurer-die", { loop: false });
@@ -204,7 +210,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();
         }
 
-        if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT)) {
+        if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT) || this.currentHp === 0) {
             this.die();
         }
 
