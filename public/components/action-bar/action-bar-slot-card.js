@@ -6,10 +6,10 @@ class ActionBarSlotCard extends LitElement {
         return css`
             .action-bar-container {
                 display: grid;
-                grid-template-columns: repeat(5, 100px);
-                gap: 12px;
-                height: 150px;
-                margin-bottom: 8px;
+                grid-template-columns: repeat(5, 80px);
+                gap: 20px;
+                height: 100px;
+                margin-bottom: 40px;
             }
         `;
     }
@@ -22,14 +22,11 @@ class ActionBarSlotCard extends LitElement {
     render() {
         return html`
             <div class='action-bar-container'>
-                <!-- <action-card card='{ "typeCard" : "actif_att", "key" : "A" }'></action-card>
-                <action-card card='{ "typeCard" : "actif_def", "key" : "B"  }'></action-card>
-                <action-card card='{ "typeCard" : "passif", "key" : "C"  }'></action-card>
-                <action-card card='{ "typeCard" : "conso", "key" : "D"  }'></action-card> -->
-                <keyboard-icon key='A' ?isPress=${true}></keyboard-icon>
-                <keyboard-icon key='A' ?isPress=${false}></keyboard-icon>
-                <keyboard-icon key='MOUSE_LEFT_CLICK' ?isPress=${true}></keyboard-icon>
-                <keyboard-icon key='MOUSE_FULL_CLICK' ?isPress=${true}></keyboard-icon>
+                <action-card card='{ "typeCard" : "actif_att", "key" : "MOUSE_RIGHT_CLICK" }'></action-card>
+                <action-card card='{ "typeCard" : "actif_def", "key" : "MOUSE_LEFT_CLICK"  }'></action-card>
+                <action-card card='{ "typeCard" : "passif" }'></action-card>
+                <action-card card='{ "typeCard" : "conso", "key" : "1"  }'></action-card>
+                <refresh-action-card key='2'></refresh-action-card>
             </div>
         `;
     }

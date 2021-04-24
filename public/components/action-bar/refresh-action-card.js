@@ -5,7 +5,7 @@ import { bindToScriptEvent } from "../../helpers";
 class RefreshActionCard extends LitElement {
     static get properties() {
         return {
-          key: { type: String }
+            key: { type: String }
         };
     }
 
@@ -14,13 +14,17 @@ class RefreshActionCard extends LitElement {
         return css`
           .action-card-container {
             background-color: white;
-            height: 80px;
-            width: 80px;
+            height: 50px;
+            width: 50px;
             border-radius: 4px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+          }
+          .action-button {
+            position: absolute;
+            transform: translate(16px , 20px);
           }
         `;
     }
@@ -33,8 +37,10 @@ class RefreshActionCard extends LitElement {
     render() {
         return html`
             <div class="action-card-container">
-            Refresh
-            <action-button key="${this.key}"></action-button>
+                <div>Refresh</div>
+                <div class="action-button">
+                    <keyboard-icon key='${this.key}' ?isPress=${false}></keyboard-icon>
+                </div>
             </div>
         `;
     }

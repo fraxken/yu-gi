@@ -1,5 +1,9 @@
 export const PIXEL_GAP = 224;
 
+export const PIXEL_SCALE = 1.8;
+
+export const PIXEL_SCALE_MOUSE = 1.2;
+
 export const KeysPosition = {
     "ESC": { x: -32, y: -353, h: 15, w: 16 },
     "F1": { x: -64, y: -353, h: 15, w: 16 },
