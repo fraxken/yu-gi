@@ -27,7 +27,9 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.playable = true;
-        this.dashTimer = new Timer(60, { autoStart: false, keepIterating: false });
+        this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
+        this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
+        this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
         this.time = new Timer(60);
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
@@ -171,6 +173,10 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
+        if (game.input.wasKeyJustPressed(Key.SPACE) && !this.jumpTimer.isStarted) {
+            this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();
+        }
+
         if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT)) {
             this.sprite.playAnimation("adventurer-die", { loop: false });
             // this.sprite.lock();
@@ -178,9 +184,11 @@ export default class PlayerBehavior extends ScriptBehavior {
                 this.deathSound.play();
             }
         }
-        
+
         if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
-            this.sprite.playAnimation(this.actor.moving ? "adventurer-slide": "idle");
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-slide" : "idle");
+        } else if ((this.jumpTimer.isStarted && !this.jumpTimer.walk()) || (this.staticJumpTimer.isStarted && !this.staticJumpTimer.walk())) {
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-jump" : "adventurer-smrslt");
         } else {
             this.dashTimer.reset();
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
