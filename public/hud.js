@@ -1,6 +1,10 @@
 import "./components/simple-greeting.js";
 import "./components/player-hp.js";
 import "./components/positioning-grid.js";
+import "./components/action-bar/action-bar-slot-card.js";
+import "./components/action-bar/action-card.js";
+import "./components/action-bar/refresh-action-card.js";
+import "./components/action-bar/action-button.js";
 
 // Modals
 import "./components/modals/modal-manager.js";
