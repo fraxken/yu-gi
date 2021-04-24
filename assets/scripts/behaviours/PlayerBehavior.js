@@ -1,5 +1,6 @@
 // Import third-party dependencies
 import { sound } from "@pixi/sound";
+import * as PIXI from "pixi.js";
 
 // Import dependencies
 import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor } from "../ECS";
@@ -15,6 +16,10 @@ const kPlayerStats = {
     currentHp: 1,
     maxHp: 20
 }
+
+const kMaxHpBarLength = 75;
+const kMaxHpBarX = -(kMaxHpBarLength - (kMaxHpBarLength / 2));
+let kMaxHpBarY;
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
@@ -56,6 +61,23 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             /** @type {AnimatedSpriteEx} */
             this.sprite = this.actor.addComponent(spriteComponent);
+
+
+            kMaxHpBarY = -(this.sprite.height + 10);
+            const maxHpBar = new PIXI.Graphics()
+                .beginFill(PIXI.utils.string2hex("#666"), 1)
+                .drawRect(kMaxHpBarX, kMaxHpBarY, kMaxHpBarLength, 10)
+                .endFill();
+
+            const hpBar = new PIXI.Graphics()
+                .beginFill(PIXI.utils.string2hex("#FF0000"), 1)
+                .drawRect(kMaxHpBarX, kMaxHpBarY, 4, 10)
+                .endFill();
+
+            maxHpBar.addChild(hpBar);
+
+            this.actor.addChild(maxHpBar);
+            console.log(this.actor.children[1].children[0]);
         }
 
         this.deathSound = sound.find("death");
@@ -91,6 +113,11 @@ export default class PlayerBehavior extends ScriptBehavior {
         if (this.time.walk() && this.currentHp < this.maxHp) {
             this.currentHp += 1;
         }
+
+        this.actor.children[1].children[0].clear()
+            .beginFill(PIXI.utils.string2hex("#FF0000"), 1)
+            .drawRect(kMaxHpBarX, kMaxHpBarY, this.currentHp * 5, 10)
+            .endFill();
 
         const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
         const isLeftWalkable = !neighbours.left || neighbours.right;
