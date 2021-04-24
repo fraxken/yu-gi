@@ -8,23 +8,24 @@ export default class LifeBar {
     /**
      * @param {object} [options]
      * @param {number} [options.spriteHeight]
-     * @param {number} [options.relativeMaxHp]
      * @param {number} [options.currentHp]
+     * @param {number} [options.relativeMaxHp]
+     * @param {number} [options.maxHpBarLength]
      */
     constructor(options = {}) {
-        this.kMaxHpBarLength = 100;
-        this.kMaxHpBarX = -(this.kMaxHpBarLength - (this.kMaxHpBarLength / 2));
-        this.kMaxHpBarY = -(options.spriteHeight + 10);
-        this.ratio = this.kMaxHpBarLength / options.relativeMaxHp;
+        this.maxHpBarLength = options.maxHpBarLength;
+        this.maxHpBarX = -(this.maxHpBarLength - (this.maxHpBarLength / 2));
+        this.maxHpBarY = -(options.spriteHeight + 10);
+        this.ratio = this.maxHpBarLength / options.relativeMaxHp;
 
         this.maxHpBar = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#666"), 1)
-            .drawRect(this.kMaxHpBarX, this.kMaxHpBarY, this.kMaxHpBarLength, 10)
+            .drawRect(this.maxHpBarX, this.maxHpBarY, this.maxHpBarLength, 10)
             .endFill();
 
         const currentHpBar = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("FF0000"), 1)
-            .drawRect(this.kMaxHpBarX, this.kMaxHpBarY, options.currentHp * this.ratio, 10)
+            .drawRect(this.maxHpBarX, this.maxHpBarY, options.currentHp * this.ratio, 10)
             .endFill();
 
         this.maxHpBar.addChild(currentHpBar);
@@ -40,7 +41,7 @@ export default class LifeBar {
     update(currentHp) {
         this.maxHpBar.children[0].clear()
             .beginFill(PIXI.utils.string2hex("#FF0000"), 1)
-            .drawRect(this.kMaxHpBarX, this.kMaxHpBarY, currentHp * this.ratio, 10)
+            .drawRect(this.maxHpBarX, this.maxHpBarY, currentHp * this.ratio, 10)
             .endFill();
 
         return this;

@@ -60,8 +60,9 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             this.lifeBar = new LifeBar({
                 spriteHeight: this.sprite.height,
+                currentHp: this.currentHp,
                 relativeMaxHp: this.maxHp,
-                currentHp: this.currentHp
+                maxHpBarLength: 60
             });
 
             this.actor.addChild(this.lifeBar.container);
