@@ -2,7 +2,7 @@ import { EntityBuilder } from "../helpers";
 import { Inputs } from "../keys";
 import { Actor, ScriptBehavior, Vector2, Components, getActor } from "../ECS";
 
-export default class TestBehavior extends ScriptBehavior {
+export default class ObjectBehavior extends ScriptBehavior {
 
     constructor() {
         super();
@@ -26,10 +26,7 @@ export default class TestBehavior extends ScriptBehavior {
 
     update() {
         if (this.canBeTriggered()) {
-            game.rootScene.add(EntityBuilder.create("actor:interaction", {
-                emitter: this.actor,
-                target: this.target
-            }));
+            game.emit("interaction", { emitter: this.actor, target: this.target });
         }
     }
 
@@ -40,9 +37,9 @@ export default class TestBehavior extends ScriptBehavior {
     }
 }
 
-ScriptBehavior.define("TestBehavior", TestBehavior);
+ScriptBehavior.define("ObjectBehavior", ObjectBehavior);
 
-EntityBuilder.define("actor:test", (options = {}) => {
-    return new Actor("test")
-        .createScriptedBehavior("TestBehavior");
+EntityBuilder.define("actor:object", (options = {}) => {
+    return new Actor("object")
+        .createScriptedBehavior("ObjectBehavior");
 });
