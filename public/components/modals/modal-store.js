@@ -29,7 +29,7 @@ class StoreModal extends LitElement {
 
   constructor() {
     super();
-    this.selectedItem = products[0];
+    this.selectedItemIndex = 0;
     this.items = products;
   }
 
@@ -48,8 +48,8 @@ class StoreModal extends LitElement {
           </div>
           <div class="modal-store-column product-detail">
             <div>
-              ${this.selectedItem && !!this.selectedItem.name
-                ? this.renderProductDetail()
+              ${this.selectedItemIndex !== undefined || this.selectedItemIndex !== null
+                ? this.renderProductDetail(this.selectedItemIndex)
                 : this.fallBackRender()
               }
             </div>
@@ -60,16 +60,16 @@ class StoreModal extends LitElement {
   }
 
   handleSelectItem(id) {
-    const item = this.items.find(item => item.id === id)
-    this.selectedItem = item
+    const newIndex = this.items.findIndex(item => item.id === id)
+    this.selectedItemIndex = newIndex
   }
   
   fallBackRender() {
     return html`Please select a product.`;
   }
 
-  renderProductDetail() {
-    const { name } = this.selectedItem;
+  renderProductDetail(index) {
+    const { name } = this.items[index];
 
     return html`
       <div>
