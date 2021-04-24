@@ -5,6 +5,7 @@ import "./components/action-bar/action-bar-slot-card.js";
 import "./components/action-bar/action-card.js";
 import "./components/action-bar/refresh-action-card.js";
 import "./components/action-bar/action-button.js";
+import "./components/keyboard-icon/keyboard-icon.js";
 
 // MODALS
 import "./components/modals/manager.js";
@@ -15,7 +16,7 @@ function newInputType(newType) {
 
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
-    const hud = document.querySelector(".hud"); 
+    const hud = document.querySelector(".hud");
     const hudevents = window.hudevents;
     window.currentActiveHUD = null;
 

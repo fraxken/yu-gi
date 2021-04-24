@@ -16,16 +16,20 @@ class ActionBarSlotCard extends LitElement {
 
     constructor() {
         super();
+        this.isTest = false;
     }
 
     render() {
         return html`
             <div class='action-bar-container'>
-                <action-card card='{ "typeCard" : "actif_att", "key" : "A" }'></action-card>
+                <!-- <action-card card='{ "typeCard" : "actif_att", "key" : "A" }'></action-card>
                 <action-card card='{ "typeCard" : "actif_def", "key" : "B"  }'></action-card>
                 <action-card card='{ "typeCard" : "passif", "key" : "C"  }'></action-card>
-                <action-card card='{ "typeCard" : "conso", "key" : "D"  }'></action-card>
-                <refresh-action-card key="E"></refresh-action-card>
+                <action-card card='{ "typeCard" : "conso", "key" : "D"  }'></action-card> -->
+                <keyboard-icon key='A' ?isPress=${true}></keyboard-icon>
+                <keyboard-icon key='A' ?isPress=${false}></keyboard-icon>
+                <keyboard-icon key='MOUSE_LEFT_CLICK' ?isPress=${true}></keyboard-icon>
+                <keyboard-icon key='MOUSE_FULL_CLICK' ?isPress=${true}></keyboard-icon>
             </div>
         `;
     }
