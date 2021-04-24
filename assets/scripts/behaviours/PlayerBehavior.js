@@ -6,6 +6,7 @@ import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor }
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key } from "../helpers";
+import { Button } from "../helpers/input.class";
 
 import { Inputs } from "../keys";
 
@@ -113,7 +114,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
-        if (game.input.wasKeyJustPressed(Key.L)) {
+        if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT)) {
             this.sprite.playAnimation("adventurer-die", { loop: false });
             // this.sprite.lock();
             if (!this.deathSound.isPlaying) {
