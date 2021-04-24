@@ -30,7 +30,7 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
         }
 
         const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (distance < 50 && Inputs.useBis()) {
+        if (distance < 50 && Inputs.use()) {
             this.warp();
         }
     }

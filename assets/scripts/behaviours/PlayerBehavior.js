@@ -31,6 +31,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
         this.time = new Timer(60);
+
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
         });

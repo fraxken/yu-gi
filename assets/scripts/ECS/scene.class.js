@@ -54,7 +54,7 @@ export default class Scene extends ActorTree {
             controller.emit("start");
         }
 
-        this.setupUpdateTick();
+        // this.setupUpdateTick();
     }
 
     setupUpdateTick() {
