@@ -201,6 +201,7 @@ export default class Engine extends AssetLoader {
         this.fade.displayObject.destroy({ children: true });
         this.fade = null;
         this.rootScene.cleanup();
+        this.input.reset();
 
         this.viewport.removeChild(this.rootScene);
     }

@@ -31,11 +31,13 @@ async function main() {
             progression: "1.1"
         },
         player: {
+            inDungeon: false,
             name: "Thomas",
             currentHp: 1,
             maxHp: 15
         }
     });
+    // TODO: setup default scene depending on player.inDungeon
 
     const game = new Engine({ defaultScene: DefaultScene, state: gameState })
         .loadAssetFromFile(assetsURL)

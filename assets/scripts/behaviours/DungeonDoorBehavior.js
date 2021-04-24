@@ -1,5 +1,6 @@
 // Import dependencies
 import { ScriptBehavior, getActor, Timer } from "../ECS";
+import { Key } from "../helpers";
 import { Inputs } from "../keys";
 
 export default class DungeonDoorBehavior extends ScriptBehavior {

@@ -37,6 +37,7 @@ export default class PlayerBehavior extends ScriptBehavior {
     teleport(position) {
         console.log("player teleport at: ", position);
         this.playable = false;
+        this.sprite.playAnimation("idle");
 
         game.fade.auto(() => {
             game.fade.centerPosition = position;
@@ -45,6 +46,22 @@ export default class PlayerBehavior extends ScriptBehavior {
             game.viewport.moveCenter(this.actor.x, this.actor.y);
             this.playable = true;
         });
+    }
+
+    die(cause) {
+        this.playable = false;
+        this.sprite.playAnimation("adventurer-die", { loop: false });
+        if (!this.deathSound.isPlaying) {
+            this.deathSound.play();
+        }
+
+        // game.fade.auto(() => {
+        //     game.fade.centerPosition = position;
+
+        //     this.actor.pos = position;
+        //     game.viewport.moveCenter(this.actor.x, this.actor.y);
+        //     this.playable = true;
+        // });
     }
 
     awake() {
