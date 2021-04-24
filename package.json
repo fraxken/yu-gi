@@ -14,7 +14,13 @@
     "type": "git",
     "url": "git+https://github.com/fraxken/pixi-experimental.git"
   },
-  "keywords": ["ludum", "dare", "48", "jam", "game"],
+  "keywords": [
+    "ludum",
+    "dare",
+    "48",
+    "jam",
+    "game"
+  ],
   "author": "GENTILHOMME Thomas <gentilhomme.thomas@gmail.com>",
   "license": "MIT",
   "bugs": {
