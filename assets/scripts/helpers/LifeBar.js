@@ -6,13 +6,13 @@ export default class LifeBar {
     container = new PIXI.Container();
 
     /**
-     * @param {object} [options]
-     * @param {number} [options.spriteHeight]
-     * @param {number} [options.currentHp]
-     * @param {number} [options.relativeMaxHp]
-     * @param {number} [options.maxHpBarLength]
+     * @param {!object} [options]
+     * @param {!number} [options.spriteHeight]
+     * @param {!number} [options.currentHp]
+     * @param {!number} [options.relativeMaxHp]
+     * @param {!number} [options.maxHpBarLength]
      */
-    constructor(options = {}) {
+    constructor(options) {
         this.maxHpBarLength = options.maxHpBarLength;
         this.maxHpBarX = -(this.maxHpBarLength - (this.maxHpBarLength / 2));
         this.maxHpBarY = -(options.spriteHeight + 10);
