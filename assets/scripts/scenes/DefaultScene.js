@@ -21,6 +21,9 @@ export default class DefaultScene extends Scene {
         // this.add(...EntityBuilder.createMany("actor:creature", 5));
         // this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
 
+        const stoneControlActor = EntityBuilder.create("actor:stoneControl");
+        this.add(stoneControlActor);
+
         this.graph = new Actor("graph");
         {
             const temp = new PIXI.Graphics()
@@ -47,6 +50,9 @@ export default class DefaultScene extends Scene {
     build(actor) {
         if (actor.name.startsWith("door")) {
             actor.createScriptedBehavior("DoorBehavior");
+        }
+        else if (actor.name.startsWith("stele")) {
+            actor.createScriptedBehavior("StoneBehavior");
         }
         else if (actor.name === "test") {
             actor.createScriptedBehavior("DungeonDoorBehavior");
