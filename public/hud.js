@@ -1,21 +1,33 @@
 import "./components/simple-greeting.js";
 import "./components/player-hp.js";
 import "./components/positioning-grid.js";
+import "./components/action-bar/action-bar-slot-card.js";
+import "./components/action-bar/action-card.js";
+import "./components/action-bar/refresh-action-card.js";
+import "./components/action-bar/action-button.js";
 
 // MODALS
 import "./components/modals/manager.js";
 
+function newInputType(newType) {
+    console.log("new input usage: ", newType);
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
-    const hud = document.querySelector(".hud");
+    const hud = document.querySelector(".hud"); 
+    const hudevents = window.hudevents;
     window.currentActiveHUD = null;
 
     function loadHUD(name) {
         if (window.currentActiveHUD === name) {
             return;
         }
-        const elementName = `#${name}`;
 
+        hudevents.removeAllListeners();
+        hudevents.on("input_type", newInputType);
+
+        const elementName = `#${name}`;
         const template = document.querySelector(elementName);
         if (!template) {
             throw new Error(`[ERROR] Unable to found HTML Template with name '${elementName}'`);

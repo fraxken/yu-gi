@@ -19,14 +19,30 @@ export default class Input extends PIXI.utils.EventEmitter {
         document.addEventListener("mozpointerlockchange", this.onPointerLockChange.bind(this), false);
         document.addEventListener("webkitpointerlockchange", this.onPointerLockChange.bind(this), false);
 
+        window.addEventListener("gamepadconnected", this.onGamepadConnect.bind(this), false);
+        window.addEventListener("gamepaddisconnected", this.onGamepadDisconnect.bind(this), false);
+
         this.wantsPointerLock = false;
         this.wasPointerLocked = false;
         this.autoRepeatedKey = null;
         this.keyboardButtons = new Map();
         this.keyboardButtonsDown = new Set();
+        this.gamepad = null;
+        this.gamepadButtons = [];
+        this.gamepadAxes = [];
+        this.gamepadAutoRepeats = [];
+        this.gamepadAxisDeadZone = 0.25;
+        this.gamepadAxisAutoRepeatDelayMs = 500;
+        this.gamepadAxisAutoRepeatRateMs = 33;
 
         document.addEventListener("keydown", this.onKeyDown.bind(this), true);
         document.addEventListener("keyup", this.onKeyUp.bind(this), true);
+
+        // Gamepad
+        this.gamepadButtons = [];
+        this.gamepadAxes = [];
+        this.gamepadAutoRepeats = null;
+        this.resetGamepads();
     }
 
     destroy() {
@@ -69,10 +85,50 @@ export default class Input extends PIXI.utils.EventEmitter {
         }
     }
 
+    onGamepadConnect(event) {
+        this.gamepad = event.gamepad;
+        console.log("Gamepad connected, index: ", this.gamepad.index);
+    }
+
+    onGamepadDisconnect(event) {
+        console.log("Gamepad disconnected, index: ", event.gamepad.index);
+        if (event.gamepad.index === this.gamepad.index) {
+            console.log("Gamepad disconnected from game", event.gamepad.index);
+            this.gamepad = null;
+        } else {
+            console.log("Nothing to do");
+        }
+    }
+
     reset() {
         this.autoRepeatedKey = null;
         this.keyboardButtons.clear();
         this.keyboardButtonsDown.clear();
+
+        // Gamepads
+        this.resetGamepads();
+    }
+
+    resetGamepads() {
+        for (let button = 0; button < 16; button++) {
+            this.gamepadButtons[button] = {
+                isDown: false,
+                wasJustPressed: false,
+                wasJustReleased: false,
+                value: 0
+            };
+        }
+        for (let axes = 0; axes < 4; axes++) {
+            this.gamepadAxes[axes] = {
+                wasPositiveJustPressed: false,
+                wasPositiveJustAutoRepeated: false,
+                wasPositiveJustReleased: false,
+                wasNegativeJustPressed: false,
+                wasNegativeJustAutoRepeated: false,
+                wasNegativeJustReleased: false,
+                value: 0
+            };
+        }
     }
 
     key(code) {
@@ -102,6 +158,63 @@ export default class Input extends PIXI.utils.EventEmitter {
         const keyboardButton = this._checkKeyboard(keyName, "isDown");
 
         return keyboardButton.isDown;
+    }
+
+    isLeftStick(direction) {
+        switch (direction) {
+            case "LEFT":
+                return this.gamepadAxes[LEFT_STICK_X_AXIS].value < -this.gamepadAxisDeadZone;
+            case "RIGHT":
+                return this.gamepadAxes[LEFT_STICK_X_AXIS].value > this.gamepadAxisDeadZone;
+            case "UP":
+                return this.gamepadAxes[LEFT_STICK_Y_AXIS].value < -this.gamepadAxisDeadZone;
+            case "DOWN":
+                return this.gamepadAxes[LEFT_STICK_Y_AXIS].value > this.gamepadAxisDeadZone;
+            default:
+                return false;
+        }
+    }
+
+    isRightStick(direction) {
+        switch (direction) {
+            case "LEFT":
+                return this.gamepadAxes[RIGHT_STICK_X_AXIS].value < -this.gamepadAxisDeadZone;
+            case "RIGHT":
+                return this.gamepadAxes[RIGHT_STICK_X_AXIS].value > this.gamepadAxisDeadZone;
+            case "UP":
+                return this.gamepadAxes[RIGHT_STICK_Y_AXIS].value < -this.gamepadAxisDeadZone;
+            case "DOWN":
+                return this.gamepadAxes[RIGHT_STICK_Y_AXIS].value > this.gamepadAxisDeadZone;
+            default:
+                return false;
+        }
+    }
+
+    isGamepadButtonDown(buttonName) {
+        const button = this.gamepadButtons[buttonName];
+        if (button) {
+            return button.isDown;
+        }
+
+        return false;
+    }
+
+    wasGamepadButtonJustPressed(buttonName) {
+        const button = this.gamepadButtons[buttonName];
+        if (button) {
+            return button.wasJustPressed;
+        }
+
+        return false;
+    }
+
+    wasGamepadButtonJustReleased(buttonName) {
+        const button = this.gamepadButtons[buttonName];
+        if (button) {
+            return button.wasJustReleased;
+        }
+
+        return false;
     }
 
     wasKeyJustPressed(keyName, autoRepeat = false) {
@@ -166,8 +279,167 @@ export default class Input extends PIXI.utils.EventEmitter {
             this.key(this.autoRepeatedKey).wasJustAutoRepeated = true;
             this.autoRepeatedKey = null;
         }
+
+        if (this.gamepad === null || this.gamepad === undefined) {
+            return;
+        }
+
+        for (let i = 0; i < this.gamepadButtons.length; i++) {
+            if (!Reflect.has(this.gamepad.buttons, i) || this.gamepad.buttons[i] === null) {
+                continue;
+            }
+
+            const button = this.gamepadButtons[i];
+            const wasDown = button.isDown;
+            button.isDown = this.gamepad.buttons[i].pressed;
+            button.value = this.gamepad.buttons[i].value;
+
+            button.wasJustPressed = !wasDown && button.isDown;
+            button.wasJustReleased = wasDown && !button.isDown;
+        }
+
+        const pressedValue = 0.5;
+        const now = Date.now();
+
+        for (let stick = 0; stick < 2; stick++) {
+            if (this.gamepad.axes[2 * stick] === null || this.gamepad.axes[2 * stick + 1] === null) {
+                continue;
+            }
+            if (this.gamepad.axes[2 * stick] === undefined || this.gamepad.axes[2 * stick + 1] === undefined) {
+                continue;
+            }
+
+            const axisLength = Math.sqrt(
+                Math.pow(Math.abs(this.gamepad.axes[2 * stick]), 2) + Math.pow(Math.abs(this.gamepad.axes[2 * stick + 1]), 2)
+            );
+
+            const axes = [this.gamepadAxes[2 * stick], this.gamepadAxes[2 * stick + 1]];
+
+            const wasAxisDown = [
+                { positive: axes[0].value > pressedValue, negative: axes[0].value < -pressedValue },
+                { positive: axes[1].value > pressedValue, negative: axes[1].value < -pressedValue }
+            ];
+
+            if (axisLength < this.gamepadAxisDeadZone) {
+                axes[0].value = 0;
+                axes[1].value = 0;
+            }
+            else {
+                axes[0].value = this.gamepad.axes[2 * stick];
+                axes[1].value = this.gamepad.axes[2 * stick + 1];
+            }
+
+            const isAxisDown = [
+                { positive: axes[0].value > pressedValue, negative: axes[0].value < -pressedValue },
+                { positive: axes[1].value > pressedValue, negative: axes[1].value < -pressedValue }
+            ];
+
+            axes[0].wasPositiveJustPressed = !wasAxisDown[0].positive && isAxisDown[0].positive;
+            axes[0].wasPositiveJustReleased = wasAxisDown[0].positive && !isAxisDown[0].positive;
+            axes[0].wasPositiveJustAutoRepeated = false;
+
+            axes[0].wasNegativeJustPressed = !wasAxisDown[0].negative && isAxisDown[0].negative;
+            axes[0].wasNegativeJustReleased = wasAxisDown[0].negative && !isAxisDown[0].negative;
+            axes[0].wasNegativeJustAutoRepeated = false;
+
+            axes[1].wasPositiveJustPressed = !wasAxisDown[1].positive && isAxisDown[1].positive;
+            axes[1].wasPositiveJustReleased = wasAxisDown[1].positive && !isAxisDown[1].positive;
+            axes[1].wasPositiveJustAutoRepeated = false;
+
+            axes[1].wasNegativeJustPressed = !wasAxisDown[1].negative && isAxisDown[1].negative;
+            axes[1].wasNegativeJustReleased = wasAxisDown[1].negative && !isAxisDown[1].negative;
+            axes[1].wasNegativeJustAutoRepeated = false;
+
+            let currentAutoRepeat = this.gamepadsAutoRepeats;
+            if (currentAutoRepeat !== null && currentAutoRepeat !== undefined) {
+                const axisIndex = currentAutoRepeat.axis - stick * 2;
+                if (axisIndex === 0 || axisIndex === 1) {
+                    const autoRepeatedAxis = axes[axisIndex];
+                    if (
+                        (currentAutoRepeat.positive && !isAxisDown[axisIndex].positive) ||
+                        (!currentAutoRepeat.positive && !isAxisDown[axisIndex].negative)
+                    ) {
+                        // Auto-repeated axis has been released
+                        currentAutoRepeat = null;
+                        this.gamepadsAutoRepeats = null;
+                    }
+                    else {
+                        // Check for auto-repeat deadline
+                        if (currentAutoRepeat.time <= now) {
+                            if (currentAutoRepeat.positive) {
+                                autoRepeatedAxis.wasPositiveJustAutoRepeated = true;
+                            }
+                            else {
+                                autoRepeatedAxis.wasNegativeJustAutoRepeated = true;
+                            }
+                            currentAutoRepeat.time = now + this.gamepadAxisAutoRepeatRateMs;
+                        }
+                    }
+                }
+            }
+
+            let newAutoRepeat;
+            if (axes[0].wasPositiveJustPressed || axes[0].wasNegativeJustPressed) {
+                newAutoRepeat = {
+                    axis: stick * 2,
+                    positive: axes[0].wasPositiveJustPressed,
+                    time: now + this.gamepadAxisAutoRepeatDelayMs
+                };
+            }
+            else if (axes[1].wasPositiveJustPressed || axes[1].wasNegativeJustPressed) {
+                newAutoRepeat = {
+                    axis: stick * 2 + 1,
+                    positive: axes[1].wasPositiveJustPressed,
+                    time: now + this.gamepadAxisAutoRepeatDelayMs
+                };
+            }
+
+            if (newAutoRepeat !== null && newAutoRepeat !== undefined) {
+                if (
+                    currentAutoRepeat === null ||
+                    currentAutoRepeat === undefined ||
+                    currentAutoRepeat.axis !== newAutoRepeat.axis ||
+                    currentAutoRepeat.positive !== newAutoRepeat.positive
+                ) {
+                    this.gamepadsAutoRepeats = newAutoRepeat;
+                }
+            }
+        }
     }
 }
+
+export const StickDirection = Object.freeze({
+    UP: { axe: 1, triggerValue: -0.25 },
+    DOWN: { axe: 1, triggerValue: 0.25 },
+    LEFT: { axe: 0, triggerValue: -0.25 },
+    RIGHT: { axe: 0, triggerValue: 0.25 }
+});
+
+// XBOX One layout style
+export const Button = Object.freeze({
+    ANY: "ANY",
+    A: 0,
+    B: 1,
+    X: 2,
+    Y: 3,
+    LEFT_BUTTON: 4,
+    RIGHT_BUTTON: 5,
+    RIGHT_TRIGGER: 6,
+    LEFT_TRIGGER: 7,
+    SELECT: 8,
+    START: 9,
+    LEFT_STICK: 10,
+    RIGHT_STICK: 11,
+    ARROW_UP: 12,
+    ARROW_DOWN: 13,
+    ARROW_LEFT: 14,
+    ARROW_RIGHT: 15
+});
+
+const LEFT_STICK_X_AXIS = 0;
+const LEFT_STICK_Y_AXIS = 1;
+const RIGHT_STICK_X_AXIS = 2;
+const RIGHT_STICK_Y_AXIS = 3;
 
 export const Key = Object.freeze({
     ANY: "ANY",

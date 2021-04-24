@@ -62,6 +62,29 @@ export default class CollisionLayer extends PIXI.Container {
         }
     }
 
+    getNeighBourWalkableForGivenRange(x, y, range) {
+        const posx = Math.floor(x / this.tileWidth);
+        const posy = Math.floor(y / this.tileHeight);
+
+        const leftX = posx - range;
+        const rightX = posx + range;
+        const topY = posy - range;
+        const bottomY = posy + range + 1;
+
+        return {
+            diag: {
+                leftTop: this.isRawWalkable(leftX, topY),
+                rightTop: this.isRawWalkable(rightX, topY),
+                leftBottom: this.isRawWalkable(leftX, bottomY),
+                bottom: this.isRawWalkable(rightX, bottomY)
+            },
+            left: this.isRawWalkable(leftX, posy),
+            right: this.isRawWalkable(rightX, posy),
+            top: this.isRawWalkable(posx, topY),
+            bottom: this.isRawWalkable(posx, bottomY)
+        }
+    }
+
     getTilePosition(x, y) {
         return {
             x: Math.floor(x / this.tileWidth),

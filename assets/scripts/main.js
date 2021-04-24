@@ -1,7 +1,9 @@
 // Import third-party Dependencies
 import { filters } from "@pixi/sound";
 const PIXI = require("pixi.js");
+
 window.PIXI = PIXI;
+window.hudevents = new PIXI.utils.EventEmitter();
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 PIXI.settings.RESOLUTION = 2;
@@ -24,12 +26,18 @@ import assetsURL from "../assets.json";
 
 async function main() {
     const gameState = new State("gameState", {
+        dungeon: {
+            enabled: false,
+            progression: "1.1"
+        },
         player: {
+            inDungeon: false,
             name: "Thomas",
             currentHp: 1,
             maxHp: 15
         }
     });
+    // TODO: setup default scene depending on player.inDungeon
 
     const game = new Engine({ defaultScene: DefaultScene, state: gameState })
         .loadAssetFromFile(assetsURL)
@@ -54,8 +62,8 @@ async function main() {
         loadHUD("test_hud");
 
         // TODO: we have to successfully build this!
-        const layer = new PIXI.display.Layer();
-        console.log(layer);
+        // const layer = new PIXI.display.Layer();
+        // console.log(layer);
     });
 }
 main().catch(console.error);

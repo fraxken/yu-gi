@@ -17,25 +17,29 @@ class RoomSpawner {
     /**
      * @param {!number} size
      * @param {object} options
-     * @param {number} [options.maxRooms=10]
-     * @param {number} [options.minRooms=6]
+     * @param {number} [options.maxRooms=4]
+     * @param {number} [options.minRooms=3]
      * @param {number} [options.specialRooms=1]
      * @param {number} [options.maxBoss=1]
      * @param {boolean} [options.includeSecretRoom=false]
-     * @param {number} [options.roomWidth]
-     * @param {number} [options.roomHeight]
+     * @param {number} [options.roomWidth=40]
+     * @param {number} [options.roomHeight=26]
+     * @param {number} [options.marginWidth=10]
+     * @param {number} [options.marginHeight=10]
      * @param {number} [options.tileSize=16]
      */
     constructor(size = 10, options = {}) {
         this.floorSize = size;
-        this.maxRooms = options.maxRooms || 10;
-        this.minRooms = options.minRooms || 6;
+        this.maxRooms = options.maxRooms || 4;
+        this.minRooms = options.minRooms || 3;
         this.maxBoss = options.maxBoss || 1;
-        this.specialRooms = options.specialRooms || 1;
+        this.specialRooms = options.specialRooms || 0;
         this.includeSecretRoom = options.includeSecretRoom || false;
         this.tileSize = options.tileSize || 16;
-        this.roomWidth = (options.roomWidth || 10) * this.tileSize;
-        this.roomHeight = (options.roomHeight || 10) * this.tileSize;
+        this.roomWidth = (options.roomWidth || 40) * this.tileSize;
+        this.roomHeight = (options.roomHeight || 26) * this.tileSize;
+        this.marginWidth = (options.marginWidth || 2) * this.tileSize;
+        this.marginHeight = (options.marginHeight || 2) * this.tileSize;
 
         this.reset();
     }
@@ -226,21 +230,29 @@ class RoomSpawner {
         const hasBottom = neighbours.bottom !== 0;
 
         yield {
-            x, y, doors: [hasTop, hasRight, hasBottom, hasLeft],
-            type: RoomSpawner.RoomName[this.floorPlan[i]]
+            id: i,
+            doors: {
+                top: hasTop ? i - this.floorSize : null,
+                bottom: hasBottom ? i + this.floorSize : null,
+                left: hasLeft ? i - 1 : null,
+                right: hasRight ? i + 1 : null
+            },
+            x, y, type: RoomSpawner.RoomName[this.floorPlan[i]]
         };
 
+        const roomHeight = this.roomHeight + this.marginHeight;
+        const roomWidth = this.roomWidth + this.marginWidth;
         if (hasLeft) {
-            yield* this.explore(i - 1, x - this.roomWidth, y, visitedNodes);
+            yield* this.explore(i - 1, x - roomWidth, y, visitedNodes);
         }
         if (hasRight) {
-            yield* this.explore(i + 1, x + this.roomWidth, y, visitedNodes);
+            yield* this.explore(i + 1, x + roomWidth, y, visitedNodes);
         }
         if (hasTop) {
-            yield* this.explore(i - this.floorSize, x, y + this.roomHeight, visitedNodes);
+            yield* this.explore(i - this.floorSize, x, y - roomHeight, visitedNodes);
         }
         if (hasBottom) {
-            yield* this.explore(i + this.floorSize, x, y - this.roomHeight, visitedNodes);
+            yield* this.explore(i + this.floorSize, x, y + roomHeight, visitedNodes);
         }
     }
 

@@ -7,7 +7,9 @@ export default class DefaultScene extends Scene {
 
         {
             const map = new Actor("map");
-            const tiledMap = new Components.TiledMap("map1", { debug: true });
+            const tiledMap = new Components.TiledMap("map1", {
+                showObjects: true
+            });
             tiledMap.on("object", this.build.bind(this));
             tiledMap.init();
             map.addComponent(tiledMap);
@@ -19,10 +21,13 @@ export default class DefaultScene extends Scene {
         // this.add(...EntityBuilder.createMany("actor:creature", 5));
         // this.add(EntityBuilder.create("sound:3D", "ambient-sound"));
 
+        const stoneControlActor = EntityBuilder.create("actor:stoneControl");
+        this.add(stoneControlActor);
+
         this.graph = new Actor("graph");
         {
             const temp = new PIXI.Graphics()
-                .beginFill(PIXI.utils.string2hex("#000"), 1)
+                .beginFill(PIXI.utils.string2hex("#000"), 0.2)
                 .drawCircle(0, 0, 30)
                 .endFill();
             this.graph.addChild(temp);
@@ -46,8 +51,11 @@ export default class DefaultScene extends Scene {
         if (actor.name.startsWith("door")) {
             actor.createScriptedBehavior("DoorBehavior");
         }
+        else if (actor.name.startsWith("stele")) {
+            actor.createScriptedBehavior("StoneBehavior");
+        }
         else if (actor.name === "test") {
-            actor.createScriptedBehavior("DungeonDoorBehavior");
+            actor.createScriptedBehavior("PortalBehavior");
         }
     }
 

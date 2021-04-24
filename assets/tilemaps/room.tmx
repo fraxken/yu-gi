@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="40" height="26" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="1">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="40" height="26" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="5">
+ <editorsettings>
+  <export target="room.json" format="json"/>
+ </editorsettings>
  <tileset firstgid="1" source="C:/Users/tgent/Desktop/Map/TileSets/TilesetFloor.tsx"/>
  <tileset firstgid="463" source="../tilesets/TilesetInterior.tsx"/>
  <tileset firstgid="1343" source="C:/Users/tgent/Desktop/Map/TileSets/TilesetHouse.tsx"/>
@@ -127,4 +130,26 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1482,0,0,0,0,1482,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="5" name="doors">
+  <object id="1" name="door_top" x="288.667" y="0.666667" width="61.3333" height="30">
+   <properties>
+    <property name="connectedTo" value=""/>
+   </properties>
+  </object>
+  <object id="2" name="door_bottom" x="289.333" y="384.333" width="61.3333" height="30">
+   <properties>
+    <property name="connectedTo" value=""/>
+   </properties>
+  </object>
+  <object id="3" name="door_left" x="0.666683" y="176.333" width="30" height="62.6667">
+   <properties>
+    <property name="connectedTo" value=""/>
+   </properties>
+  </object>
+  <object id="4" name="door_right" x="607.667" y="176" width="30" height="62.6667">
+   <properties>
+    <property name="connectedTo" value=""/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

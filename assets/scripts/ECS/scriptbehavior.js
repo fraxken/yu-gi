@@ -22,6 +22,9 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
         /** @type {Actor} */
         this.actor = null;
 
+        this.awakened = false;
+        this.started = false;
+
         if (state !== null) {
             this.once("awake", () => {
                 getCurrentState().attachToBehavior(this, state);
@@ -33,6 +36,15 @@ export default class ScriptBehavior extends PIXI.utils.EventEmitter {
                 this[methodName] = voidFunction;
             }
         }
+    }
+
+    triggerMethod(name, ...options) {
+        if (typeof this[name] !== "function") {
+            return;
+        }
+
+        this.emit(name, ...options);
+        this[name](...options);
     }
 
     /**

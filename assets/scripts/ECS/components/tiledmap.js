@@ -28,13 +28,17 @@ export default class TiledMap extends PIXI.Container {
      * @param {object} options
      * @param {boolean} [options.debug=false]
      * @param {boolean} [options.useSharedCollision=false]
+     * @param {boolean} [options.showObjects=false]
+     * @param {boolean} [options.autoAddObjects=true]
      */
     constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
         this.name = mapName;
         this.debug = options.debug || false;
+        this.showObjects = options.showObjects || false;
         this.useSharedCollision = options.useSharedCollision || false;
+        this.autoAddObjects = typeof options.autoAddObjects === "boolean" ? options.autoAddObjects : true;
         this.collisionOffset = options.collisionOffset || null;
 
         /** @type {Map<string, TiledLayer>} */
@@ -145,7 +149,7 @@ export default class TiledMap extends PIXI.Container {
         actor.rotation = object.rotation;
         TiledMap.assignProperties(actor, object.properties);
 
-        if (this.debug) {
+        if (this.showObjects) {
             const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
             if (object.ellipse) {
                 areaGraphic.drawEllipse(0, 0, width, height);
@@ -198,8 +202,16 @@ export default class TiledMap extends PIXI.Container {
         const objects = layer.objects || [];
 
         for (const object of objects) {
-            console.log(`[INFO] create object ${object.name}`);
-            this.addChild(this.drawObjectShape(object));
+            if (this.debug) {
+                console.log(`[INFO] create object ${object.name}`);
+            }
+
+            if (this.autoAddObjects) {
+                this.addChild(this.drawObjectShape(object));
+            }
+            else {
+                this.drawObjectShape(object)
+            }
         }
     }
 

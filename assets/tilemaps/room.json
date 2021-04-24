@@ -50,10 +50,94 @@
       "width": 40,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 5,
+      "name": "doors",
+      "objects": [
+        {
+          "height": 30,
+          "id": 1,
+          "name": "door_top",
+          "properties": [
+            {
+              "name": "connectedTo",
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 61.3333333333334,
+          "x": 288.666666666667,
+          "y": 0.666666666666668
+        },
+        {
+          "height": 30,
+          "id": 2,
+          "name": "door_bottom",
+          "properties": [
+            {
+              "name": "connectedTo",
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 61.3333,
+          "x": 289.33335,
+          "y": 384.333333333333
+        },
+        {
+          "height": 62.6666666666667,
+          "id": 3,
+          "name": "door_left",
+          "properties": [
+            {
+              "name": "connectedTo",
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 29.9999666666667,
+          "x": 0.66668333333331,
+          "y": 176.333333333333
+        },
+        {
+          "height": 62.6667,
+          "id": 4,
+          "name": "door_right",
+          "properties": [
+            {
+              "name": "connectedTo",
+              "type": "string",
+              "value": ""
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 30,
+          "x": 607.666666666667,
+          "y": 175.999983333333
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 5,
-  "nextobjectid": 1,
+  "nextlayerid": 6,
+  "nextobjectid": 5,
   "orientation": "orthogonal",
   "renderorder": "left-up",
   "tiledversion": "1.5.0",

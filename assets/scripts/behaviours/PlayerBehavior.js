@@ -1,11 +1,13 @@
 // Import third-party dependencies
 import { sound } from "@pixi/sound";
+import * as PIXI from "pixi.js";
 
 // Import dependencies
 import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor } from "../ECS";
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
-import { EntityBuilder, Key } from "../helpers";
+import { EntityBuilder, Key, LifeBar } from "../helpers";
+import { Button } from "../helpers/input.class";
 
 import { Inputs } from "../keys";
 
@@ -25,7 +27,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.playable = true;
-
+        this.dashTimer = new Timer(60, { autoStart: false, keepIterating: false });
         this.time = new Timer(60);
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
@@ -35,6 +37,7 @@ export default class PlayerBehavior extends ScriptBehavior {
     teleport(position) {
         console.log("player teleport at: ", position);
         this.playable = false;
+        this.sprite.playAnimation("idle");
 
         game.fade.auto(() => {
             game.fade.centerPosition = position;
@@ -43,6 +46,22 @@ export default class PlayerBehavior extends ScriptBehavior {
             game.viewport.moveCenter(this.actor.x, this.actor.y);
             this.playable = true;
         });
+    }
+
+    die(cause) {
+        this.playable = false;
+        this.sprite.playAnimation("adventurer-die", { loop: false });
+        if (!this.deathSound.isPlaying) {
+            this.deathSound.play();
+        }
+
+        // game.fade.auto(() => {
+        //     game.fade.centerPosition = position;
+
+        //     this.actor.pos = position;
+        //     game.viewport.moveCenter(this.actor.x, this.actor.y);
+        //     this.playable = true;
+        // });
     }
 
     awake() {
@@ -55,6 +74,15 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             /** @type {AnimatedSpriteEx} */
             this.sprite = this.actor.addComponent(spriteComponent);
+
+            this.lifeBar = new LifeBar({
+                spriteHeight: this.sprite.height,
+                currentHp: this.currentHp,
+                relativeMaxHp: this.maxHp,
+                maxHpBarLength: 60
+            });
+
+            this.actor.addChild(this.lifeBar.container);
         }
 
         this.deathSound = sound.find("death");
@@ -97,23 +125,53 @@ export default class PlayerBehavior extends ScriptBehavior {
         const isTopWalkable = !neighbours.top || neighbours.bottom;
         const isBottomWalkable = !neighbours.bottom || neighbours.top;
 
+
         const currentSpeed = this.speed.walk(!this.actor.moving);
-        if (Inputs.left() && isLeftWalkable) {
+        const dashSpeed = currentSpeed * 3;
+        const neighboursForCustomRange = this.collision.getNeighBourWalkableForGivenRange(this.actor.x, this.actor.y, (currentSpeed * 2));
+
+        const isLeftDashable = !neighboursForCustomRange.left || neighboursForCustomRange.right;
+        const isRightDashable = !neighboursForCustomRange.right || neighboursForCustomRange.left;
+        const isTopDashable = !neighboursForCustomRange.top || neighboursForCustomRange.bottom;
+        const isBottomDashable = !neighboursForCustomRange.bottom || neighboursForCustomRange.top;
+
+        if (!this.dashTimer.isStarted && Inputs.left() && game.input.wasKeyJustPressed(Key.C) && isLeftDashable) {
+            this.actor.moveX(-dashSpeed);
+            this.sprite.scale.x = -1;
+            this.dashTimer.start();
+        }
+        else if (Inputs.left() && isLeftWalkable) {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
+        }
+
+        if (!this.dashTimer.isStarted && Inputs.right() && game.input.wasKeyJustPressed(Key.C) && isRightDashable) {
+            this.actor.moveX(dashSpeed);
+            this.sprite.scale.x = -1;
+            this.dashTimer.start();
         }
         else if (Inputs.right() && isRightWalkable) {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
-        if (Inputs.up() && isTopWalkable) {
+
+        if (!this.dashTimer.isStarted && Inputs.up() && game.input.wasKeyJustPressed(Key.C) && isTopDashable) {
+            this.actor.moveY(-dashSpeed);
+            this.dashTimer.start();
+        }
+        else if (Inputs.up() && isTopWalkable) {
             this.actor.moveY(-currentSpeed);
+        }
+
+        if (!this.dashTimer.isStarted && Inputs.down() && game.input.wasKeyJustPressed(Key.C) && isBottomDashable) {
+            this.actor.moveY(dashSpeed);
+            this.dashTimer.start();
         }
         else if (Inputs.down() && isBottomWalkable) {
             this.actor.moveY(currentSpeed);
         }
 
-        if (game.input.wasKeyJustPressed(Key.L)) {
+        if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT)) {
             this.sprite.playAnimation("adventurer-die", { loop: false });
             // this.sprite.lock();
             if (!this.deathSound.isPlaying) {
@@ -121,7 +179,13 @@ export default class PlayerBehavior extends ScriptBehavior {
             }
         }
 
-        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
+        if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-slide": "idle");
+        } else {
+            this.dashTimer.reset();
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
+        }
+        this.lifeBar.update(this.currentHp);
         this.actor.applyVelocity();
     }
 }
