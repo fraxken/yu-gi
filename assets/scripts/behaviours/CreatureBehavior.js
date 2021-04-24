@@ -16,6 +16,7 @@ export default class CreatureBehavior extends ScriptBehavior {
         this.nextPos = { x: null, y: null };
 
         this.radius = 80;
+        this.range = 180;
 
         this.isMoving = false;
         this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
@@ -59,7 +60,7 @@ export default class CreatureBehavior extends ScriptBehavior {
     }
 
     canShoot() {
-        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.radius * this.radius;
+        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.range * this.range;
         if (isInside) {
             if (!this.delayToShoot.isStarted) {
                 this.delayToShoot.start();
