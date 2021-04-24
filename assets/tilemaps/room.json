@@ -1,5 +1,11 @@
 {
   "compressionlevel": -1,
+  "editorsettings": {
+    "export": {
+      "format": "json",
+      "target": "room.json"
+    }
+  },
   "height": 26,
   "infinite": false,
   "layers": [
@@ -70,9 +76,9 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 61.3333333333334,
-          "x": 288.666666666667,
-          "y": 0.666666666666668
+          "width": 61.3333,
+          "x": 288.667,
+          "y": 0.666667
         },
         {
           "height": 30,
@@ -89,11 +95,11 @@
           "type": "",
           "visible": true,
           "width": 61.3333,
-          "x": 289.33335,
-          "y": 384.333333333333
+          "x": 289.333,
+          "y": 384.333
         },
         {
-          "height": 62.6666666666667,
+          "height": 62.6667,
           "id": 3,
           "name": "door_left",
           "properties": [
@@ -106,9 +112,9 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 29.9999666666667,
-          "x": 0.66668333333331,
-          "y": 176.333333333333
+          "width": 30,
+          "x": 0.666683,
+          "y": 176.333
         },
         {
           "height": 62.6667,
@@ -125,8 +131,30 @@
           "type": "",
           "visible": true,
           "width": 30,
-          "x": 607.666666666667,
-          "y": 175.999983333333
+          "x": 607.667,
+          "y": 176
+        },
+        {
+          "height": 42.6666666666667,
+          "id": 5,
+          "name": "enemy_right",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 47.9999999999999,
+          "x": 449.333333333333,
+          "y": 110.666666666667
+        },
+        {
+          "height": 42.6667,
+          "id": 6,
+          "name": "enemy_left",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 48,
+          "x": 149.333333333333,
+          "y": 254.66665
         }
       ],
       "opacity": 1,
@@ -137,7 +165,7 @@
     }
   ],
   "nextlayerid": 6,
-  "nextobjectid": 5,
+  "nextobjectid": 7,
   "orientation": "orthogonal",
   "renderorder": "left-up",
   "tiledversion": "1.5.0",

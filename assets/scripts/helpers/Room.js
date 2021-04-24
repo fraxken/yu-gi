@@ -29,7 +29,7 @@ export default class Room {
         {
             this.map = new Actor(roomName);
             this.map.position.set(x, y);
-            this.tiledMap = new Components.TiledMap("room", {
+            this.tiledMap = new Components.TiledMap(this.type === "end" ? "boss_room" : "room", {
                 debug: false,
                 showObjects: true,
                 useSharedCollision: true,
@@ -40,7 +40,7 @@ export default class Room {
             this.map.addComponent(this.tiledMap);
         }
 
-        console.log(`Init room '${roomName}': ${this.offsetX} - ${this.offsetY}`);
+        console.log(`Init room '${roomName}': ${this.type}`);
         console.log(doors);
     }
 
@@ -124,10 +124,22 @@ export default class Room {
     /**
      * @param {!Actor} actor
      */
+    createEnemySpawner(actor) {
+        console.log("Enemy spawner triggered!");
+    }
+
+    /**
+     * @param {!Actor} actor
+     */
     build(actor) {
         if (actor.name.startsWith("door")) {
             this.createDoor(actor);
             actor.name = EntityBuilder.increment("door");
+        }
+        else if (actor.name.startsWith("enemy")) {
+            this.createEnemySpawner(actor);
+            actor.name = EntityBuilder.increment("enemy");
+            this.parent.add(actor);
         }
 
         actor.position.set(actor.x + this.offsetX, actor.y + this.offsetY);
