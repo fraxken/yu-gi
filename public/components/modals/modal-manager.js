@@ -12,11 +12,11 @@ class ModalManager extends LitElement {
         font-family: "Helvetica";
         background-color: rgba(0, 0, 0, 0.3);
         padding: 20px;
-        position: absolute;
+        /* position: absolute;
         height: 80%; 
         width: 80%; 
         top: 10%; 
-        left: 10%; 
+        left: 10%;  */
       }
     `
   }
