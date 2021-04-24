@@ -7,7 +7,9 @@ export default class DefaultScene extends Scene {
 
         {
             const map = new Actor("map");
-            const tiledMap = new Components.TiledMap("map1", { debug: true });
+            const tiledMap = new Components.TiledMap("map1", {
+                showObjects: true
+            });
             tiledMap.on("object", this.build.bind(this));
             tiledMap.init();
             map.addComponent(tiledMap);
@@ -22,7 +24,7 @@ export default class DefaultScene extends Scene {
         this.graph = new Actor("graph");
         {
             const temp = new PIXI.Graphics()
-                .beginFill(PIXI.utils.string2hex("#000"), 1)
+                .beginFill(PIXI.utils.string2hex("#000"), 0.2)
                 .drawCircle(0, 0, 30)
                 .endFill();
             this.graph.addChild(temp);

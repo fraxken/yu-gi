@@ -356,28 +356,6 @@
           "y": -361.333
         },
         {
-          "height": 40,
-          "id": 3,
-          "name": "enemy1",
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 57.3333,
-          "x": -73.3333,
-          "y": 117.333
-        },
-        {
-          "height": 38,
-          "id": 4,
-          "name": "enemy2",
-          "rotation": 60,
-          "type": "",
-          "visible": true,
-          "width": 44.6667,
-          "x": -94.6667,
-          "y": -434
-        },
-        {
           "height": 20,
           "id": 5,
           "name": "door1",
@@ -412,6 +390,39 @@
           "width": 48,
           "x": 1311,
           "y": -22
+        },
+        {
+          "height": 31.3333333333333,
+          "id": 9,
+          "name": "stele1",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 31.3333,
+          "x": -47.9999833333333,
+          "y": -54.6666666666667
+        },
+        {
+          "height": 31.3333,
+          "id": 10,
+          "name": "stele3",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 31.3333,
+          "x": 158.33335,
+          "y": -2.33331666666669
+        },
+        {
+          "height": 31.3333,
+          "id": 11,
+          "name": "stele2",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 31.3333,
+          "x": 39.6666833333333,
+          "y": 45.0000166666667
         }
       ],
       "opacity": 1,
@@ -422,7 +433,7 @@
     }
   ],
   "nextlayerid": 6,
-  "nextobjectid": 9,
+  "nextobjectid": 12,
   "orientation": "orthogonal",
   "renderorder": "left-up",
   "tiledversion": "1.5.0",

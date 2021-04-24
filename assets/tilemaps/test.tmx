@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="100" height="100" tilewidth="16" tileheight="16" infinite="1" nextlayerid="6" nextobjectid="9">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="100" height="100" tilewidth="16" tileheight="16" infinite="1" nextlayerid="6" nextobjectid="12">
  <editorsettings>
   <export target="test.json" format="json"/>
  </editorsettings>
@@ -721,8 +721,6 @@
   <object id="2" name="test" x="304.667" y="-361.333" width="42" height="40">
    <ellipse/>
   </object>
-  <object id="3" name="enemy1" x="-73.3333" y="117.333" width="57.3333" height="40"/>
-  <object id="4" name="enemy2" x="-94.6667" y="-434" width="44.6667" height="38" rotation="60"/>
   <object id="5" name="door1" x="362.667" y="67.3333" width="32.6667" height="20">
    <properties>
     <property name="connectTo" value="doorMarket"/>
@@ -733,5 +731,8 @@
     <property name="connectTo" value="door1"/>
    </properties>
   </object>
+  <object id="9" name="stele1" x="-48" y="-54.6667" width="31.3333" height="31.3333"/>
+  <object id="10" name="stele3" x="158.333" y="-2.33332" width="31.3333" height="31.3333"/>
+  <object id="11" name="stele2" x="39.6667" y="45" width="31.3333" height="31.3333"/>
  </objectgroup>
 </map>
