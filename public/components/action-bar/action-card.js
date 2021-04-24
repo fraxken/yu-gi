@@ -4,9 +4,9 @@ import { bindToScriptEvent } from "../../helpers";
 
 class ActionCard extends LitElement {
     static get properties() {
-        return { 
-          card: { type: Object },
-          key: { type: String }
+        return {
+            card: { type: Object },
+            key: { type: String }
         };
     }
 
@@ -33,8 +33,8 @@ class ActionCard extends LitElement {
     render() {
         return html`
             <div class="action-card-container">
-            ${this.card.typeCard}
-            <action-button key="${this.card.key}"></action-button>
+                <div>${this.card.typeCard}</div>
+                <action-button key="${this.card.key}"></action-button>
             </div>
         `;
     }
