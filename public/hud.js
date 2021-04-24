@@ -16,7 +16,7 @@ function newInputType(newType) {
 
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
-    const hud = document.querySelector(".hud");
+    const hud = document.querySelector(".hud"); 
     const hudevents = window.hudevents;
     window.currentActiveHUD = null;
 
