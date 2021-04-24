@@ -144,6 +144,7 @@ export default class Engine extends AssetLoader {
         // Configure viewport
         this.viewport.zoomPercent(1);
         this.viewport.wheel({ smooth: 150, lineHeight: 300 });
+        this.viewport.decelerate();
         // this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
 
         this._initRootScene(this.defaultRootScene);
@@ -188,7 +189,7 @@ export default class Engine extends AssetLoader {
         fadeGraphic.zIndex = 30;
 
         this.fade = new Fade(fadeGraphic, {
-            frame: 30, delayIn: 20, delayOut: 20, defaultState: "in"
+            frame: 45, delayIn: 60, delayOut: 0, defaultState: "in"
         });
 
         this.rootScene.addChild(this.cursorSprite);

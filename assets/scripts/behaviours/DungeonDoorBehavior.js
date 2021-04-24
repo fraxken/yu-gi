@@ -1,11 +1,12 @@
 // Import dependencies
 import { ScriptBehavior, getActor, Timer } from "../ECS";
-import { Key } from "../helpers";
 import { Inputs } from "../keys";
 
 export default class DungeonDoorBehavior extends ScriptBehavior {
+    static DistanceToActivateDoor = 60;
+
     awake() {
-        this.warpTimer = new Timer(120, { autoStart: false, keepIterating: false });
+        this.warpTimer = new Timer(60, { autoStart: false, keepIterating: false });
     }
 
     start() {
@@ -14,11 +15,13 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
 
     warp() {
         this.warpTimer.start();
+        console.log("warp triggered!");
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
         const pos = this.actor.connectedTo.pos;
 
-        script.sendMessage("teleport", {
+        // TODO: enhance teleportation position!
+        script.sendMessage("fastTeleport", {
             x: pos.x + (this.actor.connectedTo.width / 4),
             y: pos.y + (this.actor.connectedTo.height / 2)
         });
@@ -29,8 +32,7 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
             return;
         }
 
-        const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (distance < 50 && Inputs.use()) {
+        if (Inputs.use() && this.actor.pos.distanceTo(this.target.pos) < DungeonDoorBehavior.DistanceToActivateDoor) {
             this.warp();
         }
     }

@@ -27,6 +27,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.currentHp = currentHp;
         this.maxHp = maxHp;
+        this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
@@ -49,6 +50,14 @@ export default class PlayerBehavior extends ScriptBehavior {
             game.viewport.moveCenter(this.actor.x, this.actor.y);
             this.playable = true;
         });
+    }
+
+    fastTeleport(position) {
+        if (this.isTeleporting.isStarted) {
+            return;
+        }
+        this.isTeleporting.start();
+        this.actor.pos = position;
     }
 
     enterDungeon() {
@@ -119,8 +128,8 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         game.viewport.moveCenter(this.actor.x, this.actor.y);
         game.viewport.follow(this.actor, {
-            speed: 1.5,
-            acceleration: 0.01,
+            speed: 3,
+            acceleration: 0.016,
             radius: 40,
         });
     }
@@ -131,6 +140,10 @@ export default class PlayerBehavior extends ScriptBehavior {
         if (!this.playable) {
             return;
         }
+        if (this.isTeleporting.isStarted) {
+            this.isTeleporting.walk();
+        }
+
         if (this.time.walk() && this.currentHp < this.maxHp) {
             this.currentHp += 1;
         }
