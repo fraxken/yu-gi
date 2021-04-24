@@ -1,7 +1,9 @@
 // Import third-party Dependencies
 import { filters } from "@pixi/sound";
 const PIXI = require("pixi.js");
+
 window.PIXI = PIXI;
+window.hudevents = new PIXI.utils.EventEmitter();
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 PIXI.settings.RESOLUTION = 2;

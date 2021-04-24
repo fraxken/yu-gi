@@ -9,12 +9,14 @@ import "./components/modals/modal-store.js";
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
     const hud = document.querySelector(".hud");
+    const hudevents = window.hudevents;
     window.currentActiveHUD = null;
 
     function loadHUD(name) {
         if (window.currentActiveHUD === name) {
             return;
         }
+        hudevents.removeAllListeners();
         const elementName = `#${name}`;
 
         const template = document.querySelector(elementName);
@@ -30,6 +32,8 @@ window.addEventListener("DOMContentLoaded", () => {
         console.log(`[INFO] hud '${elementName}' loaded!`)
     }
     window.loadHUD = loadHUD;
+
+    // TODO: exploit hudevents events
 });
 
 window.document.addEventListener('contextmenu', event => event.preventDefault());
