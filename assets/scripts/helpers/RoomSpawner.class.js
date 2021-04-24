@@ -30,16 +30,16 @@ class RoomSpawner {
      */
     constructor(size = 10, options = {}) {
         this.floorSize = size;
-        this.maxRooms = options.maxRooms || 10;
-        this.minRooms = options.minRooms || 6;
+        this.maxRooms = options.maxRooms || 4;
+        this.minRooms = options.minRooms || 3;
         this.maxBoss = options.maxBoss || 1;
-        this.specialRooms = options.specialRooms || 1;
+        this.specialRooms = options.specialRooms || 0;
         this.includeSecretRoom = options.includeSecretRoom || false;
         this.tileSize = options.tileSize || 16;
         this.roomWidth = (options.roomWidth || 10) * this.tileSize;
         this.roomHeight = (options.roomHeight || 10) * this.tileSize;
-        this.marginWidth = (options.marginWidth || 10) * this.tileSize;
-        this.marginHeight = (options.marginHeight || 10) * this.tileSize;
+        this.marginWidth = (options.marginWidth || 2) * this.tileSize;
+        this.marginHeight = (options.marginHeight || 2) * this.tileSize;
 
         this.reset();
     }

@@ -55,7 +55,7 @@ export default class DefaultScene extends Scene {
             actor.createScriptedBehavior("StoneBehavior");
         }
         else if (actor.name === "test") {
-            actor.createScriptedBehavior("DungeonDoorBehavior");
+            actor.createScriptedBehavior("PortalBehavior");
         }
     }
 

@@ -1,10 +1,10 @@
 // Import dependencies
-import { ScriptBehavior, getActor } from "../ECS";
+import { ScriptBehavior, getActor, Timer } from "../ECS";
 import { Inputs } from "../keys";
 
 export default class DungeonDoorBehavior extends ScriptBehavior {
     awake() {
-        this.teleporting = false;
+        this.warpTimer = new Timer(30, { autoStart: false, keepIterating: false });
     }
 
     start() {
@@ -12,17 +12,19 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
     }
 
     warp() {
-        this.teleporting = true;
+        this.warpTimer.start();
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
-        script.playable = false;
-        console.clear();
-        console.log("load scene");
-        game.loadScene("dungeon");
+        const pos = this.actor.connectedTo.pos;
+
+        script.sendMessage("teleport", {
+            x: pos.x + (this.actor.connectedTo.width / 4),
+            y: pos.y + (this.actor.connectedTo.height / 2)
+        });
     }
 
     update() {
-        if (this.teleporting) {
+        if (this.warpTimer.isStarted && !this.warpTimer.walk()) {
             return;
         }
 

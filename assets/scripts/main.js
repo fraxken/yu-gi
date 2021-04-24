@@ -56,8 +56,8 @@ async function main() {
         loadHUD("test_hud");
 
         // TODO: we have to successfully build this!
-        const layer = new PIXI.display.Layer();
-        console.log(layer);
+        // const layer = new PIXI.display.Layer();
+        // console.log(layer);
     });
 }
 main().catch(console.error);

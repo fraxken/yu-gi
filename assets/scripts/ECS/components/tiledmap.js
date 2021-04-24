@@ -29,6 +29,7 @@ export default class TiledMap extends PIXI.Container {
      * @param {boolean} [options.debug=false]
      * @param {boolean} [options.useSharedCollision=false]
      * @param {boolean} [options.showObjects=false]
+     * @param {boolean} [options.autoAddObjects=true]
      */
     constructor(mapName, options = {}) {
         super();
@@ -37,6 +38,7 @@ export default class TiledMap extends PIXI.Container {
         this.debug = options.debug || false;
         this.showObjects = options.showObjects || false;
         this.useSharedCollision = options.useSharedCollision || false;
+        this.autoAddObjects = typeof options.autoAddObjects === "boolean" ? options.autoAddObjects : true;
         this.collisionOffset = options.collisionOffset || null;
 
         /** @type {Map<string, TiledLayer>} */
@@ -200,8 +202,16 @@ export default class TiledMap extends PIXI.Container {
         const objects = layer.objects || [];
 
         for (const object of objects) {
-            console.log(`[INFO] create object ${object.name}`);
-            this.addChild(this.drawObjectShape(object));
+            if (this.debug) {
+                console.log(`[INFO] create object ${object.name}`);
+            }
+
+            if (this.autoAddObjects) {
+                this.addChild(this.drawObjectShape(object));
+            }
+            else {
+                this.drawObjectShape(object)
+            }
         }
     }
 
