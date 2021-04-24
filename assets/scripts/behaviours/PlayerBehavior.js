@@ -161,7 +161,7 @@ export default class PlayerBehavior extends ScriptBehavior {
                 this.deathSound.play();
             }
         }
-
+        
         if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-slide": "idle");
         } else {
