@@ -24,6 +24,8 @@ class RoomSpawner {
      * @param {boolean} [options.includeSecretRoom=false]
      * @param {number} [options.roomWidth]
      * @param {number} [options.roomHeight]
+     * @param {number} [options.marginWidth=10]
+     * @param {number} [options.marginHeight=10]
      * @param {number} [options.tileSize=16]
      */
     constructor(size = 10, options = {}) {
@@ -36,6 +38,8 @@ class RoomSpawner {
         this.tileSize = options.tileSize || 16;
         this.roomWidth = (options.roomWidth || 10) * this.tileSize;
         this.roomHeight = (options.roomHeight || 10) * this.tileSize;
+        this.marginWidth = (options.marginWidth || 10) * this.tileSize;
+        this.marginHeight = (options.marginHeight || 10) * this.tileSize;
 
         this.reset();
     }
@@ -226,21 +230,29 @@ class RoomSpawner {
         const hasBottom = neighbours.bottom !== 0;
 
         yield {
-            x, y, doors: [hasTop, hasRight, hasBottom, hasLeft],
-            type: RoomSpawner.RoomName[this.floorPlan[i]]
+            id: i,
+            doors: {
+                top: hasTop ? i - this.floorSize : null,
+                bottom: hasBottom ? i + this.floorSize : null,
+                left: hasLeft ? i - 1 : null,
+                right: hasRight ? i + 1 : null
+            },
+            x, y, type: RoomSpawner.RoomName[this.floorPlan[i]]
         };
 
+        const roomHeight = this.roomHeight + this.marginHeight;
+        const roomWidth = this.roomWidth + this.marginWidth;
         if (hasLeft) {
-            yield* this.explore(i - 1, x - this.roomWidth, y, visitedNodes);
+            yield* this.explore(i - 1, x - roomWidth, y, visitedNodes);
         }
         if (hasRight) {
-            yield* this.explore(i + 1, x + this.roomWidth, y, visitedNodes);
+            yield* this.explore(i + 1, x + roomWidth, y, visitedNodes);
         }
         if (hasTop) {
-            yield* this.explore(i - this.floorSize, x, y + this.roomHeight, visitedNodes);
+            yield* this.explore(i - this.floorSize, x, y - roomHeight, visitedNodes);
         }
         if (hasBottom) {
-            yield* this.explore(i + this.floorSize, x, y - this.roomHeight, visitedNodes);
+            yield* this.explore(i + this.floorSize, x, y + roomHeight, visitedNodes);
         }
     }
 

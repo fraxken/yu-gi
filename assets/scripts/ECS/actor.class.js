@@ -193,8 +193,18 @@ export default class Actor extends ActorTree {
         }
 
         for (const behavior of this.behaviors) {
-            behavior.emit(eventName, ...args);
-            behavior[eventName](...args);
+            behavior.triggerMethod(eventName, ...args);
+
+            if (eventName === "awake") {
+                behavior.awakened = true;
+            }
+            else if (eventName === "start") {
+                if (!behavior.awakened) {
+                    behavior.triggerMethod("awake");
+                    behavior.awakened = true;
+                }
+                behavior.started = true;
+            }
         }
     }
 }

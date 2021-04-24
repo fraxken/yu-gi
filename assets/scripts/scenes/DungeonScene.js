@@ -6,10 +6,11 @@ import { EntityBuilder } from "../helpers";
 import { Scene, Actor } from "../ECS";
 
 import RoomSpawner from "../helpers/RoomSpawner.class";
+import RoomScene from "./RoomScene";
 
 export default class DungeonScene extends Scene {
     constructor() {
-        super({ useLRUCache: true, debug: true });
+        super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
 
@@ -23,18 +24,29 @@ export default class DungeonScene extends Scene {
         });
         spawner.draw();
 
-        this.levelRooms = [...spawner.getWorldRooms()];
-        this.startRoom = this.levelRooms[0];
+        const levelRooms = [...spawner.getWorldRooms()];
+        this.rooms = new Map();
+        this.startRoom = levelRooms[0];
 
-        for (let i = 0; i < this.levelRooms.length; i++) {
+        for (let i = 0; i < levelRooms.length; i++) {
+            const room = levelRooms[i];
+            this.rooms.set(room.id, {
+                scene: null
+            });
+
             game.appendScene("room", {
-                params: [i === 0 ? "start_room" : `room_${i}`, this.levelRooms[i]],
+                params: [i === 0 ? "start_room" : `room_${i}`, room, this],
                 loaded: this.sceneLoaded.bind(this)
             });
         }
     }
 
+    /**
+     * @param {!RoomScene} scene
+     */
     sceneLoaded(scene) {
+        this.rooms.get(scene.roomId).scene = scene;
+
         const areaNameText = new PIXI.Text(`${scene.roomName} - ${scene.type}`, {
             fill: "#12d94d",
             fontFamily: "Verdana",
@@ -47,6 +59,7 @@ export default class DungeonScene extends Scene {
             align: "center"
         });
         areaNameText.anchor.set(0.5);
+        areaNameText.alpha = 0.35;
 
         areaNameText.position.set(this.roomWidth * 16 / 2, this.roomHeight * 16 / 2);
         scene.addChild(areaNameText);
@@ -61,6 +74,9 @@ export default class DungeonScene extends Scene {
 
     awake() {
         super.awake();
+        for (const { scene } of this.rooms.values()) {
+            scene.connectDoors();
+        }
 
         /** @type {Actor} */
         const playerActor = EntityBuilder.create("actor:player");

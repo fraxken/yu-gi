@@ -28,12 +28,14 @@ export default class TiledMap extends PIXI.Container {
      * @param {object} options
      * @param {boolean} [options.debug=false]
      * @param {boolean} [options.useSharedCollision=false]
+     * @param {boolean} [options.showObjects=false]
      */
     constructor(mapName, options = {}) {
         super();
         Component.assignSymbols(this);
         this.name = mapName;
         this.debug = options.debug || false;
+        this.showObjects = options.showObjects || false;
         this.useSharedCollision = options.useSharedCollision || false;
         this.collisionOffset = options.collisionOffset || null;
 
@@ -145,7 +147,7 @@ export default class TiledMap extends PIXI.Container {
         actor.rotation = object.rotation;
         TiledMap.assignProperties(actor, object.properties);
 
-        if (this.debug) {
+        if (this.showObjects) {
             const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
             if (object.ellipse) {
                 areaGraphic.drawEllipse(0, 0, width, height);
