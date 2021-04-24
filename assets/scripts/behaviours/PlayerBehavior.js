@@ -113,14 +113,14 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
         }
-        else if (Inputs.right() && isRightWalkable) {
+        if (Inputs.right() && isRightWalkable) {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
         if (Inputs.up() && isTopWalkable) {
             this.actor.moveY(-currentSpeed);
         }
-        else if (Inputs.down() && isBottomWalkable) {
+        if (Inputs.down() && isBottomWalkable) {
             this.actor.moveY(currentSpeed);
         }
 
