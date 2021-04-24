@@ -27,7 +27,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.playable = true;
-
+        this.dashTimer = new Timer(60, { autoStart: false, keepIterating: false });
         this.time = new Timer(60);
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
@@ -108,19 +108,49 @@ export default class PlayerBehavior extends ScriptBehavior {
         const isTopWalkable = !neighbours.top || neighbours.bottom;
         const isBottomWalkable = !neighbours.bottom || neighbours.top;
 
+
         const currentSpeed = this.speed.walk(!this.actor.moving);
-        if (Inputs.left() && isLeftWalkable) {
+        const dashSpeed = currentSpeed * 3;
+        const neighboursForCustomRange = this.collision.getNeighBourWalkableForGivenRange(this.actor.x, this.actor.y, (currentSpeed * 2));
+
+        const isLeftDashable = !neighboursForCustomRange.left || neighboursForCustomRange.right;
+        const isRightDashable = !neighboursForCustomRange.right || neighboursForCustomRange.left;
+        const isTopDashable = !neighboursForCustomRange.top || neighboursForCustomRange.bottom;
+        const isBottomDashable = !neighboursForCustomRange.bottom || neighboursForCustomRange.top;
+
+        if (!this.dashTimer.isStarted && Inputs.left() && game.input.wasKeyJustPressed(Key.C) && isLeftDashable) {
+            this.actor.moveX(-dashSpeed);
+            this.sprite.scale.x = -1;
+            this.dashTimer.start();
+        }
+        else if (Inputs.left() && isLeftWalkable) {
             this.actor.moveX(-currentSpeed);
             this.sprite.scale.x = -1;
         }
-        if (Inputs.right() && isRightWalkable) {
+
+        if (!this.dashTimer.isStarted && Inputs.right() && game.input.wasKeyJustPressed(Key.C) && isRightDashable) {
+            this.actor.moveX(dashSpeed);
+            this.sprite.scale.x = -1;
+            this.dashTimer.start();
+        }
+        else if (Inputs.right() && isRightWalkable) {
             this.actor.moveX(currentSpeed);
             this.sprite.scale.x = 1;
         }
-        if (Inputs.up() && isTopWalkable) {
+
+        if (!this.dashTimer.isStarted && Inputs.up() && game.input.wasKeyJustPressed(Key.C) && isTopDashable) {
+            this.actor.moveY(-dashSpeed);
+            this.dashTimer.start();
+        }
+        else if (Inputs.up() && isTopWalkable) {
             this.actor.moveY(-currentSpeed);
         }
-        if (Inputs.down() && isBottomWalkable) {
+
+        if (!this.dashTimer.isStarted && Inputs.down() && game.input.wasKeyJustPressed(Key.C) && isBottomDashable) {
+            this.actor.moveY(dashSpeed);
+            this.dashTimer.start();
+        }
+        else if (Inputs.down() && isBottomWalkable) {
             this.actor.moveY(currentSpeed);
         }
 
@@ -132,8 +162,13 @@ export default class PlayerBehavior extends ScriptBehavior {
             }
         }
 
+        if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-slide": "idle");
+        } else {
+            this.dashTimer.reset();
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
+        }
         this.lifeBar.update(this.currentHp);
-        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
         this.actor.applyVelocity();
     }
 }
