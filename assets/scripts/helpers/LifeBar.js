@@ -16,7 +16,8 @@ export default class LifeBar {
         this.maxHpBarLength = options.maxHpBarLength;
         this.maxHpBarX = -(this.maxHpBarLength - (this.maxHpBarLength / 2));
         this.maxHpBarY = -(options.spriteHeight + 10);
-        this.ratio = this.maxHpBarLength / options.relativeMaxHp;
+        this.relativeMaxHp = options.relativeMaxHp;
+        this.ratio = this.maxHpBarLength / this.relativeMaxHp;
 
         this.maxHpBar = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#666"), 1)
@@ -28,7 +29,18 @@ export default class LifeBar {
             .drawRect(this.maxHpBarX, this.maxHpBarY, options.currentHp * this.ratio, 10)
             .endFill();
 
+
+        const textStyle = {
+            fontFamily: "Arial",
+            fontSize: 8,
+            fill: "#FFF"
+        };
+        const hpTxt = new PIXI.Text(`${options.currentHp} / ${this.relativeMaxHp}`, { ...textStyle });
+        hpTxt.x = this.maxHpBarX + (this.maxHpBarLength / 2) - 12;
+        hpTxt.y = this.maxHpBarY;
+
         this.maxHpBar.addChild(currentHpBar);
+        this.maxHpBar.addChild(hpTxt);
         this.container.addChild(this.maxHpBar);
 
         return this;
@@ -43,6 +55,8 @@ export default class LifeBar {
             .beginFill(PIXI.utils.string2hex("#FF0000"), 1)
             .drawRect(this.maxHpBarX, this.maxHpBarY, currentHp * this.ratio, 10)
             .endFill();
+
+        this.maxHpBar.children[1].text = `${currentHp} / ${this.relativeMaxHp}`;
 
         return this;
     }
