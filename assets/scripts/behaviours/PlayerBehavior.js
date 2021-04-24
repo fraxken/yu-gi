@@ -6,7 +6,7 @@ import * as PIXI from "pixi.js";
 import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor } from "../ECS";
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
-import { EntityBuilder, Key } from "../helpers";
+import { EntityBuilder, Key, LifeBar } from "../helpers";
 import { Button } from "../helpers/input.class";
 
 import { Inputs } from "../keys";
@@ -16,10 +16,6 @@ const kPlayerStats = {
     currentHp: 1,
     maxHp: 20
 }
-
-const kMaxHpBarLength = 75;
-const kMaxHpBarX = -(kMaxHpBarLength - (kMaxHpBarLength / 2));
-let kMaxHpBarY;
 
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
@@ -62,22 +58,13 @@ export default class PlayerBehavior extends ScriptBehavior {
             /** @type {AnimatedSpriteEx} */
             this.sprite = this.actor.addComponent(spriteComponent);
 
+            this.lifeBar = new LifeBar({
+                spriteHeight: this.sprite.height,
+                relativeMaxHp: this.maxHp,
+                currentHp: this.currentHp
+            });
 
-            kMaxHpBarY = -(this.sprite.height + 10);
-            const maxHpBar = new PIXI.Graphics()
-                .beginFill(PIXI.utils.string2hex("#666"), 1)
-                .drawRect(kMaxHpBarX, kMaxHpBarY, kMaxHpBarLength, 10)
-                .endFill();
-
-            const hpBar = new PIXI.Graphics()
-                .beginFill(PIXI.utils.string2hex("#FF0000"), 1)
-                .drawRect(kMaxHpBarX, kMaxHpBarY, 4, 10)
-                .endFill();
-
-            maxHpBar.addChild(hpBar);
-
-            this.actor.addChild(maxHpBar);
-            console.log(this.actor.children[1].children[0]);
+            this.actor.addChild(this.lifeBar.container);
         }
 
         this.deathSound = sound.find("death");
@@ -114,11 +101,6 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.currentHp += 1;
         }
 
-        this.actor.children[1].children[0].clear()
-            .beginFill(PIXI.utils.string2hex("#FF0000"), 1)
-            .drawRect(kMaxHpBarX, kMaxHpBarY, this.currentHp * 5, 10)
-            .endFill();
-
         const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
         const isLeftWalkable = !neighbours.left || neighbours.right;
         const isRightWalkable = !neighbours.right || neighbours.left;
@@ -149,6 +131,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             }
         }
 
+        this.lifeBar.update(this.currentHp);
         this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
         this.actor.applyVelocity();
     }
