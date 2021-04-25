@@ -65,4 +65,8 @@ export default class LifeBar {
 
         return this;
     }
+
+    cleanup() {
+        this.container.destroy();
+    }
 }

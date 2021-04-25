@@ -149,15 +149,20 @@ export default class PlayerBehavior extends ScriptBehavior {
             let canBeHit;
             if (isLookingToRight) {
                 canBeHit = this.actor.x < actor.x ? true : false;
-            } else {
+            }
+            else {
                 canBeHit = this.actor.x > actor.x ? true : false;
             }
 
             if (canBeHit) {
                 if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Melee"))) {
                     actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", this.damage);
-                } else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Caster"))) {
+                }
+                else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Caster"))) {
                     actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", this.damage);
+                }
+                else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Boss"))) {
+                    actor.getScriptedBehavior("BossBehavior").sendMessage("takeDamage", this.damage);
                 }
             }
         });
