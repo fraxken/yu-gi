@@ -16,6 +16,18 @@ import "./components/modals/manager.js";
 function newInputType(newType) {
     console.log("new input usage: ", newType);
 }
+function updateOffensiveCard(card) {
+    console.log("new offensive card:", card);
+}
+function updateDefensiveCard(card) {
+    console.log("new defensive slot:", card);
+}
+function updatePassiveCard(card) {
+    console.log("new update slot:", card);
+}
+function updateConsomableCard(card) {
+    console.log("new consomable slot:", card);
+}
 
 function triggerModal(open, modelName) {
     const modalManager = document.getElementById("modal-manager");
@@ -46,6 +58,11 @@ window.addEventListener("DOMContentLoaded", () => {
         hudevents.removeAllListeners();
         hudevents.on("input_type", newInputType);
         hudevents.on("minimap", (open) => triggerModal(open, "mini-map"));
+        hudevents.on("picker", (open) => triggerModal(open, "dungeon-picker"));
+        hudevents.on("offensive_card", updateOffensiveCard);
+        hudevents.on("defensive_card", updateDefensiveCard);
+        hudevents.on("passive_card", updatePassiveCard);
+        hudevents.on("consomable_card", updateConsomableCard);
 
         const elementName = `#${name}`;
         const template = document.querySelector(elementName);

@@ -16,7 +16,7 @@ export default class BossBehavior extends ScriptBehavior {
         this.teleporting = true;
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
-        script.sendMessage("exitDungeon");
+        script.sendMessage("exitDungeon", false);
     }
 
     update() {

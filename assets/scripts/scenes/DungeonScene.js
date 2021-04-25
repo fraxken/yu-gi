@@ -1,5 +1,5 @@
 // Import Internal Dependencies
-import { EntityBuilder, Key } from "../helpers";
+import { EntityBuilder, Key, progressionParser, nextProgression } from "../helpers";
 import { Scene, Actor, getCurrentState } from "../ECS";
 import Room from "../helpers/Room";
 
@@ -27,7 +27,7 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    constructor(roomsId = 3, niveauId = 1) {
+    constructor(roomsId = 1, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
@@ -99,7 +99,10 @@ export default class DungeonScene extends Scene {
 
         if (!failure) {
             const progression = state.getState("dungeon.progression");
-            // TODO: calcule progression to add
+            const next = nextProgression(progressionParser(progression));
+
+            console.log("NEXT PROG: ", next);
+            state.setState("dungeon.progression", `${next[0]}.${next[1]}`);
         }
 
         game.loadScene("default");
@@ -160,8 +163,9 @@ export default class DungeonScene extends Scene {
             hudevents.emit("minimap", false);
         }
 
-        const currentRoom = this.rooms.get(this.playerCurrentRoomId);
-        currentRoom.update();
+        for (const room of this.rooms.values()) {
+            room.update();
+        }
     }
 }
 
