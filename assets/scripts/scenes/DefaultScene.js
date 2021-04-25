@@ -18,8 +18,6 @@ export default class DefaultScene extends Scene {
 
         const playerActor = EntityBuilder.create("actor:player");
         this.add(playerActor);
-        const objectActor = EntityBuilder.create("actor:object");
-        this.add(objectActor);
         // this.add(...EntityBuilder.createMany("actor:caster", 5, {
         //     radius: 100,
         //     x: 0,
@@ -67,6 +65,10 @@ export default class DefaultScene extends Scene {
         }
         else if (actor.name === "test") {
             actor.createScriptedBehavior("PortalBehavior");
+        }
+        else if (actor.name === "shop") {
+            console.log("CREATING SHOP!");
+            actor.createScriptedBehavior("PNJBehavior");
         }
     }
 

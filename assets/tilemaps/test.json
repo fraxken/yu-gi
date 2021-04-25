@@ -392,15 +392,15 @@
           "y": -22
         },
         {
-          "height": 31.3333333333333,
+          "height": 31.3333,
           "id": 9,
           "name": "stele1",
           "rotation": 0,
           "type": "",
           "visible": true,
           "width": 31.3333,
-          "x": -47.9999833333333,
-          "y": -54.6666666666667
+          "x": -48,
+          "y": -54.6667
         },
         {
           "height": 31.3333,
@@ -410,8 +410,8 @@
           "type": "",
           "visible": true,
           "width": 31.3333,
-          "x": 158.33335,
-          "y": -2.33331666666669
+          "x": 158.333,
+          "y": -2.33332
         },
         {
           "height": 31.3333,
@@ -421,8 +421,19 @@
           "type": "",
           "visible": true,
           "width": 31.3333,
-          "x": 39.6666833333333,
-          "y": 45.0000166666667
+          "x": 39.6667,
+          "y": 45
+        },
+        {
+          "height": 42,
+          "id": 12,
+          "name": "shop",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 60.6666666666667,
+          "x": 1158.66666666667,
+          "y": -192
         }
       ],
       "opacity": 1,
@@ -433,7 +444,7 @@
     }
   ],
   "nextlayerid": 6,
-  "nextobjectid": 12,
+  "nextobjectid": 13,
   "orientation": "orthogonal",
   "renderorder": "left-up",
   "tiledversion": "1.5.0",
