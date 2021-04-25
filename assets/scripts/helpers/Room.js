@@ -276,7 +276,7 @@ export default class Room {
     createEnemySpawner(actor) {
         // console.log("Enemy spawner triggered!");
 
-        const randomUnitBehavior = Math.random() <= 0.7 ? "MeleeBehavior" : "CasterBehavior";
+        const randomUnitBehavior = Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior";
         actor.createScriptedBehavior(randomUnitBehavior);
         // this.roomIA.push(actor);
     }

@@ -1,6 +1,6 @@
 
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
-import { Actor, ScriptBehavior, getActor } from "../ECS";
+import { Actor, ScriptBehavior, getActor, boxesIntersect } from "../ECS";
 import { EntityBuilder } from "../helpers";
 
 export default class ProjectileBehavior extends ScriptBehavior {
@@ -19,8 +19,11 @@ export default class ProjectileBehavior extends ScriptBehavior {
             x: 0,
             y: 0
         },
-        fadeInFrames: 240,
-        radius: 15,
+        stat: {
+            fadeInFrames: 240,
+            radius: 15,
+            damage: 2
+        },
         sprites: {
             name: "adventurer",
             start: "adventurer-idle",
@@ -33,7 +36,8 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.startPos = options.startPos;
         this.targetPos = options.targetPos;
         this.fadeInFrames = options.fadeInFrames;
-        this.radius = options.radius;
+        this.radius = options.stat.radius;
+        this.damage = options.stat.damage;
         this.sprites = options.sprites;
         this.targetPos.x = Math.round(this.targetPos.x);
         this.targetPos.y = Math.round(this.targetPos.y);
@@ -56,13 +60,21 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.actor.cleanup();
     }
 
+    hit() {
+        const isCritical = Math.random() < 0.05;
+        const damageToApply = isCritical ? this.damage * 2 : this.damage;
+
+        const script = this.target.getScriptedBehavior("PlayerBehavior");
+        script.sendMessage("takeDamage", damageToApply, { isCritical });
+
+        this.die("hit player");
+    }
+
     update() {
         this.tick++;
 
-        if (Math.round(this.actor.x) === Math.round(this.target.x)
-        && Math.round(this.actor.y) === Math.round(this.target.y)) {
-            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", 2);
-            this.die("hit player");
+        if (boxesIntersect(this.actor, this.target)) {
+            this.hit();
         }
         else if (this.tick >= this.fadeInFrames) {
             this.die("timeout");
@@ -92,7 +104,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
 ScriptBehavior.define("ProjectileBehavior", ProjectileBehavior);
 
-EntityBuilder.define("actor:projectile", (options) => {
+EntityBuilder.define("actor:projectile", (options = {}) => {
     return new Actor(EntityBuilder.increment("projectile"))
         .createScriptedBehavior(new ProjectileBehavior(options));
 });

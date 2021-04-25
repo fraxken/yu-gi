@@ -15,7 +15,7 @@ export default class CasterBehavior extends ScriptBehavior {
 
         // Default stats
         this.radius = 20;
-        this.range = 180;
+        this.range = 160;
         this.currentHp = 3;
         this.maxHp = 3;
 
@@ -123,8 +123,11 @@ export default class CasterBehavior extends ScriptBehavior {
         game.rootScene.add(EntityBuilder.create("actor:projectile", {
             startPos: { x: this.actor.x, y: this.actor.y },
             targetPos: { x: this.target.x, y: this.target.y },
-            fadeInFrames: 240,
-            radius: 15,
+            stat: {
+                fadeInFrames: 240,
+                radius: 15,
+                damage: 2
+            },
             sprites: {
                 name: "adventurer",
                 start: "adventurer-idle",
@@ -135,7 +138,7 @@ export default class CasterBehavior extends ScriptBehavior {
     }
 
     goTo() {
-        if (this.nextPos.x === this.actor.x && this.nextPos.y === this.actor.y) {
+        if (Math.round(this.nextPos.x) === Math.round(this.actor.x) && Math.round(this.nextPos.y) === Math.round(this.actor.y)) {
             this.nextPos.x = null;
             this.nextPos.y = null;
 
@@ -144,8 +147,8 @@ export default class CasterBehavior extends ScriptBehavior {
         }
         else {
             this.isMoving = true;
-            if (this.actor.x !== this.nextPos.x) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
-            if (this.actor.y !== this.nextPos.y) this.actor.y = this.actor.y < this.nextPos.y ? this.actor.y +1: this.actor.y -1;
+            if (Math.round(this.actor.x) !== Math.round(this.nextPos.x)) this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x +1: this.actor.x -1;
+            if (Math.round(this.actor.y) !== Math.round(this.nextPos.y)) this.actor.y = this.actor.y < this.nextPos.y ? this.actor.y +1: this.actor.y -1;
         }
     }
 }
