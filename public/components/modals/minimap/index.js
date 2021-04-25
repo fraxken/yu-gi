@@ -9,6 +9,7 @@ import recuperateurIconURL from "../../../images/minimap/recuperateur.png";
 import survivalIconURL from "../../../images/minimap/survival.png";
 import trapIconURL from "../../../images/minimap/trap.png";
 import parcoursIconURL from "../../../images/minimap/parcours.png";
+import secretIconURL from "../../../images/minimap/secret.png";
 
 class Minimap extends LitElement {
     static Icons = {
@@ -20,7 +21,8 @@ class Minimap extends LitElement {
         recuperateur: recuperateurIconURL,
         survival: survivalIconURL,
         trap: trapIconURL,
-        parcours: parcoursIconURL
+        parcours: parcoursIconURL,
+        secret: secretIconURL
     }
 
     static get properties() {
@@ -138,6 +140,7 @@ class Minimap extends LitElement {
     drawRoom(side) {
         if (this.minimap.currentRoom.side.has(side)) {
             const room = this.minimap.connectedRooms.get(side);
+            console.log("room type: ", room.type, Minimap.Icons[room.type]);
 
             return html`<div class="room">
                 <div class="centered-room">

@@ -41,7 +41,8 @@ export default class DungeonScene extends Scene {
             marginWidth: 4,
             marginHeight: 4
         };
-        defaultSettings.includeSecretRoom = Math.random() < kSecretRoomChanceFactor;
+        // defaultSettings.includeSecretRoom = Math.random() < kSecretRoomChanceFactor;
+        defaultSettings.includeSecretRoom = true;
         const spawner = new RoomSpawner(10, {
             ...DungeonScene.Settings[roomsId][niveauId],
             ...defaultSettings
