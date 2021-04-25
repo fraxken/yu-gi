@@ -1,21 +1,5 @@
 import { State } from "../../ECS";
-import { Card } from "./Card";
-
-const StarterCards = Object.freeze([
-    new Card("First Card", function () { console.log("sword") }, "shield", "speedBoost", "nuke", 1),
-    new Card("Second Card", function () { console.log("bow") }, "sideDodge", "speedBoost", "nuke", 3),
-    new Card("Third Card", function () { console.log("spear") }, "backDodge", "speedBoost", "nuke", 2),
-    new Card("Fourth Card", function () { console.log("axe") }, "roll", "speedBoost", "nuke", 4),
-    new Card("Fifth Card", function () { console.log("crossbow") }, "parry", "speedBoost", "nuke", 2),
-    new Card("Sixth Card", function () { console.log("hammer") }, "roll", "speedBoost", "nuke", 2)
-]);
-
-const AdditionalCards = Object.freeze([
-    new Card("Seventh Card", function () { console.log("knife") }, "shield", "speedBoost", "nuke", 2),
-    new Card("Eighth Card", function () { console.log("crossbow") }, "shield", "speedBoost", "nuke", 2),
-    new Card("Nineth Card", function () { console.log("wand") }, "shield", "speedBoost", "nuke", 2),
-    new Card("Tenth Card", function () { console.log("spear") }, "shield", "speedBoost", "nuke", 2)
-]);
+import { StarterCards } from "./Card";
 
 const SkillIndex = Object.freeze({
     Offensive: 0,
@@ -58,6 +42,8 @@ export class Deck {
         this.deckState.setState("draw", this.cardDraw);
         this.deckState.setState("lockedCard", this.lockedCard);
         this.deckState.setState("recuperator", this.recuperator);
+
+        this.slotHUD[SkillIndex.Passive].activatePassive();
     }
 
     updateRecuperator() {
@@ -121,7 +107,7 @@ export class Deck {
     }
 
     useOffensiveSkill() {
-        this.slotHUD[SkillIndex.Offensive].offensiveSkill();
+        this.slotHUD[SkillIndex.Offensive].attack();
 
         this.discard(this.slotHUD[SkillIndex.Offensive]);
 
@@ -158,6 +144,8 @@ export class Deck {
     }
 
     carouselSlot() {
+        this.slotHUD[SkillIndex.Passive].deactivatePassive();
+
         if (!this.slotHUD[SkillIndex.Consumable]) {
             console.log("NO CONSUMABLE CARD");
             this.slotHUD = Array.from([
@@ -175,12 +163,47 @@ export class Deck {
             ]);
         }
 
+        this.slotHUD[SkillIndex.Passive].activatePassive();
+
         this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
         this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
         this.deckState.setState("slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
         this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
 
         this.debugLog();
+    }
+
+    moveCardInDraw(cardIndex, destinationIndex) {
+        const cardToMove = this.cardDraw.splice(cardIndex, 1);
+
+        this.cardDraw.splice(destinationIndex, 0, ...cardToMove);
+
+        this.deckState.setState("draw", this.cardDraw);
+    }
+
+    moveCardFromDrawToSlot(cardIndex, slotName) {
+        const cardToMove = this.cardDraw.splice(cardIndex, 1);
+
+        const cardToExchange = this.slotHUD[SkillIndex[slotName]];
+        if (cardToExchange !== null && cardToExchange !== undefined) {
+            this.cardDraw.splice(cardIndex, 0, cardToExchange);
+        }
+        this.slotHUD[SkillIndex[slotName]] = cardToMove[0];
+
+        this.deckState.setState("draw", this.cardDraw);
+        this.deckState.setState("slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
+    }
+
+    moveCardFromSlotToDraw(slotName, destinationIndex) {
+        const cardToMove = this.slotHUD[SkillIndex[slotName]];
+
+        const cardToExchange = this.cardDraw.splice(destinationIndex, 1, cardToMove);
+        if (cardToExchange[0] !== null && cardToExchange[0] !== undefined) {
+            this.slotHUD[SkillIndex[slotName]] = cardToExchange[0];
+        }
+
+        this.deckState.setState("draw", this.cardDraw);
+        this.deckState.setState("slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
     }
 
     debugLog() {

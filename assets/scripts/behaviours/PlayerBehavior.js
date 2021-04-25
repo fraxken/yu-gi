@@ -20,6 +20,9 @@ const kPlayerStats = {
     maxHp: 20
 }
 
+const DEFAULT_LIFE_REGENERATION = 1;
+const DEFAULT_SPEED_BOOST = 0;
+
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
         super({
@@ -34,12 +37,14 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.damage = 2;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
-        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
+        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false });
         this.attackTimer = new Timer(110, { autoStart: false, keepIterating: false });
         this.randomAttack = null;
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
+        this.lifeRegeneration = DEFAULT_LIFE_REGENERATION;
+        this.speedBoost = DEFAULT_SPEED_BOOST;
 
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
@@ -257,7 +262,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         const isTopWalkable = !neighbours.top || neighbours.bottom;
         const isBottomWalkable = !neighbours.bottom || neighbours.top;
 
-        const currentSpeed = this.speed.walk(!this.actor.moving);
+        const currentSpeed = this.speed.walk(!this.actor.moving) + this.speedBoost;
         const dashSpeed = currentSpeed * 3;
         const neighboursForCustomRange = this.collision.getNeighBourWalkableForGivenRange(this.actor.x, this.actor.y, (currentSpeed * 2));
 
@@ -375,6 +380,36 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.lifeBar.update(this.currentHp);
         this.actor.applyVelocity();
+    }
+
+    testAction(aMessage) {
+        console.log(aMessage);
+    }
+
+    activatePassive(passiveName, value) {
+        switch (passiveName) {
+            case "lifeRegenBoost":
+                this.lifeRegeneration = value;
+                break;
+            case "speedBoost":
+                this.speedBoost = value;
+                break;
+            default:
+                break;
+        }
+    }
+
+    deactivatePassive(passiveName) {
+        switch (passiveName) {
+            case "lifeRegenBoost":
+                this.lifeRegeneration = DEFAULT_LIFE_REGENERATION;
+                break;
+            case "speedBoost":
+                this.speedBoost = DEFAULT_SPEED_BOOST;
+                break;
+            default:
+                break;
+        }
     }
 }
 
