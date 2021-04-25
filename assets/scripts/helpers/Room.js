@@ -1,7 +1,32 @@
 import { EntityBuilder } from "../helpers";
-import { Scene, Actor, Components } from "../ECS";
+import { Scene, Actor, Components, Timer } from "../ECS";
+
+// CONSTANTS
+const kReverseDoor = {
+    left: "doorRight",
+    right: "doorLeft",
+    top: "doorBottom",
+    bottom: "doorTop"
+}
 
 export default class Room {
+    static getNormalRoomSubType() {
+        const rate = Math.random();
+
+        if (rate < 0.5) {
+            return "room";
+        }
+        else if (rate >= 0.5 && rate < 0.65) {
+            return "survival_room";
+        }
+        else if (rate >= 0.65 && rate < 0.80) {
+            return "trap_room";
+        }
+        else {
+            return "parcours_room";
+        }
+    }
+
     /**
      * @param {!string} roomName
      * @param {object} options
@@ -18,7 +43,15 @@ export default class Room {
         this.parent = parent;
         this.roomName = roomName;
         this.id = id;
+        this.roomIA = [];
+        this.doorLockTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
+
+        /** @type {"end" | "boss" | "room" | "special" | "secret"} */
         this.type = type;
+        this.isRecuperateurRoom = this.type === "special" && !parent.hasRecuperateurRoom;
+        if (this.isRecuperateurRoom) {
+            parent.hasRecuperateurRoom = true;
+        }
         this.doors = doors;
 
         // All doors!
@@ -26,9 +59,14 @@ export default class Room {
         this.doorRight = null;
         this.doorTop = null;
         this.doorBottom = null;
+
         {
             this.map = new Actor(roomName);
             this.map.position.set(x, y);
+
+            // TODO: dynamically update this depending on the kind of the room
+            this.tiledRoomName = this.getTiledMapName();
+            console.log(this.tiledRoomName);
             this.tiledMap = new Components.TiledMap(this.type === "end" ? "boss_room" : "room", {
                 debug: false,
                 showObjects: true,
@@ -41,7 +79,36 @@ export default class Room {
         }
 
         console.log(`Init room '${roomName}': ${this.type}`);
-        console.log(doors);
+    }
+
+    getTiledMapName() {
+        if (this.isRecuperateurRoom) {
+            return "recuperateur_room";
+        }
+
+        switch (this.type) {
+            case "room": return Room.getNormalRoomSubType();
+            case "special": return "chest_room";
+            case "boss": return "boss_room";
+            case "end": return "boss_room";
+            case "secret": return "secret_room";
+        }
+    }
+
+    getDoorByDirection(direction) {
+        switch (direction) {
+            case "left": return this.doorLeft;
+            case "right": return this.doorRight;
+            case "top": return this.doorTop;
+            case "bottom": return this.doorBottom;
+        }
+    }
+
+    *getActiveDoors() {
+        yield this.doorLeft;
+        yield this.doorRight;
+        yield this.doorTop;
+        yield this.doorBottom;
     }
 
     init() {
@@ -88,47 +155,66 @@ export default class Room {
     }
 
     connectDoors() {
-        if (this.doors.left !== null) {
-            const room = this.parent.rooms.get(this.doors.left);
+        for (const [doorDirection, value] of Object.entries(this.doors)) {
+            if (value === null) {
+                continue;
+            }
 
-            this.doorLeft.connectedTo = room.doorRight;
-            this.doorLeft.createScriptedBehavior("DungeonDoorBehavior");
-            this.parent.add(this.doorLeft);
+            const room = this.parent.rooms.get(this.doors[doorDirection]);
+            const door = this.getDoorByDirection(doorDirection);
+
+            door.connectedTo = room[kReverseDoor[doorDirection]];
+            door.createScriptedBehavior("DungeonDoorBehavior");
+            this.parent.add(door);
+
+            door.on("player_enter", () => this.playerEnterRoom(doorDirection));
+            door.on("player_leave", () => this.playerExitRoom(doorDirection));
+        }
+    }
+
+    /**
+     * @param {"locked" | "unlocked"} [status="locked"]
+     */
+    setDoorLock(status = "locked") {
+        const eventName = status === "locked" ? "lock" : "unlock";
+        console.log("setDoorLock", eventName);
+        if (eventName === "lock") {
+            this.doorLockTimer.start();
         }
 
-        if (this.doors.right !== null) {
-            const room = this.parent.rooms.get(this.doors.right);
-
-            this.doorRight.connectedTo = room.doorLeft;
-            this.doorRight.createScriptedBehavior("DungeonDoorBehavior");
-            this.parent.add(this.doorRight);
+        for (const door of this.getActiveDoors()) {
+            // _DungeonDoorBehavior ???
+            const script = door.getScriptedBehavior("_DungeonDoorBehavior");
+            if (script) {
+                script.sendMessage(eventName);
+            }
         }
+    }
 
-        if (this.doors.top !== null) {
-            const room = this.parent.rooms.get(this.doors.top);
+    playerEnterRoom() {
+        console.log("Player enter the room id: ", this.roomName, this.id);
 
-            this.doorTop.connectedTo = room.doorBottom;
-            this.doorTop.createScriptedBehavior("DungeonDoorBehavior");
-            this.parent.add(this.doorTop);
+        if (this.tiledRoomName === "trap_room") {
+            this.setDoorLock("locked");
+            // TODO: send events to IA of the rooms ?
         }
+    }
 
-        if (this.doors.bottom !== null) {
-            const room = this.parent.rooms.get(this.doors.bottom);
-
-            this.doorBottom.connectedTo = room.doorTop;
-            this.doorBottom.createScriptedBehavior("DungeonDoorBehavior");
-            this.parent.add(this.doorBottom);
-        }
+    playerExitRoom() {
+        console.log("Player exit the room id: ", this.roomName, this.id);
     }
 
     /**
      * @param {!Actor} actor
      */
     createEnemySpawner(actor) {
-        console.log("Enemy spawner triggered!");
+        // console.log("Enemy spawner triggered!");
+        // actor.createScriptedBehavior("MeleeBehavior");
+        // this.roomIA.push(actor);
     }
 
     /**
+     * @description where we build all actors and objects of the room
      * @param {!Actor} actor
      */
     build(actor) {
@@ -148,5 +234,11 @@ export default class Room {
         }
 
         actor.position.set(actor.x + this.offsetX, actor.y + this.offsetY);
+    }
+
+    update() {
+        if (this.doorLockTimer.isStarted && this.doorLockTimer.walk()) {
+            this.setDoorLock("unlocked");
+        }
     }
 }

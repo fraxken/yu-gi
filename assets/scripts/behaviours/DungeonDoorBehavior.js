@@ -7,28 +7,47 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
 
     awake() {
         this.warpTimer = new Timer(60, { autoStart: false, keepIterating: false });
+        this.locked = false;
     }
 
     start() {
         this.target = getActor("player");
     }
 
+    lock() {
+        console.log("door locked!");
+        this.locked = true;
+    }
+
+    unlock() {
+        console.log("door unlocked!!!");
+        this.locked = false;
+    }
+
     warp() {
         this.warpTimer.start();
-        console.log("warp triggered!");
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
+        if (script.isTeleporting.isStarted) {
+            return;
+        }
+        console.log("warp triggered!");
         const pos = this.actor.connectedTo.pos;
 
         // TODO: enhance teleportation position!
+        this.actor.emit("player_leave");
         script.sendMessage("fastTeleport", {
             x: pos.x + (this.actor.connectedTo.width / 4),
             y: pos.y + (this.actor.connectedTo.height / 2)
         });
+        this.actor.connectedTo.emit("player_enter");
     }
 
     update() {
         if (this.warpTimer.isStarted && !this.warpTimer.walk()) {
+            return;
+        }
+        if (this.locked) {
             return;
         }
 

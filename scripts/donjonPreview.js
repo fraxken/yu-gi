@@ -6,7 +6,7 @@ const Settings = {
     1: {
         1: { minRooms: 4, maxRooms: 5 },
         2: { minRooms: 5, maxRooms: 7, specialRooms: 1 },
-        3: { minRooms: 6, maxRooms: 8, specialRooms: 1, includeSecretRoom: true }
+        3: { minRooms: 6, maxRooms: 8, specialRooms: 1, includeSecretRoom: true, maxBoss: 2 }
     },
     2: {
         1: { minRooms: 7, maxRooms: 10, specialRooms: 2 },
@@ -15,8 +15,8 @@ const Settings = {
     },
     3: {
         1: { minRooms: 10, maxRooms: 15, specialRooms: 3, includeSecretRoom: true },
-        2: { minRooms: 12, maxRooms: 17, specialRooms: 4, includeSecretRoom: true, maxBoss: 2 },
-        3: { minRooms: 15, maxRooms: 20, specialRooms: 5, includeSecretRoom: true, maxBoss: 3 }
+        2: { minRooms: 12, maxRooms: 17, specialRooms: 4, includeSecretRoom: true },
+        3: { minRooms: 15, maxRooms: 20, specialRooms: 5, includeSecretRoom: true, maxBoss: 2 }
     }
 }
 
@@ -32,3 +32,5 @@ const dungeon = new RoomSpawner(10, {
 });
 dungeon.draw();
 dungeon.print();
+
+console.log([...dungeon.getWorldRooms()]);

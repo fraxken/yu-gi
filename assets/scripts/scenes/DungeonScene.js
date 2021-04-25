@@ -13,7 +13,7 @@ export default class DungeonScene extends Scene {
         1: {
             1: { minRooms: 4, maxRooms: 5 },
             2: { minRooms: 5, maxRooms: 7, specialRooms: 1 },
-            3: { minRooms: 6, maxRooms: 8, specialRooms: 1, includeSecretRoom: true }
+            3: { minRooms: 6, maxRooms: 8, specialRooms: 1, includeSecretRoom: true, maxBoss: 2 }
         },
         2: {
             1: { minRooms: 7, maxRooms: 10, specialRooms: 2 },
@@ -22,8 +22,8 @@ export default class DungeonScene extends Scene {
         },
         3: {
             1: { minRooms: 10, maxRooms: 15, specialRooms: 3, includeSecretRoom: true },
-            2: { minRooms: 12, maxRooms: 17, specialRooms: 4, includeSecretRoom: true, maxBoss: 2 },
-            3: { minRooms: 15, maxRooms: 20, specialRooms: 5, includeSecretRoom: true, maxBoss: 3 }
+            2: { minRooms: 12, maxRooms: 17, specialRooms: 4, includeSecretRoom: true },
+            3: { minRooms: 15, maxRooms: 20, specialRooms: 5, includeSecretRoom: true, maxBoss: 2 }
         }
     }
 
@@ -31,6 +31,7 @@ export default class DungeonScene extends Scene {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
+        this.hasRecuperateurRoom = false;
 
         const defaultSettings = {
             roomWidth: this.roomWidth,
@@ -66,9 +67,7 @@ export default class DungeonScene extends Scene {
     }
 
     awake() {
-        // console.log(this.rooms);
         for (const room of this.rooms.values()) {
-            console.log(`Connect doors for scene: ${room.id}`);
             room.connectDoors();
         }
 
@@ -85,6 +84,14 @@ export default class DungeonScene extends Scene {
 
         playerActor.position.set(startCenter.x, startCenter.y);
         this.add(playerActor);
+    }
+
+    update() {
+        super.update();
+
+        for (const room of this.rooms.values()) {
+            room.update();
+        }
     }
 }
 
