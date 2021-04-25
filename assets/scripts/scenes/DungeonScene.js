@@ -1,5 +1,5 @@
 // Import Internal Dependencies
-import { EntityBuilder } from "../helpers";
+import { EntityBuilder, Key } from "../helpers";
 import { Scene, Actor, getCurrentState } from "../ECS";
 import Room from "../helpers/Room";
 
@@ -32,6 +32,7 @@ export default class DungeonScene extends Scene {
         this.roomWidth = 40;
         this.roomHeight = 26;
         this.hasRecuperateurRoom = false;
+        this.playerCurrentRoomId = 45;
 
         const defaultSettings = {
             roomWidth: this.roomWidth,
@@ -66,6 +67,31 @@ export default class DungeonScene extends Scene {
         game.loadScene("default");
     }
 
+    getMinimapData() {
+        const currentRoom = this.rooms.get(this.playerCurrentRoomId);
+        const currentDoors = [...currentRoom.getActiveDoors()];
+
+        const connectedRooms = new Map();
+        for (const { side, door } of currentDoors) {
+            const room = door.connectedTo.roomInstance;
+
+            connectedRooms.set(side, {
+                id: room.id,
+                type: room.tiledRoomName,
+                side: new Set([...room.getActiveDoors()].map((row) => row.side))
+            });
+        }
+
+        return {
+            currentRoom: {
+                id: this.playerCurrentRoomId,
+                type: currentRoom.tiledRoomName,
+                side: new Set(currentDoors.map((row) => row.side))
+            },
+            connectedRooms
+        }
+    }
+
     awake() {
         for (const room of this.rooms.values()) {
             room.connectDoors();
@@ -88,6 +114,13 @@ export default class DungeonScene extends Scene {
 
     update() {
         super.update();
+
+        if(game.input.wasKeyJustPressed(Key.M)) {
+            hudevents.emit("minimap", true);
+        }
+        else if (game.input.wasKeyJustReleased(Key.M)) {
+            hudevents.emit("minimap", false);
+        }
 
         for (const room of this.rooms.values()) {
             room.update();
