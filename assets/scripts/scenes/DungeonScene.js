@@ -64,22 +64,31 @@ export default class DungeonScene extends Scene {
             // IN ROOM
             const maxPossibleEnemiesInRoom = 3;
             const minPossibleEnemiesInRoom = 1;
-            const maxEnemyInThisRoom = Math.floor(Math.random() * maxPossibleEnemiesInRoom) + minPossibleEnemiesInRoom;
+            const nbEnemyInThisRoom = Math.floor(Math.random() * maxPossibleEnemiesInRoom) + minPossibleEnemiesInRoom;
             const generatedEnemyForThisRoom = []
 
-            for (let index = 0; index < maxEnemyInThisRoom; ++index) {
+            for (let index = 0; index <= nbEnemyInThisRoom; ++index) {
                 const randomUnit = Math.random() <= 0.7 ? "melee" : "caster";
 
                 generatedEnemyForThisRoom.push(randomUnit);
             }
 
+            let rest = undefined;
             for (let object of room[1].tiledMap.objects) {
+
                 if (object[0].startsWith("enemy_")) {
                     // IN ZONE
-                    const minPossibleEnemiesInZone = 1;
-                    const nBEnemyForThisZone = Math.floor(Math.random() * generatedEnemyForThisRoom.length) + minPossibleEnemiesInZone;
-                    const enemyForThisZone = generatedEnemyForThisRoom.splice(0, nBEnemyForThisZone);
+                    let nbEnemyForThisZone = 0;
+                    if (rest === undefined) {
+                        nbEnemyForThisZone = Math.floor(Math.random() * generatedEnemyForThisRoom.length) + 1;
+                        rest = nbEnemyInThisRoom - nbEnemyForThisZone;
+                    } else if (rest !== 0 && rest !== undefined) {
+                        nbEnemyForThisZone = rest;
+                        rest = 0;
 
+                    }
+
+                    const enemyForThisZone = generatedEnemyForThisRoom.splice(0, nbEnemyForThisZone);
                     for (const enemy of enemyForThisZone) {
                         console.log(`added ${enemy}`)
                         this.add(...EntityBuilder.createMany(`actor:${enemy}`, 1, {

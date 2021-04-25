@@ -1,4 +1,6 @@
 import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
+import { LifeBar } from "../helpers";
+import DamageText from "../helpers/DamageText";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
@@ -17,21 +19,34 @@ export default class MeleeBehavior extends ScriptBehavior {
             y: Math.round(options.y + r * Math.sin(theta))
         };
 
+        // Default stats
         this.radius = 40;
         this.targetRange = 60;
         this.range = 4;
+        this.currentHp = 8;
+        this.maxHp = 8;
 
         this.isMoving = false;
         this.nextPos = { x: null, y: null };
         this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
         this.delayToAttack = new Timer(kHandicapForAttacking, { autoStart: false, keepIterating: false });
         this.attackTimer = new Timer(90, { autoStart: false, keepIterating: false });
+        this.damageContainer = new Set();
     }
 
     awake() {
         this.sprite = this.actor.addComponent(
             new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
+
+        this.lifeBar = new LifeBar({
+            spriteHeight: this.sprite.height,
+            currentHp: this.currentHp,
+            relativeMaxHp: this.maxHp,
+            maxHpBarLength: 60
+        });
+
+        this.actor.addChild(this.lifeBar.container);
 
         this.actor.position.set(this.position.x, this.position.y);
     }
@@ -41,6 +56,8 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     update() {
+        this.canBeAttacked();
+
         if (this.canAttack()) {
             this.initAttack();
         }
@@ -68,6 +85,37 @@ export default class MeleeBehavior extends ScriptBehavior {
             this.sprite.playAnimation("adventurer-attack1");
         } else {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+        }
+
+        this.lifeBar.update(this.currentHp);
+
+        if (this.currentHp <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+
+        this.actor.cleanup();
+    }
+
+    takeDamage(damage) {
+        this.currentHp -= damage;
+        const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
+        dmg.once("done", () => this.damageContainer.delete(dmg));
+        this.damageContainer.add(dmg);
+
+        return this;
+    }
+
+    canBeAttacked() {
+        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+
+        if (isInside) {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
+        } else {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
         }
     }
 

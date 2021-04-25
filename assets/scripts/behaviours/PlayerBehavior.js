@@ -29,10 +29,14 @@ export default class PlayerBehavior extends ScriptBehavior {
             spawnActorName: "spawnActorName"
         });
 
+        this.inRangeEnemies = new Set();
         this.maxHp = maxHp;
+        this.damage = 2;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
-        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false });
+        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
+        this.attackTimer = new Timer(90, { autoStart: false, keepIterating: false });
+        this.randomAttack = null;
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
@@ -42,6 +46,22 @@ export default class PlayerBehavior extends ScriptBehavior {
         });
 
         this.cardDeck = new Deck();
+    }
+
+    inRange(actorName) {
+        if (!this.inRangeEnemies.has(actorName)) {
+            this.inRangeEnemies.add(actorName);
+        }
+
+        return this;
+    }
+
+    outRange(actorName) {
+        if (this.inRangeEnemies.has(actorName)) {
+            this.inRangeEnemies.delete(actorName);
+        }
+
+        return this;
     }
 
     teleport(position) {
@@ -87,6 +107,47 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.damageContainer.add(dmg);
 
         return this;
+    }
+
+    canAttack() {
+        if (!this.attackTimer.isStarted) {
+            this.attackTimer.start();
+            this.randomAttack = Math.floor(Math.random() * 3) + 1;
+
+            return true;
+        }
+
+        if (this.attackTimer.walk()) {
+            return false;
+        }
+
+        if (!this.attackTimer.walk()) {
+            this.attackTimer.reset();
+        }
+
+        return false;
+    }
+
+    dealsDamage() {
+        this.inRangeEnemies.forEach((enemy) => {
+            const actor = getActor(enemy);
+            const isLookingToRight = this.sprite.scale.x === 1 ? true : false;
+
+            let canBeHit;
+            if (isLookingToRight) {
+                canBeHit = this.actor.x < actor.x ? true : false;
+            } else {
+                canBeHit = this.actor.x > actor.x ? true : false;
+            }
+
+            if (canBeHit) {
+                if (actor.name.startsWith("melee")) {
+                    actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", this.damage);
+                } else if (actor.name.startsWith("caster")) {
+                    actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", this.damage);
+                }
+            }
+        });
     }
 
     die(cause = "no-pv") {
@@ -248,11 +309,20 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.jumpTimer.start();
         }
 
+        if (game.input.wasKeyJustPressed(Key.F)) {
+            if (this.canAttack()) {
+                this.dealsDamage();
+            }
+        }
+
         if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT) || this.currentHp === 0) {
             this.die();
         }
 
-        if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
+        if (this.attackTimer.isStarted && !this.attackTimer.walk()) {
+            this.sprite.playAnimation(`adventurer-attack${this.randomAttack}`);
+        }
+        else if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-slide" : "idle");
         } else if (this.jumpTimer.isStarted && !this.jumpTimer.walk()) {
             this.sprite.playAnimation("adventurer-jump");
