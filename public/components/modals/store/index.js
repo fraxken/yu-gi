@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 
+import { buildFakeCards } from '../../common/fixtures'
+
 import './card-detail';
 
 class StoreModal extends LitElement {
@@ -95,29 +97,3 @@ class StoreModal extends LitElement {
 }
 
 customElements.define('modal-store', StoreModal);
-
-/**
- * STATIC IT -> MOVE THEME ELSEWHERE
- */
-
-function buildFakeCard(id) {
-  return {
-    id,
-    name: `Potion n ${id}`,
-    description: `Awesome potion ${id}, take it.`,
-    offensiveSkill: 3,
-    defensiveSkill:  0,
-    passiveSkill:  1,
-    consumableSkill:  0,
-    stars:  5
-  }
-}
-
-function buildFakeCards(count) {
-  const products = []
-  for (let index = 0; index <= count; index++) {
-    products.push(buildFakeCard(index))
-  }
-
-  return products;
-}

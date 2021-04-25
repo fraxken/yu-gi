@@ -3,7 +3,8 @@ import { LitElement, html, css } from "lit-element";
 // MODALS
 import './store/index';
 import './minimap/index';
-import './recuperator-deck/index'
+import './recuperator-deck/index';
+import './trunk/index';
 
 class ModalManager extends LitElement {
   constructor() {
