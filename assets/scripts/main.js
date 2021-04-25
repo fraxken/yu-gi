@@ -26,6 +26,7 @@ import assetsURL from "../assets.json";
 
 async function main() {
     const gameState = new State("gameState", {
+        spawnActorName: "spawn",
         playable: true,
         dungeon: {
             enabled: false,
@@ -39,7 +40,7 @@ async function main() {
     });
     // TODO: setup default scene depending on player.inDungeon
 
-    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
+    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         // .registerTileSet("TilesetFloorB")
         .init();

@@ -23,7 +23,8 @@ export default class PlayerBehavior extends ScriptBehavior {
         super({
             currentHp: "player.currentHp",
             maxHp: "player.maxHp",
-            playable: "playable"
+            playable: "playable",
+            spawnActorName: "spawnActorName"
         });
 
         this.currentHp = currentHp;
@@ -67,6 +68,13 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.sprite.playAnimation("idle");
 
         game.loadScene("dungeon");
+    }
+
+    exitDungeon() {
+        this.playable = false;
+        this.sprite.playAnimation("idle");
+
+        game.rootScene.exitDungeon();
     }
 
     takeDamage(damage) {
@@ -134,9 +142,12 @@ export default class PlayerBehavior extends ScriptBehavior {
     start() {
         const map = getActor("map") || getActor("start_room");
         if (map) {
-            this.spawn = map.findChild("spawn", true);
+            this.spawn = map.findChild(this.spawnActorName, true);
             if (this.spawn) {
                 this.actor.pos = this.spawn.centerPosition;
+            }
+            if (this.spawnActorName !== "spawn") {
+                this.spawnActorName = "spawn";
             }
 
             /** @type {CollisionLayer} */

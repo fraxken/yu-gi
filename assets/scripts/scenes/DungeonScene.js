@@ -1,6 +1,6 @@
 // Import Internal Dependencies
 import { EntityBuilder } from "../helpers";
-import { Scene, Actor } from "../ECS";
+import { Scene, Actor, getCurrentState } from "../ECS";
 import Room from "../helpers/Room";
 
 import RoomSpawner from "../helpers/RoomSpawner.class";
@@ -59,8 +59,10 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    endDungeon() {
-
+    exitDungeon() {
+        const state = getCurrentState();
+        state.setState("spawnActorName", "test");
+        game.loadScene("default");
     }
 
     awake() {
