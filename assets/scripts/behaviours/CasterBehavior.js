@@ -8,17 +8,22 @@ const kHandicapForShooting = 280;
 
 export default class CasterBehavior extends ScriptBehavior {
 
-    constructor() {
+    constructor(options = { x: 0, y: 0, radius: 200 }) {
         super();
 
-        const { x, y } = Vector2.randomCoordInRadius(200);
-        this.position = { x, y };
-        this.nextPos = { x: null, y: null };
+        const r = options.radius * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
+
+        this.position = {
+            x: Math.round(options.x + r * Math.cos(theta)),
+            y: Math.round(options.y + r * Math.sin(theta))
+        };
 
         this.radius = 20;
         this.range = 180;
 
         this.isMoving = false;
+        this.nextPos = { x: null, y: null };
         this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
         this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
     }
@@ -103,7 +108,7 @@ export default class CasterBehavior extends ScriptBehavior {
 
 ScriptBehavior.define("CasterBehavior", CasterBehavior);
 
-EntityBuilder.define("actor:caster", () => {
+EntityBuilder.define("actor:caster", (options = {}) => {
     return new Actor(EntityBuilder.increment("caster"))
-        .createScriptedBehavior(new CasterBehavior());
+        .createScriptedBehavior(new CasterBehavior(options));
 });

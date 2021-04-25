@@ -6,18 +6,23 @@ const kHandicapForAttacking = 240;
 
 export default class MeleeBehavior extends ScriptBehavior {
 
-    constructor() {
+    constructor(options = { x: 0, y: 0, radius: 200 }) {
         super();
 
-        const { x, y } = Vector2.randomCoordInRadius(200);
-        this.position = { x, y };
-        this.nextPos = { x: null, y: null };
+        const r = options.radius * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
+
+        this.position = {
+            x: Math.round(options.x + r * Math.cos(theta)),
+            y: Math.round(options.y + r * Math.sin(theta))
+        };
 
         this.radius = 40;
         this.targetRange = 60;
         this.range = 4;
 
         this.isMoving = false;
+        this.nextPos = { x: null, y: null };
         this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
         this.delayToAttack = new Timer(kHandicapForAttacking, { autoStart: false, keepIterating: false });
         this.attackTimer = new Timer(90, { autoStart: false, keepIterating: false });
@@ -114,7 +119,7 @@ export default class MeleeBehavior extends ScriptBehavior {
 
 ScriptBehavior.define("MeleeBehavior", MeleeBehavior);
 
-EntityBuilder.define("actor:melee", () => {
+EntityBuilder.define("actor:melee", (options = {}) => {
     return new Actor(EntityBuilder.increment("melee"))
-        .createScriptedBehavior(new MeleeBehavior());
+        .createScriptedBehavior(new MeleeBehavior(options));
 });

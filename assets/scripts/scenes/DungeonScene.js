@@ -59,6 +59,35 @@ export default class DungeonScene extends Scene {
             this.rooms.set(room.id, roomObject);
             roomObject.init();
         }
+
+        for (let room of this.rooms) {
+            for (let object of room[1].tiledMap.objects) {
+                // IN ROOM
+                const maxEnemyInThisRoom = Math.floor(Math.random() * 4) + 1;
+                const generatedEnemyForThisRoom = []
+
+                for (let index = 0; index < maxEnemyInThisRoom; ++index) {
+                    const randomUnit = Math.random() <= 0.7 ? "melee" : "caster";
+
+                    generatedEnemyForThisRoom.push(randomUnit);
+                }
+
+                if (object[0].startsWith("enemy_")) {
+                    // IN ZONE
+                    const nBEnemyForThisZone = Math.floor(Math.random() * generatedEnemyForThisRoom.length) + 1;
+                    const enemyForThisZone = generatedEnemyForThisRoom.splice(0, nBEnemyForThisZone);
+
+                    for (const enemy of enemyForThisZone) {
+                        this.add(...EntityBuilder.createMany(`actor:${enemy}`, 1, {
+                            radius: 20,
+                            x: object[1].x,
+                            y: object[1].y
+                        }));
+                    }
+                }
+            }
+        }
+        // console.log(this.rooms);
     }
 
     exitDungeon(failure = true) {
