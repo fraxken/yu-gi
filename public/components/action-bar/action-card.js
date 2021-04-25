@@ -20,6 +20,9 @@ class ActionCard extends LitElement {
             align-items: center;
             justify-content: center;
             position: relative;
+            color: black;
+            min-height: 100px;
+            min-width: 80px;
           }
           .action-button {
             position: absolute;
