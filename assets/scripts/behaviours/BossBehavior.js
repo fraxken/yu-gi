@@ -221,12 +221,6 @@ export default class BossBehavior extends ScriptBehavior {
 
     update() {
         this.canBeAttacked();
-
-        const attackStatus = this.canAttack();
-        if (attackStatus) {
-            this.initAttack(attackStatus);
-        }
-
         this.lifeBar.update(this.currentHp);
 
         if (this.currentHp <= 0) {
@@ -242,6 +236,12 @@ export default class BossBehavior extends ScriptBehavior {
                 if (distance < 150 && Inputs.use()) {
                     this.warp();
                 }
+            }
+        } else {
+            const attackStatus = this.canAttack();
+            
+            if (attackStatus) {
+                this.initAttack(attackStatus);
             }
         }
     }
