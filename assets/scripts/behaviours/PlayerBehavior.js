@@ -154,9 +154,9 @@ export default class PlayerBehavior extends ScriptBehavior {
             }
 
             if (canBeHit) {
-                if (actor.name.startsWith("melee")) {
+                if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Melee"))) {
                     actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", this.damage);
-                } else if (actor.name.startsWith("caster")) {
+                } else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Caster"))) {
                     actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", this.damage);
                 }
             }
