@@ -6,22 +6,50 @@ import * as EntityBuilder from "../helpers/entitybuilder.js";
 const kHandicapForDeplacement = 120;
 const kHandicapForAttacking = 240;
 
-export default class MeleeBehavior extends ScriptBehavior {
-    constructor() {
+export default class FirstBossBehavior extends ScriptBehavior {
+
+    constructor(options = {
+        position: {
+            x: 0,
+            y: 0,
+            radius: 200
+        },
+        stat: {
+            radiusForDeplacement: 200,
+            targetingRange: 60,
+            meleeRange: 8,
+            baseHp: 20,
+            maxHp: 20,
+            bodyRadius: 40,
+            delayBetweenAttacks: 240,
+            delayBetweenDeplacement: 120
+        }
+    }) {
         super();
 
+        const r = options.position.radius * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
+
+        this.position = {
+            x: Math.round(options.position.x + r * Math.cos(theta)),
+            y: Math.round(options.position.y + r * Math.sin(theta))
+        };
+
         // Default stats
-        this.radius = 40;
-        this.targetRange = 60;
-        this.range = 4;
-        this.currentHp = 8;
-        this.maxHp = 8;
+        this.radiusForDeplacement = options.stat.radiusForDeplacement;
+        this.targetingRange = options.stat.targetingRange;
+        this.meleeRange = options.stat.meleeRange;
+        this.currentHp = options.stat.baseHp;
+        this.maxHp = options.stat.maxHp;
 
         this.isMoving = false;
         this.nextPos = { x: null, y: null };
-        this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
-        this.delayToAttack = new Timer(kHandicapForAttacking, { autoStart: false, keepIterating: false });
+        this.delayToMove = new Timer(options.stat.delayBetweenDeplacement, { keepIterating: false });
+
+        this.delayToAttack = new Timer(options.stat.delayBetweenAttacks, { autoStart: false, keepIterating: false });
         this.attackTimer = new Timer(110, { autoStart: false, keepIterating: false });
+        this.randomAttack = null;
+
         this.damageContainer = new Set();
     }
 
@@ -34,10 +62,12 @@ export default class MeleeBehavior extends ScriptBehavior {
             spriteHeight: this.sprite.height,
             currentHp: this.currentHp,
             relativeMaxHp: this.maxHp,
-            maxHpBarLength: 60
+            maxHpBarLength: 80
         });
 
         this.actor.addChild(this.lifeBar.container);
+
+        this.actor.position.set(this.position.x, this.position.y);
     }
 
     start() {
@@ -53,16 +83,16 @@ export default class MeleeBehavior extends ScriptBehavior {
 
         if ((this.delayToMove.walk() || this.isMoving) && !this.attackTimer.isStarted) {
             if (!this.isMoving) {
-                const r = (this.radius / 2) * Math.sqrt(Math.random());
+                const r = (this.radiusForDeplacement / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
-                const x = Math.round(this.actor.x + r * Math.cos(theta));
-                const y = Math.round(this.actor.y + r * Math.sin(theta));
+                const x = Math.round(this.position.x + r * Math.cos(theta));
+                const y = Math.round(this.position.y + r * Math.sin(theta));
 
                 this.nextPos.x = x;
                 this.nextPos.y = y;
             }
 
-            if (Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.targetRange * this.targetRange) {
+            if (Math.pow(this.position.x - this.target.x, 2) + Math.pow(this.position.y - this.target.y, 2) <= this.targetingRange * this.targetingRange) {
                 this.nextPos.x = this.target.x;
                 this.nextPos.y = this.target.y
             }
@@ -71,7 +101,7 @@ export default class MeleeBehavior extends ScriptBehavior {
         }
 
         if (this.attackTimer.isStarted && !this.attackTimer.walk()) {
-            this.sprite.playAnimation("adventurer-attack1");
+            this.sprite.playAnimation(`adventurer-attack${this.randomAttack}`);
         } else {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
@@ -99,7 +129,7 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     canBeAttacked() {
-        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.bodyRadius * this.bodyRadius;
 
         if (isInside) {
             this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
@@ -109,7 +139,7 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     canAttack() {
-        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.range;
+        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.meleeRange;
 
         if (isInside) {
             if (!this.delayToAttack.isStarted) {
@@ -117,6 +147,8 @@ export default class MeleeBehavior extends ScriptBehavior {
 
                 if (!this.attackTimer.isStarted) {
                     this.attackTimer.start();
+
+                    this.randomAttack = Math.floor(Math.random() * 3) + 1;
                 }
 
                 if (this.attackTimer.walk()) {
@@ -158,9 +190,9 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 }
 
-ScriptBehavior.define("MeleeBehavior", MeleeBehavior);
+ScriptBehavior.define("FirstBossBehavior", FirstBossBehavior);
 
-EntityBuilder.define("actor:melee", (options = {}) => {
-    return new Actor(EntityBuilder.increment("melee"))
-        .createScriptedBehavior(new MeleeBehavior(options));
+EntityBuilder.define("actor:firstBoss", (options = {}) => {
+    return new Actor(EntityBuilder.increment("firstBoss"))
+        .createScriptedBehavior(new FirstBossBehavior(options));
 });

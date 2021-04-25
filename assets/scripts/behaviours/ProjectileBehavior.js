@@ -10,21 +10,31 @@ export default class ProjectileBehavior extends ScriptBehavior {
      * @param {*} [options={}]
      * @memberof ProjectileBehavior
      */
-    constructor(options = {}) {
-        const {
-            startPos,
-            targetPos,
-            fadeInFrames,
-            radius,
-            sprites
-        } = options;
+    constructor(options = {
+        startPos: {
+            x: 0,
+            y: 0
+        },
+        targetPos: {
+            x: 0,
+            y: 0
+        },
+        fadeInFrames: 240,
+        radius: 15,
+        sprites: {
+            name: "adventurer",
+            start: "adventurer-idle",
+            while: "adventurer-run",
+            end: "adventurer-die"
+        }
+    }) {
         super();
 
-        this.startPos = startPos;
-        this.targetPos = targetPos;
-        this.fadeInFrames = fadeInFrames;
-        this.radius = radius;
-        this.sprites = sprites;
+        this.startPos = options.startPos;
+        this.targetPos = options.targetPos;
+        this.fadeInFrames = options.fadeInFrames;
+        this.radius = options.radius;
+        this.sprites = options.sprites;
         this.targetPos.x = Math.round(this.targetPos.x);
         this.targetPos.y = Math.round(this.targetPos.y);
     }
@@ -82,7 +92,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
 
 ScriptBehavior.define("ProjectileBehavior", ProjectileBehavior);
 
-EntityBuilder.define("actor:projectile", (options = {}) => {
+EntityBuilder.define("actor:projectile", (options) => {
     return new Actor(EntityBuilder.increment("projectile"))
         .createScriptedBehavior(new ProjectileBehavior(options));
 });
