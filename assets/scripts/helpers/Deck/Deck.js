@@ -1,3 +1,4 @@
+import { State } from "../../ECS";
 import { Card } from "./Card";
 
 const StarterCards = Object.freeze([
@@ -29,24 +30,34 @@ const MAX_NUMBER_OF_CARDS_IN_RECUPERATOR = 5;
 export class Deck {
     constructor() {
         this.discardedCards = [];
-
         this.cardDraw = Array.from(StarterCards);
-        this.shuffleCardDraw();
-
         this.lockedCard = [];
         this.recuperator = [];
-
         this.slotHUD = [];
+        this.deckState = new State("deck", {
+            slotHUD: {},
+            discard: [],
+            draw: [],
+            lockedCard: [],
+            recuperator: [],
+        });
+        this.deckState.reset();
+
+        this.shuffleCardDraw();
         this.initSlotHUD();
 
         this.debugLog();
     }
 
-    loadIntoHUD() {
-        window.hudevents.emit("offensive_card", this.slotHUD[0]);
-        window.hudevents.emit("defensive_card", this.slotHUD[1]);
-        window.hudevents.emit("passive_card", this.slotHUD[2]);
-        window.hudevents.emit("consomable_card", this.slotHUD[3]);
+    loadState() {
+        this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+        this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+        this.deckState.setState("slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
+        this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+        this.deckState.setState("discard", this.discardedCards);
+        this.deckState.setState("draw", this.cardDraw);
+        this.deckState.setState("lockedCard", this.lockedCard);
+        this.deckState.setState("recuperator", this.recuperator);
     }
 
     updateRecuperator() {
@@ -80,18 +91,24 @@ export class Deck {
         if (this.cardDraw.length === 0 && this.discard.length !== 0) {
             this.cardDraw = Array.from(this.discardedCards);
             this.discardedCards = [];
+            this.deckState.setState("discard", this.discardedCards);
             this.shuffleCardDraw();
         }
+        const pickedCard = this.cardDraw.pop()
 
-        return this.cardDraw.pop();
+        this.deckState.setState("draw", this.cardDraw);
+
+        return pickedCard;
     }
 
     discard(card) {
         this.discardedCards.push(card);
+        this.deckState.setState("discard", this.discardedCards);
     }
 
     dump(card) {
         this.lockedCard.push(card);
+        this.deckState.setState("lockedCard", this.lockedCard);
     }
 
     recover(cardIndex) {
@@ -99,6 +116,8 @@ export class Deck {
         if (cardToRecover) {
             this.cardDraw.unshift(cardToRecover);
         }
+        this.deckState.setState("lockedCard", this.lockedCard);
+        this.deckState.setState("draw", this.cardDraw);
     }
 
     useOffensiveSkill() {
@@ -109,7 +128,7 @@ export class Deck {
         this.slotHUD.splice(SkillIndex.Offensive, 1);
         this.slotHUD.splice(SkillIndex.Offensive, 0, this.pick());
 
-        window.hudevents.emit("offensive_card", this.slotHUD[0]);
+        this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
 
         this.debugLog();
     }
@@ -120,7 +139,7 @@ export class Deck {
         this.slotHUD.splice(SkillIndex.Defensive, 1);
         this.slotHUD.splice(SkillIndex.Defensive, 0, this.pick());
 
-        window.hudevents.emit("defensive_card", this.slotHUD[1]);
+        this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
 
         this.debugLog();
     }
@@ -133,23 +152,33 @@ export class Deck {
             this.slotHUD.splice(SkillIndex.Consumable, 0, this.pick());
         }
 
-        window.hudevents.emit("consomable_card", this.slotHUD[3]);
+        this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
 
         this.debugLog();
     }
 
     carouselSlot() {
-        this.slotHUD = Array.from([
-            this.slotHUD[3],
-            this.slotHUD[0],
-            this.slotHUD[1],
-            this.slotHUD[2]
-        ]);
+        if (!this.slotHUD[SkillIndex.Consumable]) {
+            console.log("NO CONSUMABLE CARD");
+            this.slotHUD = Array.from([
+                this.slotHUD[SkillIndex.Passive],
+                this.slotHUD[SkillIndex.Offensive],
+                this.slotHUD[SkillIndex.Defensive],
+                this.slotHUD[SkillIndex.Consumable]
+            ]);
+        } else {
+            this.slotHUD = Array.from([
+                this.slotHUD[SkillIndex.Consumable],
+                this.slotHUD[SkillIndex.Offensive],
+                this.slotHUD[SkillIndex.Defensive],
+                this.slotHUD[SkillIndex.Passive]
+            ]);
+        }
 
-        window.hudevents.emit("offensive_card", this.slotHUD[0]);
-        window.hudevents.emit("defensive_card", this.slotHUD[1]);
-        window.hudevents.emit("passive_card", this.slotHUD[2]);
-        window.hudevents.emit("consomable_card", this.slotHUD[3]);
+        this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+        this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+        this.deckState.setState("slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
+        this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
 
         this.debugLog();
     }

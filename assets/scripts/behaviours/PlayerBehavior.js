@@ -229,7 +229,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             radius: 40,
         });
 
-        this.cardDeck.loadIntoHUD();
+        this.cardDeck.loadState();
     }
 
     update() {
