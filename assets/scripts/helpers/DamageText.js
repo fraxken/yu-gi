@@ -5,7 +5,7 @@ import * as PIXI from "pixi.js";
 import { Actor } from "../ECS";
 import { AnimatedText, Animations, Key } from "./";
 
-function getStyle(color = "#EF5350", align = "center") {
+export function getStyle(color = "#EF5350", align = "center") {
     return {
         fill: color,
         fontFamily: "Verdana",
