@@ -10,6 +10,7 @@ class PlayerHp extends LitElement {
     constructor() {
         super();
         bindToScriptEvent(this, "player.currentHp", "currentHp");
+        bindToScriptEvent(this, "player.name", "name");
         bindToScriptEvent(this, "player.maxHp", "maxHp");
     }
 
@@ -20,21 +21,31 @@ class PlayerHp extends LitElement {
         margin: 4px;
         background-color: white;
         border: 1px grey solid;
-        height: 20px;
-        border-radius: 3px;
-        width: 200px;
+        height: 30px;
+        border-radius: 3px 30px 6px 12px;
+        width: 300px;
+        position: relative;
        }
 
       .current-life {
         height: 100%;
-        background-color: red;
+        border-radius: 3px 108px 12px 41px;
+        background: linear-gradient(191deg, rgba(255,99,99,1) 0%, rgba(215,0,0,1) 35%, rgba(74,32,32,1) 100%);
        }
-
-       .info-life {
-         position: absolute;
-         color: white;
-         height: 20px;
-         padding: inherit;
+       .name {
+           background: grey;
+           color: white;
+           border-radius: 4px;
+           padding: 4px 8px;
+           margin-left: 20px;
+           font-weight: bold;
+           font-variant: small-caps;
+       }
+       .resources {
+           margin-left: 16px;
+           color: #e8d052;
+           font-weight: bold;
+           text-shadow: 1px 1px 1px #747474;
        }
      `;
     }
@@ -44,9 +55,10 @@ class PlayerHp extends LitElement {
 
         return html`
         <div class="life-bar">
-          <span class="info-life">${lifePercent} %</span>
-          <div class="current-life" style="width: ${lifePercent}% "/>
+          <div class="current-life" style="width: ${lifePercent}% "></div>
         </div>
+        <span class="name">${this.name}</span>
+        <span class="resources">10525541</span>
     `;
     }
 }

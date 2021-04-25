@@ -6,6 +6,9 @@ import "./components/action-bar/action-card.js";
 import "./components/action-bar/refresh-action-card.js";
 import "./components/action-bar/action-button.js";
 import "./components/keyboard-icon/keyboard-icon.js";
+import "./components/action-keys/action-keys.js";
+import "./components/action-keys/move-keys.js";
+import "./components/action-keys/action-key.js"
 
 // MODALS
 import "./components/modals/manager.js";
