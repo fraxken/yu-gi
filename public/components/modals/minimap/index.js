@@ -34,8 +34,8 @@ class Minimap extends LitElement {
                 padding: 0;
             }
             .minimap {
-                width: 480px;
-                height: 300px;
+                width: 510px;
+                height: 330px;
                 display: flex;
                 flex-wrap: wrap;
                 position: relative;
@@ -45,9 +45,8 @@ class Minimap extends LitElement {
                 flex-basis: 150px;
                 flex-grow: 1;
                 height: 95px;
-                background: blue;
-                margin-right: 5px;
-                margin-bottom 5px;
+                margin-right: 15px;
+                margin-bottom 20px;
                 box-sizing: border-box;
                 display: flex;
                 justify-content: center;
@@ -60,57 +59,68 @@ class Minimap extends LitElement {
 
             .centered-room {
                 width: 120px;
-                height: 60px;
-                background: green;
+                height: 70px;
+                background: #191f2b;
+                background: -moz-linear-gradient(top,  #191f2b 0%, #283044 100%);
+                background: -webkit-linear-gradient(top,  #191f2b 0%,#283044 100%);
+                background: linear-gradient(to bottom,  #191f2b 0%,#283044 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#191f2b', endColorstr='#283044',GradientType=0 );
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 position: relative;
                 border-radius: 10px;
                 flex-direction: column;
+                border-sizing: border-box;
+                border: 4px solid #FFF;
+                box-shadow: 3px 3px 10px rgba(80, 20, 20, 0.8);
             }
+            .centered-room.selected {
+                border-color: #651FFF !important;
+            }
+
             .centered-room > img {
                 width: 30px;
                 height: 30px;
             }
-            .centered-room > b {
+            .centered-room > p {
                 font-size: 13px;
+                font-family: Roboto;
+                position: absolute;
+                bottom: 4px;
+                text-align: center;
+                letter-spacing: 1px;
+                font-weight: bold;
+                font-style: "small-caps";
+                text-shadow: 1px 1px 2px rgba(20, 20, 20, 0.5);
             }
-            .centered-room .left {
+
+            .centered-room .door {
                 width: 20px;
                 height: 20px;
-                background: red;
-                border-radius: 2px;
+                background: #FFF;
+                border-radius: 100%;
                 position: absolute;
-                left: -10px;
-                top: 20px;
+                box-shadow: 2px 2px 10px rgba(80, 20, 20, 0.5);
             }
-            .centered-room .right {
-                width: 20px;
-                height: 20px;
-                background: red;
-                border-radius: 2px;
-                position: absolute;
-                right: -10px;
-                top: 20px;
+            .centered-room.selected .door {
+                background: #651FFF;
             }
-            .centered-room .top {
-                width: 20px;
-                height: 20px;
-                background: red;
-                border-radius: 2px;
-                position: absolute;
+            .centered-room .door.left {
+                left: -18px;
+                top: 25px;
+            }
+            .centered-room .door.right {
+                right: -18px;
+                top: 25px;
+            }
+            .centered-room .door.top {
                 right: 50px;
-                top: -10px;
+                top: -18px;
             }
-            .centered-room .bottom {
-                width: 20px;
-                height: 20px;
-                background: red;
-                border-radius: 2px;
-                position: absolute;
+            .centered-room .door.bottom {
                 right: 50px;
-                bottom: -10px;
+                bottom: -18px;
             }
         `
     }
@@ -122,13 +132,12 @@ class Minimap extends LitElement {
     }
 
     drawDoor(sideName) {
-        return html`<div class="${sideName}"></div>`;
+        return html`<div class="door ${sideName}"></div>`;
     }
 
     drawRoom(side) {
         if (this.minimap.currentRoom.side.has(side)) {
             const room = this.minimap.connectedRooms.get(side);
-            console.log(room.type);
 
             return html`<div class="room">
                 <div class="centered-room">
@@ -152,8 +161,8 @@ class Minimap extends LitElement {
 
                 ${this.drawRoom("left")}
                 <div class="room">
-                    <div class="centered-room">
-                        <!-- <p>${this.minimap.currentRoom.id}</p> -->
+                    <div class="centered-room selected">
+                        <p>You are here!</p>
                         <img src="${Minimap.Icons[this.minimap.currentRoom.type]}"></img>
                         ${[...this.minimap.currentRoom.side].map(this.drawDoor)}
                     </div>
