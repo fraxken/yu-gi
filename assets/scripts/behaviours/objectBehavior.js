@@ -39,7 +39,7 @@ export default class ObjectBehavior extends ScriptBehavior {
 
 ScriptBehavior.define("ObjectBehavior", ObjectBehavior);
 
-EntityBuilder.define("actor:object", (options = {}) => {
+EntityBuilder.define("actor:object", () => {
     return new Actor("object")
         .createScriptedBehavior("ObjectBehavior");
 });

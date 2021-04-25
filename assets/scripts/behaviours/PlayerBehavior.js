@@ -33,7 +33,6 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
-        this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
@@ -243,7 +242,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         if (Inputs.jump() && !this.jumpTimer.isStarted && (Inputs.right() || Inputs.left()) && (!Inputs.down() && !Inputs.up())) {
-            this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();
+            this.jumpTimer.start();
         }
 
         if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT) || this.currentHp === 0) {
@@ -252,8 +251,8 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-slide" : "idle");
-        } else if ((this.jumpTimer.isStarted && !this.jumpTimer.walk()) || (this.staticJumpTimer.isStarted && !this.staticJumpTimer.walk())) {
-            this.sprite.playAnimation(this.actor.moving ? "adventurer-jump" : "adventurer-smrslt");
+        } else if (this.jumpTimer.isStarted && !this.jumpTimer.walk()) {
+            this.sprite.playAnimation("adventurer-jump");
         } else {
             this.dashTimer.reset();
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
