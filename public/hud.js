@@ -58,6 +58,7 @@ window.addEventListener("DOMContentLoaded", () => {
         hudevents.removeAllListeners();
         hudevents.on("input_type", newInputType);
         hudevents.on("minimap", (open) => triggerModal(open, "mini-map"));
+        hudevents.on("picker", (open) => triggerModal(open, "dungeon-picker"));
         hudevents.on("offensive_card", updateOffensiveCard);
         hudevents.on("defensive_card", updateDefensiveCard);
         hudevents.on("passive_card", updatePassiveCard);

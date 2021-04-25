@@ -66,18 +66,18 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.actor.pos = position;
     }
 
-    enterDungeon() {
+    enterDungeon(roomId = 1, niveauId = 1) {
         this.playable = false;
         this.sprite.playAnimation("idle");
 
-        game.loadScene("dungeon");
+        game.loadScene("dungeon", roomId, niveauId);
     }
 
-    exitDungeon() {
+    exitDungeon(failure = true) {
         this.playable = false;
         this.sprite.playAnimation("idle");
 
-        game.rootScene.exitDungeon();
+        game.rootScene.exitDungeon(failure);
     }
 
     takeDamage(damage) {

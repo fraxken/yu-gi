@@ -3,7 +3,8 @@ import { LitElement, html, css } from "lit-element";
 // MODALS
 import './store/index';
 import './minimap/index';
-import './recuperator-deck/index'
+import './recuperator-deck/index';
+import './dungeon-picker/index'
 
 class ModalManager extends LitElement {
   constructor() {
@@ -14,10 +15,8 @@ class ModalManager extends LitElement {
     return css`
       .modal {
         pointer-events: all;
-        font-family: "Helvetica";
+        font-family: Roboto;
         color: white;
-        background-color: rgba(0, 0, 0, 0.7);
-        padding: 20px;
       }
     `
   }

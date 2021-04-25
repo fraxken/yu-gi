@@ -1,5 +1,5 @@
 // Import Internal Dependencies
-import { EntityBuilder, Key } from "../helpers";
+import { EntityBuilder, Key, progressionParser, nextProgression } from "../helpers";
 import { Scene, Actor, getCurrentState } from "../ECS";
 import Room from "../helpers/Room";
 
@@ -99,7 +99,10 @@ export default class DungeonScene extends Scene {
 
         if (!failure) {
             const progression = state.getState("dungeon.progression");
-            // TODO: calcule progression to add
+            const next = nextProgression(progressionParser(progression));
+
+            console.log("NEXT PROG: ", next);
+            state.setState("dungeon.progression", `${next[0]}.${next[1]}`);
         }
 
         game.loadScene("default");
