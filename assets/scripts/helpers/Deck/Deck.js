@@ -1,4 +1,4 @@
-import { State } from "../../ECS";
+import { State, getCurrentState } from "../../ECS";
 import { StarterCards } from "./Card";
 
 const SkillIndex = Object.freeze({
@@ -18,14 +18,15 @@ export class Deck {
         this.lockedCard = [];
         this.recuperator = [];
         this.slotHUD = [];
-        this.deckState = new State("deck", {
+
+        this.state = getCurrentState();
+        this.state.setState("deck", {
             slotHUD: {},
             discard: [],
             draw: [],
             lockedCard: [],
             recuperator: [],
         });
-        this.deckState.reset();
 
         this.shuffleCardDraw();
         this.initSlotHUD();
@@ -34,14 +35,14 @@ export class Deck {
     }
 
     loadState() {
-        this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
-        this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
-        this.deckState.setState("slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
-        this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
-        this.deckState.setState("discard", this.discardedCards);
-        this.deckState.setState("draw", this.cardDraw);
-        this.deckState.setState("lockedCard", this.lockedCard);
-        this.deckState.setState("recuperator", this.recuperator);
+        this.state.setState("deck.slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+        this.state.setState("deck.slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+        this.state.setState("deck.slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
+        this.state.setState("deck.slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+        this.state.setState("deck.discard", this.discardedCards);
+        this.state.setState("deck.draw", this.cardDraw);
+        this.state.setState("deck.lockedCard", this.lockedCard);
+        this.state.setState("deck.recuperator", this.recuperator);
 
         this.slotHUD[SkillIndex.Passive].activatePassive();
     }
@@ -77,24 +78,24 @@ export class Deck {
         if (this.cardDraw.length === 0 && this.discard.length !== 0) {
             this.cardDraw = Array.from(this.discardedCards);
             this.discardedCards = [];
-            this.deckState.setState("discard", this.discardedCards);
+            this.state.setState("deck.discard", this.discardedCards);
             this.shuffleCardDraw();
         }
         const pickedCard = this.cardDraw.pop()
 
-        this.deckState.setState("draw", this.cardDraw);
+        this.state.setState("deck.draw", this.cardDraw);
 
         return pickedCard;
     }
 
     discard(card) {
         this.discardedCards.push(card);
-        this.deckState.setState("discard", this.discardedCards);
+        this.state.setState("deck.discard", this.discardedCards);
     }
 
     dump(card) {
         this.lockedCard.push(card);
-        this.deckState.setState("lockedCard", this.lockedCard);
+        this.state.setState("deck.lockedCard", this.lockedCard);
     }
 
     recover(cardIndex) {
@@ -102,8 +103,8 @@ export class Deck {
         if (cardToRecover) {
             this.cardDraw.unshift(cardToRecover);
         }
-        this.deckState.setState("lockedCard", this.lockedCard);
-        this.deckState.setState("draw", this.cardDraw);
+        this.state.setState("deck.lockedCard", this.lockedCard);
+        this.state.setState("deck.draw", this.cardDraw);
     }
 
     useOffensiveSkill() {
@@ -114,7 +115,7 @@ export class Deck {
         this.slotHUD.splice(SkillIndex.Offensive, 1);
         this.slotHUD.splice(SkillIndex.Offensive, 0, this.pick());
 
-        this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+        this.state.setState("deck.slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
 
         this.debugLog();
     }
@@ -125,7 +126,7 @@ export class Deck {
         this.slotHUD.splice(SkillIndex.Defensive, 1);
         this.slotHUD.splice(SkillIndex.Defensive, 0, this.pick());
 
-        this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+        this.state.setState("deck.slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
 
         this.debugLog();
     }
@@ -138,7 +139,7 @@ export class Deck {
             this.slotHUD.splice(SkillIndex.Consumable, 0, this.pick());
         }
 
-        this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+        this.state.setState("deck.slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
 
         this.debugLog();
     }
@@ -165,10 +166,10 @@ export class Deck {
 
         this.slotHUD[SkillIndex.Passive].activatePassive();
 
-        this.deckState.setState("slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
-        this.deckState.setState("slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
-        this.deckState.setState("slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
-        this.deckState.setState("slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+        this.state.setState("deck.slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+        this.state.setState("deck.slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+        this.state.setState("deck.slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
+        this.state.setState("deck.slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
 
         this.debugLog();
     }
@@ -178,7 +179,7 @@ export class Deck {
 
         this.cardDraw.splice(destinationIndex, 0, ...cardToMove);
 
-        this.deckState.setState("draw", this.cardDraw);
+        this.state.setState("deck.draw", this.cardDraw);
     }
 
     moveCardFromDrawToSlot(cardIndex, slotName) {
@@ -190,8 +191,8 @@ export class Deck {
         }
         this.slotHUD[SkillIndex[slotName]] = cardToMove[0];
 
-        this.deckState.setState("draw", this.cardDraw);
-        this.deckState.setState("slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
+        this.state.setState("deck.draw", this.cardDraw);
+        this.state.setState("deck.slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
     }
 
     moveCardFromSlotToDraw(slotName, destinationIndex) {
@@ -202,8 +203,8 @@ export class Deck {
             this.slotHUD[SkillIndex[slotName]] = cardToExchange[0];
         }
 
-        this.deckState.setState("draw", this.cardDraw);
-        this.deckState.setState("slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
+        this.state.setState("deck.draw", this.cardDraw);
+        this.state.setState("deck.slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
     }
 
     debugLog() {
