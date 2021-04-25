@@ -257,8 +257,9 @@ export default class Room {
         this.parent.playerCurrentRoomId = this.id;
 
         if (this.tiledRoomName === "trap_room") {
-            this.setDoorLock("locked");
             // TODO: send events to IA of the rooms ?
+            this.setDoorLock("locked");
+            this.parent.triggerLockedText();
         }
     }
 

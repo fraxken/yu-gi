@@ -1,6 +1,6 @@
 // Import Internal Dependencies
-import { EntityBuilder, Key, progressionParser, nextProgression } from "../helpers";
-import { Scene, Actor, getCurrentState } from "../ECS";
+import { EntityBuilder, Key, progressionParser, nextProgression, AnimatedText, Animations } from "../helpers";
+import { Scene, Actor, getCurrentState, Timer } from "../ECS";
 import Room from "../helpers/Room";
 
 import RoomSpawner from "../helpers/RoomSpawner.class";
@@ -27,6 +27,20 @@ export default class DungeonScene extends Scene {
         }
     }
 
+    static textStyle(color = "#E3F2FD") {
+        return {
+            fill: color,
+            fontFamily: "Verdana",
+            fontSize: 8,
+            fontVariant: "small-caps",
+            fontWeight: "bold",
+            letterSpacing: 1,
+            lineJoin: "round",
+            strokeThickness: 2,
+            align: "right"
+        }
+    }
+
     constructor(roomsId = 1, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
@@ -35,6 +49,7 @@ export default class DungeonScene extends Scene {
         this.niveauId = niveauId;
         this.hasRecuperateurRoom = false;
         this.playerCurrentRoomId = 45;
+        this.resetTextTimer = new Timer(120, { autoStart: false, keepIterating: false });
 
         const defaultSettings = {
             roomWidth: this.roomWidth,
@@ -62,6 +77,38 @@ export default class DungeonScene extends Scene {
             this.rooms.set(room.id, roomObject);
             roomObject.init();
         }
+
+        this.createLockedText();
+    }
+
+    triggerLockedText() {
+        this.lockedText.start();
+        this.lockedText.on("stop", () => this.resetTextTimer.start());
+    }
+
+    createLockedText() {
+        this.lockedText = new AnimatedText(`Oh no! Survive.`, DungeonScene.textStyle(), {
+            autoStart: false,
+            animations: [
+                new Animations.WritingTextAnimation({
+                    charTick: 7,
+                    pauseTimeBetweenLine: 0
+                }),
+                new Animations.FadeTextAnimation({
+                    frame: 60,
+                    easing: "easeInQuad",
+                    defaultState: "out"
+                }),
+                new Animations.MovingTextAnimation({
+                    decalY: -70,
+                    frame: 120,
+                    easing: "easeOutQuad"
+                })
+            ]
+        });
+        this.lockedText.gameObject.anchor.set(0.5);
+
+        this.addChild(this.lockedText);
     }
 
     exitDungeon(failure = true) {
@@ -112,20 +159,31 @@ export default class DungeonScene extends Scene {
         super.awake();
 
         /** @type {Actor} */
-        const playerActor = EntityBuilder.create("actor:player");
-        playerActor.isInDungeon = true;
+        this.playerActor = EntityBuilder.create("actor:player");
+        this.playerActor.isInDungeon = true;
 
         const startCenter = {
             x: this.startRoom.x + (this.roomWidth * 16 / 2),
             y: this.startRoom.y + (this.roomHeight * 16 / 2)
         };
 
-        playerActor.position.set(startCenter.x, startCenter.y);
-        this.add(playerActor);
+        this.playerActor.position.set(startCenter.x, startCenter.y);
+        this.add(this.playerActor);
     }
 
     update() {
         super.update();
+
+        if (this.resetTextTimer.walk()) {
+            this.lockedText.reset();
+        }
+
+        if (this.lockedText.started || this.resetTextTimer.isStarted) {
+            const centerPosition = this.playerActor.centerPosition;
+            // const { height } = game.screenSize;
+            this.lockedText.position.set(centerPosition.x - 30, centerPosition.y - 80);
+            this.lockedText.update();
+        }
 
         if(game.input.wasKeyJustPressed(Key.M)) {
             hudevents.emit("minimap", true);

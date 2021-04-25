@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="40" height="26" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="10">
+<map version="1.5" tiledversion="1.5.0" orientation="orthogonal" renderorder="left-up" width="40" height="26" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="11">
  <editorsettings>
-  <export format="json"/>
+  <export target="no_enemy_room.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="C:/Users/tgent/Desktop/Map/TileSets/TilesetFloor.tsx"/>
  <tileset firstgid="463" source="../tilesets/TilesetInterior.tsx"/>
@@ -153,5 +153,6 @@
   </object>
   <object id="7" name="chest" x="114.667" y="318" width="42.6667" height="34"/>
   <object id="9" name="chest" x="454" y="84.3333" width="42.6667" height="34"/>
+  <object id="10" name="levier" x="462" y="300.333" width="42.6667" height="34"/>
  </objectgroup>
 </map>
