@@ -53,6 +53,7 @@ export default class PNJBehavior extends ScriptBehavior {
         this.sprite = this.actor.addComponent(
             new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
+        this.sprite.position.set(this.actor.width / 4, this.actor.height / 4);
     }
 
     start() {

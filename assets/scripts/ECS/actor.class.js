@@ -80,7 +80,7 @@ export default class Actor extends ActorTree {
     }
 
     get centerPosition() {
-        return new Vector2(this.x + this.width / 2, this.y + this.height / 2);
+        return new Vector2(this.x + (this.width / 2), this.y + (this.height / 2));
     }
 
     applyVelocity() {
