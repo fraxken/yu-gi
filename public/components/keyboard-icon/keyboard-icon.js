@@ -15,7 +15,7 @@ class KeyboardIcon extends LitElement {
         console.log(KeysPosition[this.key]);
         return css`
             div {
-                background: url("../controllers-icon/keyboard.png");
+                background: url("../images/keyboard.png");
             }
         `;
     }

@@ -1,5 +1,7 @@
 import { css, html, LitElement } from 'lit-element'
 
+import { buildFakeCards } from '../../../fixtures'
+
 class RecuperatorDeckModal extends LitElement {
   static get properties() {
     return {
@@ -10,6 +12,13 @@ class RecuperatorDeckModal extends LitElement {
 
   static get styles() {
     return css`
+      .modal-recuperator-deck {
+        min-width: 600px;
+        padding: 20px;
+        box-shadow: 1px 1px 10px black;
+        background: rgba(20, 40, 20, 0.65);
+        border-radius: 10px;
+      }
       .modal-recuperator-deck-card {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -113,29 +122,3 @@ class RecuperatorDeckModal extends LitElement {
 }
 
 customElements.define('modal-recuperator-deck', RecuperatorDeckModal);
-
-/**
- * STATIC IT -> MOVE THEME ELSEWHERE
- */
-
- function buildFakeCard(id) {
-  return {
-    id,
-    name: `Potion n ${id}`,
-    description: `Awesome potion ${id}, take it.`,
-    offensiveSkill: 3,
-    defensiveSkill:  0,
-    passiveSkill:  1,
-    consumableSkill:  0,
-    stars:  5
-  }
-}
-
-function buildFakeCards(count) {
-  const products = []
-  for (let index = 0; index <= count; index++) {
-    products.push(buildFakeCard(index))
-  }
-
-  return products;
-}

@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 
+import { buildFakeCards } from '../../../fixtures'
+
 import './card-detail';
 
 class StoreModal extends LitElement {
@@ -14,15 +16,19 @@ class StoreModal extends LitElement {
     return css`
       .modal-store {
         min-width: 600px;
+        padding: 20px;
+        box-shadow: 1px 1px 10px black;
+        background: rgba(20, 40, 20, 0.65);
+        border-radius: 10px;
       }
       .modal-store-column-wrapper {
         display: grid;
         grid-template-columns: 1fr 2fr;
-        grid-template-rows: calc(100vh - 200px);
+        grid-template-rows: calc(50vh - 200px);
         gap: 0px 8px;
       }
       .main-list {
-        height: calc(100% - 10px);
+        height: calc(100% - 20px);
         overflow-y: scroll;
       }
       ul {
@@ -86,7 +92,7 @@ class StoreModal extends LitElement {
             class=${index % 2 ? "odd" : "even"}
             @click=${() => this.handleSelectItem(item.id)}
           >
-            ${item.name}
+            ${item.name} - ${(new Array(item.stars).fill(1)).map(() => html`<icon-star></icon-star>`)}
           </li>
         `)}
       </ul>
@@ -95,29 +101,3 @@ class StoreModal extends LitElement {
 }
 
 customElements.define('modal-store', StoreModal);
-
-/**
- * STATIC IT -> MOVE THEME ELSEWHERE
- */
-
-function buildFakeCard(id) {
-  return {
-    id,
-    name: `Potion n ${id}`,
-    description: `Awesome potion ${id}, take it.`,
-    offensiveSkill: 3,
-    defensiveSkill:  0,
-    passiveSkill:  1,
-    consumableSkill:  0,
-    stars:  5
-  }
-}
-
-function buildFakeCards(count) {
-  const products = []
-  for (let index = 0; index <= count; index++) {
-    products.push(buildFakeCard(index))
-  }
-
-  return products;
-}

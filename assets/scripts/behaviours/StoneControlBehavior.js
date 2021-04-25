@@ -1,5 +1,5 @@
 // Import dependencies
-import { Actor, ScriptBehavior } from "../ECS";
+import { Actor, ScriptBehavior, Timer } from "../ECS";
 
 import { EntityBuilder } from "../helpers";
 
@@ -11,43 +11,65 @@ export default class StoneControlBehavior extends ScriptBehavior {
     }
 
     awake() {
-        this.activatedStone = new Map([
-            ["stele1", false],
-            ["stele2", false],
-            ["stele3", false]
-        ]);
-
-        this.allStonesHaveBeenActivated = false;
+        /** @type {Set<Actor>} */
+        this.stoneActors = new Set();
+        this.stoneOrder = ["stele2", "stele1", "stele3"];
+        this.currentOrder = [];
+        this.allStonesHaveBeenActivated = this.enabled;
+        this.activationTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
     }
 
+    /**
+     * @param {!Actor} stoneActor
+     */
+    registerStone(stoneActor) {
+        this.stoneActors.add(stoneActor);
+    }
+
+    /**
+     * @param {!string} name
+     */
     activateStone(name) {
-        console.log("Received message to activate", name);
-
-        for (const key of this.activatedStone.keys()) {
-            if (key !== name && this.activatedStone.get(key) === false) {
-                return;
-            }
-            if (key === name) {
-                this.activatedStone.set(key, true);
-                return;
-            }
+        this.currentOrder.push(name);
+        if (this.currentOrder.length === this.stoneOrder.length) {
+            this.checkSoneActivationOrder();
+        }
+        else {
+            this.activationTimer.start();
         }
     }
 
-    allStoneActivated() {
-        for (const value of this.activatedStone.values()) {
-            if (value === false) {
-                return false;
+    checkSoneActivationOrder() {
+        for (let i = 0; i < 3; i++) {
+            if (this.stoneOrder[i] !== this.currentOrder[i]) {
+                this.disableAllStone();
+
+                return;
             }
         }
-        return true;
+
+        this.activationTimer.reset();
+        this.enabled = true;
+        this.allStonesHaveBeenActivated = true;
+    }
+
+    disableAllStone() {
+        this.currentOrder = [];
+        this.activationTimer.reset();
+
+        for (const stoneActor of this.stoneActors) {
+            const script = stoneActor.behaviors[0];
+            script.sendMessage("disableStone");
+        }
     }
 
     update() {
-        if (!this.allStonesHaveBeenActivated && this.allStoneActivated()) {
-            console.log("WELL PLAYED !!!");
-            this.enabled = true;
-            this.allStonesHaveBeenActivated = true;
+        if (this.allStonesHaveBeenActivated) {
+            return;
+        }
+
+        if (this.activationTimer.isStarted && this.activationTimer.walk()) {
+            this.disableAllStone();
         }
     }
 }

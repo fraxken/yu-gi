@@ -45,13 +45,13 @@ export default class zIndexManager {
             // at the top of the object
             if (itemPosY > targetY) {
                 if (item.zIndex !== zIndexManager.positiveId) {
-                    console.log("target at the top!");
+                    // console.log("target at the top!");
                     item.zIndex = zIndexManager.positiveId;
                 }
             }
             // at the bottom of the object
             else if (item.zIndex !== zIndexManager.negativeId) {
-                console.log("target at the bottom!");
+                // console.log("target at the bottom!");
                 item.zIndex = zIndexManager.negativeId;
             }
         }
