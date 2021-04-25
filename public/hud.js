@@ -64,6 +64,7 @@ window.addEventListener("DOMContentLoaded", () => {
         hudevents.on("picker", (open) => triggerModal(open, "dungeon-picker"));
         hudevents.on("store", (open) => triggerModal(open, "modal-store"));
         hudevents.on("trunk", (open) => triggerModal(open, "modal-trunk"));
+        hudevents.on("recuperator", (open) => triggerModal(open, "modal-recuperator-deck"));
 
         const elementName = `#${name}`;
         const template = document.querySelector(elementName);

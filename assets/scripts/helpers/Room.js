@@ -4,6 +4,7 @@ import PIXI from "pixi.js";
 // Import Internal Dependencies
 import { EntityBuilder } from "../helpers";
 import { Scene, Actor, Components, Timer, Fade } from "../ECS";
+import DungeonScene from "../scenes/DungeonScene";
 
 // CONSTANTS
 const kReverseDoor = {
@@ -37,7 +38,7 @@ export default class Room {
      * @param {number} [options.id]
      * @param {number} [options.x]
      * @param {number} [options.y]
-     * @param {!Scene} parent
+     * @param {!DungeonScene} parent
      */
      constructor(roomName, options = {}, parent) {
         const { id, x, y, type, doors } = options;
@@ -76,7 +77,13 @@ export default class Room {
             // TODO: dynamically update this depending on the kind of the room
             this.tiledRoomName = this.getTiledMapName();
             console.log(this.tiledRoomName);
-            this.tiledMap = new Components.TiledMap(this.type === "end" ? "boss_room" : "room", {
+
+            let tempType = this.type === "end" || this.type === "boss" ? "boss_room" : "room";
+            if (this.type === "secret" || this.type === "special" || this.type === "recuperateur") {
+                tempType = "no_enemy_room";
+            }
+
+            this.tiledMap = new Components.TiledMap(tempType, {
                 debug: false,
                 showObjects: true,
                 useSharedCollision: true,
@@ -164,12 +171,23 @@ export default class Room {
         });
         areaNameText.anchor.set(0.5);
         areaNameText.alpha = 0.6;
-
         areaNameText.position.set(this.parent.roomWidth * 16 / 2, this.parent.roomHeight * 16 / 2);
 
         this.map.addChild(areaNameText);
         this.parent.add(this.map);
+
         this.tiledMap.init();
+
+        if (this.isRecuperateurRoom) {
+            const recuperatorActor = new Actor("recuperatorActor")
+                .createScriptedBehavior("RecuperateurBehavior");
+
+            recuperatorActor.position.set(
+                this.offsetX + (this.parent.roomWidth * 16 / 2),
+                this.offsetY + (this.parent.roomHeight * 16 / 2)
+            );
+            this.parent.add(recuperatorActor);
+        }
     }
 
     createDoor(doorActor) {
@@ -255,7 +273,7 @@ export default class Room {
      * @param {!Actor} actor
      */
     createEnemySpawner(actor) {
-        console.log("Enemy spawner triggered!");
+        // console.log("Enemy spawner triggered!");
 
         const randomUnitBehavior = Math.random() <= 0.7 ? "MeleeBehavior" : "CasterBehavior";
         actor.createScriptedBehavior(randomUnitBehavior);

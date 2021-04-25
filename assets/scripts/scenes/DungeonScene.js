@@ -11,7 +11,7 @@ const kSecretRoomChanceFactor = 0.1;
 export default class DungeonScene extends Scene {
     static Settings = {
         1: {
-            1: { minRooms: 4, maxRooms: 5 },
+            1: { minRooms: 2, maxRooms: 3, specialRooms: 1 },
             2: { minRooms: 5, maxRooms: 7, specialRooms: 1 },
             3: { minRooms: 6, maxRooms: 8, specialRooms: 1, includeSecretRoom: true, maxBoss: 2 }
         },
@@ -31,6 +31,8 @@ export default class DungeonScene extends Scene {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
+        this.roomsId = roomsId;
+        this.niveauId = niveauId;
         this.hasRecuperateurRoom = false;
         this.playerCurrentRoomId = 45;
 

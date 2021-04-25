@@ -18,6 +18,7 @@
         "map1": "tilemaps/test.json",
         "room": "tilemaps/room.json",
         "boss_room": "tilemaps/boss.json",
+        "no_enemy_room": "tilemaps/no_enemy_room.json",
         "adventurer": "sprites/adventurer.json",
         "ambient-sound": "sounds/back-ambient-sound.mp3",
         "ambient-void": "sounds/back-ambient-void.ogg",
