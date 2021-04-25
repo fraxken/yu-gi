@@ -33,6 +33,8 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
+        this.attackTimer = new Timer(90, { autoStart: false, keepIterating: false });
+        this.randomAttack = null;
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
@@ -87,6 +89,25 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.damageContainer.add(dmg);
 
         return this;
+    }
+
+    canAttack() {
+        if (!this.attackTimer.isStarted) {
+            this.attackTimer.start();
+            this.randomAttack = Math.floor(Math.random() * 3) + 1;
+
+            return true;
+        }
+
+        if (this.attackTimer.walk()) {
+            return false;
+        }
+
+        if (!this.attackTimer.walk()) {
+            this.attackTimer.reset();
+        }
+
+        return false;
     }
 
     die(cause = "no-pv") {
@@ -246,11 +267,20 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.jumpTimer.start();
         }
 
+        if (game.input.wasKeyJustPressed(Key.A)) {
+            if (this.canAttack()) {
+                console.log("must attack");
+            }
+        }
+
         if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT) || this.currentHp === 0) {
             this.die();
         }
 
-        if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
+        if (this.attackTimer.isStarted && !this.attackTimer.walk()) {
+            this.sprite.playAnimation(`adventurer-attack${this.randomAttack}`);
+        }
+        else if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-slide" : "idle");
         } else if (this.jumpTimer.isStarted && !this.jumpTimer.walk()) {
             this.sprite.playAnimation("adventurer-jump");
