@@ -46,10 +46,11 @@ export default class Room {
         this.roomIA = [];
         this.doorLockTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
 
-        /** @type {"end" | "boss" | "room" | "special" | "secret"} */
+        /** @type {"end" | "boss" | "room" | "special" | "secret" | "recuperateur"} */
         this.type = type;
         this.isRecuperateurRoom = this.type === "special" && !parent.hasRecuperateurRoom;
         if (this.isRecuperateurRoom) {
+            this.type = "recuperateur";
             parent.hasRecuperateurRoom = true;
         }
         this.doors = doors;
@@ -88,6 +89,7 @@ export default class Room {
 
         switch (this.type) {
             case "room": return Room.getNormalRoomSubType();
+            case "start": return "start";
             case "special": return "chest_room";
             case "boss": return "boss_room";
             case "end": return "boss_room";
@@ -105,10 +107,25 @@ export default class Room {
     }
 
     *getActiveDoors() {
-        yield this.doorLeft;
-        yield this.doorRight;
-        yield this.doorTop;
-        yield this.doorBottom;
+        const leftScript = this.doorLeft.getScriptedBehavior("_DungeonDoorBehavior");
+        if (leftScript) {
+            yield { door: this.doorLeft, side: "left" };
+        }
+
+        const rightScript = this.doorRight.getScriptedBehavior("_DungeonDoorBehavior");
+        if (rightScript) {
+            yield { door: this.doorRight, side: "right" };
+        }
+
+        const topScript = this.doorTop.getScriptedBehavior("_DungeonDoorBehavior");
+        if (topScript) {
+            yield { door: this.doorTop, side: "top" };
+        }
+
+        const bottomScript = this.doorBottom.getScriptedBehavior("_DungeonDoorBehavior");
+        if (bottomScript) {
+            yield { door: this.doorBottom, side: "bottom" };
+        }
     }
 
     init() {
@@ -134,6 +151,8 @@ export default class Room {
     }
 
     createDoor(doorActor) {
+        doorActor.roomInstance = this;
+
         switch (doorActor.name) {
             case "door_left": {
                 this.doorLeft = doorActor;
@@ -182,17 +201,16 @@ export default class Room {
             this.doorLockTimer.start();
         }
 
-        for (const door of this.getActiveDoors()) {
+        for (const { door } of this.getActiveDoors()) {
             // _DungeonDoorBehavior ???
             const script = door.getScriptedBehavior("_DungeonDoorBehavior");
-            if (script) {
-                script.sendMessage(eventName);
-            }
+            script.sendMessage(eventName);
         }
     }
 
     playerEnterRoom() {
         console.log("Player enter the room id: ", this.roomName, this.id);
+        this.parent.playerCurrentRoomId = this.id;
 
         if (this.tiledRoomName === "trap_room") {
             this.setDoorLock("locked");

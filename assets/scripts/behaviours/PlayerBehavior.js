@@ -242,10 +242,6 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
-        if(game.input.wasKeyJustPressed(Key.M)) {
-            this.takeDamage(Math.random() > 0.5 ? 1 : 0);
-        }
-
         if (game.input.wasKeyJustPressed(Key.SPACE) && !this.jumpTimer.isStarted) {
             this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();
         }

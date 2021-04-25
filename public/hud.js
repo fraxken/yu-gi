@@ -17,6 +17,21 @@ function newInputType(newType) {
     console.log("new input usage: ", newType);
 }
 
+function triggerModal(open, modelName) {
+    const modalManager = document.getElementById("modal-manager");
+
+    modalManager.innerHTML = "";
+    if (open) {
+        const component = document.createElement(modelName);
+        component.setAttribute("slot", "modal");
+        modalManager.appendChild(component);
+        modalManager.style.display = "block";
+    }
+    else {
+        modalManager.style.display = "none";
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
     const hud = document.querySelector(".hud");
@@ -30,6 +45,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         hudevents.removeAllListeners();
         hudevents.on("input_type", newInputType);
+        hudevents.on("minimap", (open) => triggerModal(open, "mini-map"));
 
         const elementName = `#${name}`;
         const template = document.querySelector(elementName);

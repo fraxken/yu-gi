@@ -1,5 +1,5 @@
 // Import Internal Dependencies
-import { EntityBuilder } from "../helpers";
+import { EntityBuilder, Key } from "../helpers";
 import { Scene, Actor, getCurrentState } from "../ECS";
 import Room from "../helpers/Room";
 
@@ -27,11 +27,12 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    constructor(roomsId = 1, niveauId = 1) {
+    constructor(roomsId = 3, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
         this.hasRecuperateurRoom = false;
+        this.playerCurrentRoomId = 45;
 
         const defaultSettings = {
             roomWidth: this.roomWidth,
@@ -60,10 +61,41 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    exitDungeon() {
+    exitDungeon(failure = true) {
         const state = getCurrentState();
         state.setState("spawnActorName", "test");
+
+        if (!failure) {
+            const progression = state.getState("dungeon.progression");
+            // TODO: calcule progression to add
+        }
+
         game.loadScene("default");
+    }
+
+    getMinimapData() {
+        const currentRoom = this.rooms.get(this.playerCurrentRoomId);
+        const currentDoors = [...currentRoom.getActiveDoors()];
+
+        const connectedRooms = new Map();
+        for (const { side, door } of currentDoors) {
+            const room = door.connectedTo.roomInstance;
+
+            connectedRooms.set(side, {
+                id: room.id,
+                type: room.type,
+                side: new Set([...room.getActiveDoors()].map((row) => row.side))
+            });
+        }
+
+        return {
+            currentRoom: {
+                id: this.playerCurrentRoomId,
+                type: currentRoom.type,
+                side: new Set(currentDoors.map((row) => row.side))
+            },
+            connectedRooms
+        }
     }
 
     awake() {
@@ -89,9 +121,15 @@ export default class DungeonScene extends Scene {
     update() {
         super.update();
 
-        for (const room of this.rooms.values()) {
-            room.update();
+        if(game.input.wasKeyJustPressed(Key.M)) {
+            hudevents.emit("minimap", true);
         }
+        else if (game.input.wasKeyJustReleased(Key.M)) {
+            hudevents.emit("minimap", false);
+        }
+
+        const currentRoom = this.rooms.get(this.playerCurrentRoomId);
+        currentRoom.update();
     }
 }
 
