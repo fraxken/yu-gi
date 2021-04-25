@@ -27,7 +27,7 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    constructor(roomsId = 3, niveauId = 1) {
+    constructor(roomsId = 1, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
@@ -160,8 +160,9 @@ export default class DungeonScene extends Scene {
             hudevents.emit("minimap", false);
         }
 
-        const currentRoom = this.rooms.get(this.playerCurrentRoomId);
-        currentRoom.update();
+        for (const room of this.rooms.values()) {
+            room.update();
+        }
     }
 }
 

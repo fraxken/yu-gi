@@ -1,5 +1,9 @@
+// Import Third-party Dependencies
+import PIXI from "pixi.js";
+
+// Import Internal Dependencies
 import { EntityBuilder } from "../helpers";
-import { Scene, Actor, Components, Timer } from "../ECS";
+import { Scene, Actor, Components, Timer, Fade } from "../ECS";
 
 // CONSTANTS
 const kReverseDoor = {
@@ -45,6 +49,10 @@ export default class Room {
         this.id = id;
         this.roomIA = [];
         this.doorLockTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
+        this.fade = null;
+        if (this.id !== 45) {
+            this.addFade();
+        }
 
         /** @type {"end" | "boss" | "room" | "special" | "secret" | "recuperateur"} */
         this.type = type;
@@ -80,6 +88,20 @@ export default class Room {
         }
 
         console.log(`Init room '${roomName}': ${this.type}`);
+    }
+
+    addFade() {
+        const fadeGraphic = new PIXI.Graphics()
+            .beginFill(PIXI.utils.string2hex("#000"), 1)
+            .drawRect(0, 0, this.parent.roomWidth * 16, this.parent.roomHeight * 16)
+            .endFill();
+        fadeGraphic.position.set(this.offsetX, this.offsetY);
+        fadeGraphic.zIndex = 25;
+
+        this.fade = new Fade(fadeGraphic, {
+            frame: 45, delayIn: 0, delayOut: 60, defaultState: "out"
+        });
+        this.parent.addChild(fadeGraphic);
     }
 
     getTiledMapName() {
@@ -209,6 +231,10 @@ export default class Room {
     }
 
     playerEnterRoom() {
+        if (this.fade !== null) {
+            this.fade.in();
+        }
+
         console.log("Player enter the room id: ", this.roomName, this.id);
         this.parent.playerCurrentRoomId = this.id;
 
@@ -219,6 +245,9 @@ export default class Room {
     }
 
     playerExitRoom() {
+        if (this.fade !== null) {
+            this.fade.out();
+        }
         console.log("Player exit the room id: ", this.roomName, this.id);
     }
 
@@ -257,6 +286,10 @@ export default class Room {
     update() {
         if (this.doorLockTimer.isStarted && this.doorLockTimer.walk()) {
             this.setDoorLock("unlocked");
+        }
+
+        if (this.fade !== null) {
+            this.fade.update();
         }
     }
 }
