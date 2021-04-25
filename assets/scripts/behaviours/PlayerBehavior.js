@@ -32,7 +32,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.maxHp = maxHp;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
-        this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
+        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
@@ -206,7 +206,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         const isTopDashable = !neighboursForCustomRange.top || neighboursForCustomRange.bottom;
         const isBottomDashable = !neighboursForCustomRange.bottom || neighboursForCustomRange.top;
 
-        if (!this.dashTimer.isStarted && Inputs.left() && game.input.wasKeyJustPressed(Key.C) && isLeftDashable) {
+        if (!this.dashTimer.isStarted && Inputs.left() && Inputs.dash() && isLeftDashable) {
             this.actor.moveX(-dashSpeed);
             this.sprite.scale.x = -1;
             this.dashTimer.start();
@@ -216,7 +216,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.sprite.scale.x = -1;
         }
 
-        if (!this.dashTimer.isStarted && Inputs.right() && game.input.wasKeyJustPressed(Key.C) && isRightDashable) {
+        if (!this.dashTimer.isStarted && Inputs.right() && Inputs.dash() && isRightDashable) {
             this.actor.moveX(dashSpeed);
             this.sprite.scale.x = -1;
             this.dashTimer.start();
@@ -226,7 +226,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.sprite.scale.x = 1;
         }
 
-        if (!this.dashTimer.isStarted && Inputs.up() && game.input.wasKeyJustPressed(Key.C) && isTopDashable) {
+        if (!this.dashTimer.isStarted && Inputs.up() && Inputs.dash() && isTopDashable) {
             this.actor.moveY(-dashSpeed);
             this.dashTimer.start();
         }
@@ -234,7 +234,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(-currentSpeed);
         }
 
-        if (!this.dashTimer.isStarted && Inputs.down() && game.input.wasKeyJustPressed(Key.C) && isBottomDashable) {
+        if (!this.dashTimer.isStarted && Inputs.down() && Inputs.dash() && isBottomDashable) {
             this.actor.moveY(dashSpeed);
             this.dashTimer.start();
         }
@@ -242,7 +242,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
-        if (game.input.wasKeyJustPressed(Key.SPACE) && !this.jumpTimer.isStarted) {
+        if (Inputs.jump() && !this.jumpTimer.isStarted && (Inputs.right() || Inputs.left()) && (!Inputs.down() && !Inputs.up())) {
             this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();
         }
 

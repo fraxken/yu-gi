@@ -29,9 +29,16 @@ export const Keys = {
         { code: Key.DOWN, type: Type.KeyboardR },
         { code: "DOWN", type: Type.Gamepad, button: false }
     ],
+    jump: [
+        { code: Key.SPACE, type: null },
+        { code: Button.B, type: Type.Gamepad, button: true }
+    ],
+    dash: [
+        { code: Key.C, type: null },
+        { code: Button.X, type: Type.Gamepad, button: true }
+    ],
     use: [
         { code: Key.E, type: null },
-        { code: Key.SPACE, type: null },
         { code: Button.A, type: Type.Gamepad, button: true }
     ]
 }
@@ -68,6 +75,8 @@ export const Inputs = {
     right: () => someKey("right", "isKeyDown"),
     up: () => someKey("top", "isKeyDown"),
     down: () => someKey("bottom", "isKeyDown"),
+    jump: () => someKey("jump", "wasKeyJustPressed"),
+    dash: () => someKey("dash", "wasKeyJustPressed"),
     useBis: () => someKey("use", "isKeyDown"),
     use: () => someKey("use", "wasKeyJustPressed"),
 }
