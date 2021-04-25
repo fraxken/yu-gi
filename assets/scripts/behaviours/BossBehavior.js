@@ -6,7 +6,7 @@ import { Inputs } from "../keys";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 // CONSTS
-const kHandicapBetweenDeplacement = 60;
+const kHandicapBetweenDeplacement = 360;
 
 const kHandicapBetweenMeleeAttack = 160;
 const kHandicapForMeleeAttack = 110;
@@ -17,20 +17,25 @@ const kHandicapForDistAttack = 110;
 const kHandicapBetweenSpecialAttack = 300;
 const kHandicapForSpecialAttack = 110;
 
+const kDelayToDie = 160;
+
 export default class BossBehavior extends ScriptBehavior {
     constructor() {
         super();
 
         // Default stats
-        this.deplacementAreaRadius = 10;
+        this.deplacementAreaRadius = 30;
         this.targetingRangeForMelee = 120;
-        this.attackingRangeForMelee = 30;
-        this.meleeDamage = 4;
-        this.minRangeForDist = 60;
-        this.attackingRangeForDist = 240;
+        this.attackingRangeForMelee = 20;
+        this.meleeDamage = 2;
+        this.minRangeForDist = 120;
+        this.attackingRangeForDist = 200;
         this.rangedDamage = 1;
-        this.currentHp = 5;
-        this.maxHp = 25;
+        this.attackingRangeForSpecialAttack = 60;
+        this.specialAttackDamage = 4;
+        this.currentHp = 10;
+        this.maxHp = 10;
+        this.currentSpeed = 0.7;
 
         // Deplacements
         this.isMoving = false;
@@ -48,12 +53,14 @@ export default class BossBehavior extends ScriptBehavior {
 
         // Special Attack
         this.delayBeforeNextSpecialAttack = new Timer(kHandicapBetweenSpecialAttack, { autoStart: false, keepIterating: false });
-        this.timerForSpecialAttack = new Timer(kHandicapForSpecialAttack, { autoStart: false, keepIterating: false });
+        this.timerForCurrentSpecialAttack = new Timer(kHandicapForSpecialAttack, { autoStart: false, keepIterating: false });
 
         this.isDead = false;
-        this.timerForDying = new Timer(160, { autoStart: false, keepIterating: false });
+        this.timerForDying = new Timer(kDelayToDie, { autoStart: false, keepIterating: false });
 
         this.teleporting = false;
+        this.rageMode = false;
+        this.time = new Timer(60 * 5);
         this.damageContainer = new Set();
     }
 
@@ -104,7 +111,14 @@ export default class BossBehavior extends ScriptBehavior {
         }
 
         this.currentHp -= damage;
-        const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
+
+        if (this.currentHp <= (40 * this.maxHp) / 100) {
+            this.rageModeOn();
+        }
+
+        const dmg = new DamageText(damage, this.actor, {
+            isCritical
+        });
         dmg.once("done", () => this.damageContainer.delete(dmg));
         this.damageContainer.add(dmg);
 
@@ -114,49 +128,100 @@ export default class BossBehavior extends ScriptBehavior {
     canAttack() {
         const distance = this.actor.pos.distanceTo(this.target.pos);
 
-        if (distance <= this.attackingRangeForMelee) {
-            if (!this.delayBeforeNextMeleeAttack.isStarted) {
-                this.delayBeforeNextMeleeAttack.start();
+        if (!this.rageMode) {
+            if (distance <= this.attackingRangeForMelee) {
+                if (!this.delayBeforeNextMeleeAttack.isStarted) {
+                    this.delayBeforeNextMeleeAttack.start();
 
-                if (!this.timerForCurrentMeleeAttack.isStarted) {
-                    this.timerForCurrentMeleeAttack.start();
+                    if (!this.timerForCurrentMeleeAttack.isStarted) {
+                        this.timerForCurrentMeleeAttack.start();
+                    }
+
+                    if (this.timerForCurrentMeleeAttack.walk()) {
+                        return false;
+                    }
+
+                    return "melee-attack";
                 }
 
-                if (this.timerForCurrentMeleeAttack.walk()) {
+                if (!this.delayBeforeNextMeleeAttack.walk()) {
                     return false;
                 }
-
-                return "melee-attack";
             }
+            else if (distance <= this.attackingRangeForDist && distance >= this.minRangeForDist) {
+                if (!this.delayBeforeNextDistAttack.isStarted) {
+                    this.delayBeforeNextDistAttack.start();
 
-            if (!this.delayBeforeNextMeleeAttack.walk()) {
-                return false;
-            }
-        } else if (distance <= this.attackingRangeForDist && distance >= this.minRangeForDist) {
-            if (!this.delayBeforeNextDistAttack.isStarted) {
-                this.delayBeforeNextDistAttack.start();
+                    if (!this.timerForCurrentDistAttack.isStarted) {
+                        this.timerForCurrentDistAttack.start();
+                    }
 
-                if (!this.timerForCurrentDistAttack.isStarted) {
-                    this.timerForCurrentDistAttack.start();
+                    if (this.timerForCurrentDistAttack.walk()) {
+                        return false;
+                    }
+
+                    return "dist-attack";
                 }
 
-                if (this.timerForCurrentDistAttack.walk()) {
+                if (!this.delayBeforeNextDistAttack.walk()) {
                     return false;
                 }
-
-                return "dist-attack";
             }
+            else {
+                if (this.timerForCurrentDistAttack.isStarted) {
+                    this.timerForCurrentDistAttack.reset();
+                }
 
-            if (!this.delayBeforeNextDistAttack.walk()) {
-                return false;
+                if (this.timerForCurrentMeleeAttack.isStarted) {
+                    this.timerForCurrentMeleeAttack.reset();
+                }
             }
-        } else {
-            if (this.timerForCurrentDistAttack.isStarted) {
-                this.timerForCurrentDistAttack.reset();
-            }
+        }
+        else {
+            if (distance <= this.attackingRangeForMelee) {
+                if (!this.delayBeforeNextMeleeAttack.isStarted) {
+                    this.delayBeforeNextMeleeAttack.start();
 
-            if (this.timerForCurrentMeleeAttack.isStarted) {
-                this.timerForCurrentMeleeAttack.reset();
+                    if (!this.timerForCurrentMeleeAttack.isStarted) {
+                        this.timerForCurrentMeleeAttack.start();
+                    }
+
+                    if (this.timerForCurrentMeleeAttack.walk()) {
+                        return false;
+                    }
+
+                    return "rage-melee-attack";
+                }
+
+                if (!this.delayBeforeNextMeleeAttack.walk()) {
+                    return false;
+                }
+            } else if (distance <= this.attackingRangeForSpecialAttack) {
+                if (!this.delayBeforeNextSpecialAttack.isStarted) {
+                    this.delayBeforeNextSpecialAttack.start();
+
+                    if (!this.timerForCurrentSpecialAttack.isStarted) {
+                        this.timerForCurrentSpecialAttack.start();
+                    }
+
+                    if (this.timerForCurrentSpecialAttack.walk()) {
+                        return false;
+                    }
+
+                    return "rage-special-attack";
+                }
+
+                if (!this.delayBeforeNextSpecialAttack.walk()) {
+                    return false;
+                }
+            } else {
+                if (this.timerForCurrentSpecialAttack.isStarted) {
+                    this.timerForCurrentSpecialAttack.reset();
+                }
+
+                if (this.timerForCurrentMeleeAttack.isStarted) {
+                    this.timerForCurrentMeleeAttack.reset();
+                }
             }
         }
 
@@ -182,7 +247,109 @@ export default class BossBehavior extends ScriptBehavior {
                     end: "adventurer-die"
                 }
             }));
+        } else if (type === "rage-melee-attack") {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.meleeDamage + 1);
+        } else if (type === "rage-special-attack") {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.specialAttackDamage);
         }
+    }
+
+    computeMovement() {
+        if ((
+                !this.timerForCurrentDistAttack.isStarted &&
+                !this.timerForCurrentMeleeAttack.isStarted &&
+                !this.timerForCurrentSpecialAttack.isStarted
+            ) && (
+                this.delayToMove.walk() || this.isMoving
+        )) {
+            if (!this.isMoving) {
+                const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
+                const theta = Math.random() * 2 * Math.PI;
+                const x = Math.round(this.actor.x + r * Math.cos(theta));
+                const y = Math.round(this.actor.y + r * Math.sin(theta));
+
+                this.nextPos.x = x;
+                this.nextPos.y = y;
+            }
+
+            const distance = this.actor.pos.distanceTo(this.target.pos);
+            if (distance < this.targetingRangeForMelee) {
+                this.nextPos.x = this.target.x;
+                this.nextPos.y = this.target.y
+            }
+
+
+            this.goTo();
+        }
+
+        return;
+    }
+
+    goTo() {
+        if (Math.round(this.nextPos.x) === Math.round(this.actor.x) && Math.round(this.nextPos.y) === Math.round(this.actor.y)) {
+            this.nextPos.x = null;
+            this.nextPos.y = null;
+
+            this.sprite.scale.x = 1;
+            this.isMoving = false;
+            this.delayToMove.start();
+        }
+        else {
+            this.isMoving = true;
+            if (Math.round(this.actor.x) !== Math.round(this.nextPos.x)) {
+                if (this.actor.x < this.nextPos.x) {
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.nextPos.x - this.actor.x;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveX(speedToApply);
+                    this.sprite.scale.x = 1;
+                }
+                else if (this.actor.x > this.nextPos.x) {
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.actor.x - this.nextPos.x;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveX(-speedToApply);
+                    this.sprite.scale.x = -1;
+                }
+            }
+
+            if (Math.round(this.actor.y) !== Math.round(this.nextPos.y)) {
+                if (this.actor.y < this.nextPos.y) {
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.nextPos.y - this.actor.y;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveY(speedToApply);
+                } else if (this.actor.y > this.nextPos.y) {
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.actor.y - this.nextPos.y;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveY(-speedToApply);
+                }
+            }
+        }
+    }
+
+
+    rageModeOn() {
+        console.log("rage mode on !");
+
+        this.currentSpeed *= 2;
+        this.rageMode = true;
+    }
+
+    rageModeOff() {
+        console.log("rage mode off!");
+
+        this.currentSpeed = 1;
+        this.rageMode = false;
     }
 
     die() {
@@ -220,9 +387,6 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     update() {
-        this.canBeAttacked();
-        this.lifeBar.update(this.currentHp);
-
         if (this.currentHp <= 0) {
             this.die();
 
@@ -238,11 +402,33 @@ export default class BossBehavior extends ScriptBehavior {
                 }
             }
         } else {
+            this.canBeAttacked();
+
+            for (const dmg of this.damageContainer) {
+                dmg.update();
+            }
+
             const attackStatus = this.canAttack();
-            
             if (attackStatus) {
                 this.initAttack(attackStatus);
             }
+
+            if (this.rageMode) {
+                if (this.time.walk() && this.currentHp < this.maxHp) {
+                    this.currentHp += 0.5;
+                }
+
+                if (this.currentHp === this.maxHp) {
+                    this.rageModeOff();
+                }
+            }
+
+            this.computeMovement();
+
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+
+            this.lifeBar.update(this.currentHp);
+            this.actor.applyVelocity();
         }
     }
 }
