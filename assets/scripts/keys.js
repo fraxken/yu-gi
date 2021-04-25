@@ -69,7 +69,7 @@ function someKey(keyName, action, actionPad = "isLeftStick") {
         return result;
     });
     if (hasSome) {
-        window.hudevents("input_action", keyName, action);
+        window.hudevents.emit("input_action", keyName, action);
     }
 
     return hasSome;
