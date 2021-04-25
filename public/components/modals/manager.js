@@ -1,7 +1,10 @@
 import { LitElement, html, css } from "lit-element";
 
 // STORE MODAL
-import './store/index';
+import './store/index.js';
+
+// RECUPERATOR DECK MODAL
+import './recuperator-deck/index.js'
 
 class ModalManager extends LitElement {
   constructor() {
