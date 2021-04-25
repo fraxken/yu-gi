@@ -32,7 +32,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.maxHp = maxHp;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
-        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
+        this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false });
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
@@ -167,6 +167,8 @@ export default class PlayerBehavior extends ScriptBehavior {
             acceleration: 0.016,
             radius: 40,
         });
+
+        this.cardDeck.loadIntoHUD();
     }
 
     update() {
