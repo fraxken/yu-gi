@@ -5,7 +5,7 @@ import Scene from "./scene.class";
 import ScriptBehavior from "./scriptbehavior";
 import State from "./state.class";
 import SearchTree from "./searchtree";
-import { findAsset, getActor, getCurrentState, getTexture, hitTestRectangle } from "./helpers";
+import { findAsset, getActor, getCurrentState, getTexture, hitTestRectangle, boxesIntersect } from "./helpers";
 
 // Components
 import { Types } from "./component";
@@ -43,5 +43,6 @@ export {
     Easing,
     Timer,
     ProgressiveNumber,
-    hitTestRectangle
+    hitTestRectangle,
+    boxesIntersect
 }

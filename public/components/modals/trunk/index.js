@@ -45,7 +45,7 @@ class TrunkModal extends LitElement {
         font-weight: bold;
         padding: 10px 10px 10px 10px ;
         border-radius: 7px;
-        box-shadow: 0 .2em gray; 
+        box-shadow: 0 .2em gray;
         cursor: pointer;
       }
       .pick-up-button {
@@ -94,7 +94,7 @@ class TrunkModal extends LitElement {
           </div>
           <div class="close-button-wrapper">
             <button
-              class="base-button close-button" 
+              class="base-button close-button"
               @click=${this.submitSelection}
             >
               Close the trunk and pick ${this.selectedCardCount} cards up.
@@ -147,12 +147,12 @@ class TrunkModal extends LitElement {
   renderCard(self) { // 🤮
     return (card) => {
       const isSelected = self.selectedCardIds.includes(card.id);
-  
+
       return html`
         <div class="card-wrapper">
           <action-card .card=${{ typeCard: card.name }}></action-card>
           <button
-            class="base-button pick-up-button ${isSelected && "selected"}" 
+            class="base-button pick-up-button ${isSelected && "selected"}"
             @click=${self.handleSelect(card.id)}
           >
             Pick up

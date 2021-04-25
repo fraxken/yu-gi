@@ -6,7 +6,8 @@ export default class ChestBehavior extends ScriptBehavior {
     static DistanceToOpen = 60;
 
     awake() {
-        this.items = [];
+        this.cards = [];
+
         this.open = false;
         this.destroyOnClose = false;
     }
@@ -15,25 +16,31 @@ export default class ChestBehavior extends ScriptBehavior {
         this.target = getActor("player");
     }
 
-    open() {
-        this.open = true;
-        hudevents.emit("chest_open", this);
+    remove() {
+        this.actor.cleanup();
     }
 
-    close() {
-        this.open = false;
-        if (this.destroyOnClose) {
-            this.actor.cleanup();
+    destroy() {
+        if (this.open) {
+            hudevents.emit("trunk", false);
         }
     }
 
     update() {
-        if (this.open) {
-            return;
-        }
+        const distance = this.actor.pos.distanceTo(this.target.pos);
+        const inArea = distance < ChestBehavior.DistanceToOpen;
 
-        if (Inputs.use() && this.actor.pos.distanceTo(this.target.pos) < ChestBehavior.DistanceToOpen) {
-            this.warp();
+        if (Inputs.use() && !this.open && inArea) {
+            hudevents.emit("trunk", true);
+            this.open = true;
+        }
+        else if (this.open && !inArea) {
+            hudevents.emit("trunk", false);
+            this.open = false;
+
+            if (this.destroyOnClose) {
+                this.remove();
+            }
         }
     }
 }

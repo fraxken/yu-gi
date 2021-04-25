@@ -67,7 +67,6 @@ export default class DefaultScene extends Scene {
             actor.createScriptedBehavior("PortalBehavior");
         }
         else if (actor.name === "shop") {
-            console.log("CREATING SHOP!");
             actor.createScriptedBehavior("PNJBehavior");
         }
     }

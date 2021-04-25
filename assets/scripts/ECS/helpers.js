@@ -45,6 +45,13 @@ export function getTexture(assetName, textureName) {
     return findAsset(assetName).textures[textureName];
 }
 
+export function boxesIntersect(a, b) {
+    const ab = a.getBounds();
+    const bb = b.getBounds();
+
+    return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+}
+
 /**
  * @param {!PIXI.Container | PIXI.Graphics} r1
  * @param {!PIXI.Container | PIXI.Graphics} r2

@@ -279,6 +279,16 @@ export default class Room {
             actor.name = EntityBuilder.increment("boss");
             this.parent.add(actor);
         }
+        else if (actor.name.startsWith("chest")) {
+            actor.createScriptedBehavior("ChestBehavior");
+            actor.name = EntityBuilder.increment("chest");
+            this.parent.add(actor);
+        }
+        else if (actor.name.startsWith("damage")) {
+            actor.createScriptedBehavior("DamageAreaBehavior");
+            actor.name = EntityBuilder.increment("damage");
+            this.parent.add(actor);
+        }
 
         actor.position.set(actor.x + this.offsetX, actor.y + this.offsetY);
     }

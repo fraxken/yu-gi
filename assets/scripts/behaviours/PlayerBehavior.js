@@ -100,9 +100,11 @@ export default class PlayerBehavior extends ScriptBehavior {
         game.rootScene.exitDungeon(failure);
     }
 
-    takeDamage(damage) {
+    takeDamage(damage, { isCritical = false }) {
         this.currentHp -= damage;
-        const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
+        const dmg = new DamageText(damage, this.actor, {
+            isCritical
+        });
         dmg.once("done", () => this.damageContainer.delete(dmg));
         this.damageContainer.add(dmg);
 
