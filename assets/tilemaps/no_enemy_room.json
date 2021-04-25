@@ -2,7 +2,8 @@
   "compressionlevel": -1,
   "editorsettings": {
     "export": {
-      "format": "json"
+      "format": "json",
+      "target": "no_enemy_room.json"
     }
   },
   "height": 26,
@@ -140,8 +141,8 @@
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 42.6666666666667,
-          "x": 114.666666666667,
+          "width": 42.6667,
+          "x": 114.667,
           "y": 318
         },
         {
@@ -152,8 +153,19 @@
           "type": "",
           "visible": true,
           "width": 42.6667,
-          "x": 453.999983333333,
-          "y": 84.3333333333333
+          "x": 454,
+          "y": 84.3333
+        },
+        {
+          "height": 34,
+          "id": 10,
+          "name": "levier",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 42.6667,
+          "x": 462,
+          "y": 300.333
         }
       ],
       "opacity": 1,
@@ -164,7 +176,7 @@
     }
   ],
   "nextlayerid": 6,
-  "nextobjectid": 10,
+  "nextobjectid": 11,
   "orientation": "orthogonal",
   "renderorder": "left-up",
   "tiledversion": "1.5.0",

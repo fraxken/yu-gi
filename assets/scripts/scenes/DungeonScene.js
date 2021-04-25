@@ -49,6 +49,8 @@ export default class DungeonScene extends Scene {
         this.niveauId = niveauId;
         this.hasRecuperateurRoom = false;
         this.playerCurrentRoomId = 45;
+        /** @type {Actor[]} */
+        this.connectedToSecret = [];
         this.resetTextTimer = new Timer(120, { autoStart: false, keepIterating: false });
 
         const defaultSettings = {
@@ -60,6 +62,8 @@ export default class DungeonScene extends Scene {
         };
         // defaultSettings.includeSecretRoom = Math.random() < kSecretRoomChanceFactor;
         defaultSettings.includeSecretRoom = true;
+
+        this.hasSecretRoom = defaultSettings.includeSecretRoom;
         const spawner = new RoomSpawner(10, {
             ...DungeonScene.Settings[roomsId][niveauId],
             ...defaultSettings
@@ -79,6 +83,12 @@ export default class DungeonScene extends Scene {
         }
 
         this.createLockedText();
+    }
+
+    setSecretRoomDoors(state = "lock") {
+        for (const actor of this.connectedToSecret) {
+            actor.behaviors[0].sendMessage(state);
+        }
     }
 
     triggerLockedText() {
@@ -118,8 +128,6 @@ export default class DungeonScene extends Scene {
         if (!failure) {
             const progression = state.getState("dungeon.progression");
             const next = nextProgression(progressionParser(progression));
-
-            console.log("NEXT PROG: ", next);
             state.setState("dungeon.progression", `${next[0]}.${next[1]}`);
         }
 
@@ -152,8 +160,20 @@ export default class DungeonScene extends Scene {
     }
 
     awake() {
+        let secretRoom = null;
         for (const room of this.rooms.values()) {
             room.connectDoors();
+            if (room.type === "secret") {
+                secretRoom = room;
+            }
+        }
+
+        // Lock the doors connected to the secret room!
+        if (secretRoom !== null) {
+            for (const { door } of secretRoom.getActiveDoors()) {
+                this.connectedToSecret.push(door.connectedTo);
+            }
+            this.setSecretRoomDoors("lock");
         }
 
         super.awake();

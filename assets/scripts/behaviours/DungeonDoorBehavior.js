@@ -5,22 +5,27 @@ import { Inputs } from "../keys";
 export default class DungeonDoorBehavior extends ScriptBehavior {
     static DistanceToActivateDoor = 60;
 
+    constructor() {
+        super();
+        this.locked = false;
+    }
+
     awake() {
         this.warpTimer = new Timer(60, { autoStart: false, keepIterating: false });
-        this.locked = false;
     }
 
     start() {
         this.target = getActor("player");
+
+        const text = this.actor.children[0].children[0];
+        text.text = this.actor.name;
     }
 
     lock() {
-        console.log("door locked!");
         this.locked = true;
     }
 
     unlock() {
-        console.log("door unlocked!!!");
         this.locked = false;
     }
 

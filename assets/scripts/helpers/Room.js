@@ -79,7 +79,7 @@ export default class Room {
             console.log(this.tiledRoomName);
 
             let tempType = this.type === "end" || this.type === "boss" ? "boss_room" : "room";
-            if (this.type === "secret" || this.type === "special" || this.type === "recuperateur") {
+            if (this.type === "start" || this.type === "secret" || this.type === "special" || this.type === "recuperateur") {
                 tempType = "no_enemy_room";
             }
 
@@ -308,6 +308,11 @@ export default class Room {
         else if (actor.name.startsWith("damage")) {
             actor.createScriptedBehavior("DamageAreaBehavior");
             actor.name = EntityBuilder.increment("damage");
+            this.parent.add(actor);
+        }
+        else if (this.parent.hasSecretRoom && this.isRecuperateurRoom && actor.name.startsWith("levier")) {
+            actor.createScriptedBehavior("SecretLevierBehavior");
+            actor.name = EntityBuilder.increment("levier");
             this.parent.add(actor);
         }
 
