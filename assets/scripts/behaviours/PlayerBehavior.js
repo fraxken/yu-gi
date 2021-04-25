@@ -28,13 +28,12 @@ export default class PlayerBehavior extends ScriptBehavior {
             spawnActorName: "spawnActorName"
         });
 
-        this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
-        this.time = new Timer(60 * 10);
+        this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
 
@@ -81,7 +80,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     takeDamage(damage) {
         this.currentHp -= damage;
-        const dmg = new DamageText(damage, this.actor, { isCritical: true });
+        const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
         dmg.once("done", () => this.damageContainer.delete(dmg));
         this.damageContainer.add(dmg);
 
@@ -165,8 +164,6 @@ export default class PlayerBehavior extends ScriptBehavior {
             acceleration: 0.016,
             radius: 40,
         });
-
-
     }
 
     update() {
@@ -242,9 +239,9 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
-        // if(game.input.wasKeyJustPressed(Key.M)) {
-        //     this.takeDamage(Math.random() > 0.5 ? 1 : 0);
-        // }
+        if(game.input.wasKeyJustPressed(Key.M)) {
+            this.takeDamage(Math.random() > 0.5 ? 1 : 0);
+        }
 
         if (game.input.wasKeyJustPressed(Key.SPACE) && !this.jumpTimer.isStarted) {
             this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();

@@ -34,7 +34,7 @@ async function main() {
         },
         player: {
             name: "Thomas",
-            currentHp: 1,
+            currentHp: 10,
             maxHp: 15
         }
     });
