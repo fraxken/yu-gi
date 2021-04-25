@@ -100,7 +100,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         game.rootScene.exitDungeon(failure);
     }
 
-    takeDamage(damage, { isCritical = false }) {
+    takeDamage(damage, { isCritical = false } = {}) {
         if (this.currentHp - damage <= 0) {
             this.currentHp = 0;
             this.die();
