@@ -111,6 +111,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.dieScreen.once("cleanup", () => {
                 this.playable = true;
                 this.dieScreen = null;
+                this.currentHp = 1;
                 game.fade.in();
             });
             this.dieScreen.zIndex = 31;
