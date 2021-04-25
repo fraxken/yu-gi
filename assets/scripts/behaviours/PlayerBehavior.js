@@ -101,7 +101,14 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     takeDamage(damage, { isCritical = false }) {
-        this.currentHp -= damage;
+        if (this.currentHp - damage <= 0) {
+            this.currentHp = 0;
+            this.die();
+        }
+        else {
+            this.currentHp -= damage;
+        }
+
         const dmg = new DamageText(damage, this.actor, {
             isCritical
         });
@@ -251,6 +258,7 @@ export default class PlayerBehavior extends ScriptBehavior {
             dmg.update();
         }
 
+        // TODO: remove this later
         if (this.time.walk() && this.currentHp < this.maxHp) {
             this.currentHp += 1;
         }
@@ -311,14 +319,8 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.jumpTimer.start();
         }
 
-        if (game.input.wasKeyJustPressed(Key.F)) {
-            if (this.canAttack()) {
-                this.dealsDamage();
-            }
-        }
-
-        if (game.input.wasKeyJustPressed(Key.L) || game.input.wasGamepadButtonJustPressed(Button.SELECT) || this.currentHp === 0) {
-            this.die();
+        if (game.input.wasKeyJustPressed(Key.F) && this.canAttack()) {
+            this.dealsDamage();
         }
 
         if (this.attackTimer.isStarted && !this.attackTimer.walk()) {
@@ -326,20 +328,25 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
         else if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-slide" : "idle");
-        } else if (this.jumpTimer.isStarted && !this.jumpTimer.walk()) {
+        }
+        else if (this.jumpTimer.isStarted && !this.jumpTimer.walk()) {
             this.sprite.playAnimation("adventurer-jump");
-        } else {
+        }
+        else {
             this.dashTimer.reset();
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
         }
 
         if (game.input.wasKeyJustPressed(Key._1)) {
             this.cardDeck.useOffensiveSkill();
-        } else if (game.input.wasKeyJustPressed(Key._2)) {
+        }
+        else if (game.input.wasKeyJustPressed(Key._2)) {
             this.cardDeck.useDefensiveSkill();
-        } else if (game.input.wasKeyJustPressed(Key._3)) {
+        }
+        else if (game.input.wasKeyJustPressed(Key._3)) {
             this.cardDeck.useConsumable();
-        } else if (game.input.wasKeyJustPressed(Key.X)) {
+        }
+        else if (game.input.wasKeyJustPressed(Key.X)) {
             this.cardDeck.carouselSlot();
         }
 
