@@ -13,6 +13,13 @@ class TrunkModal extends LitElement {
 
   static get styles() {
      return css`
+      .modal-trunk {
+        padding: 20px;
+        box-shadow: 1px 1px 10px black;
+        background: rgba(20, 40, 20, 0.65);
+        border-radius: 10px;
+      }
+
       .modal-trunk-deck-card {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -29,6 +36,7 @@ class TrunkModal extends LitElement {
         font-size: 8px;
         cursor: pointer;
       }
+
       .selected {
         color: gray
       }
@@ -41,10 +49,15 @@ class TrunkModal extends LitElement {
         cursor: pointer;
       }
       .pick-up-button {
-        background-color: lightgray;
+        background-color: burlywood;
+        width: 80px;
       }
       .close-button {
-        background-color: red;
+        background-color: orangered;
+      }
+      .close-button-wrapper {
+        display: flex;
+        justify-content: space-around;
       }
     `;
   }
@@ -79,12 +92,14 @@ class TrunkModal extends LitElement {
             }
             <!-- 🤮 -->
           </div>
-          <button
-            class="base-button close-button" 
-            @click=${this.submitSelection}
-          >
-            Close the trunk and pick ${this.selectedCardCount} cards up.
-          </button>
+          <div class="close-button-wrapper">
+            <button
+              class="base-button close-button" 
+              @click=${this.submitSelection}
+            >
+              Close the trunk and pick ${this.selectedCardCount} cards up.
+            </button>
+          </div>
         </div>
     `;
   }
