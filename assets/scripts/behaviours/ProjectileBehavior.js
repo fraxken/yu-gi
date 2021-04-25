@@ -3,8 +3,6 @@ import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import { Actor, ScriptBehavior, getActor } from "../ECS";
 import { EntityBuilder } from "../helpers";
 
-const kDefaultFadeInFrames = 240;
-
 export default class ProjectileBehavior extends ScriptBehavior {
 
     /**
@@ -13,20 +11,28 @@ export default class ProjectileBehavior extends ScriptBehavior {
      * @memberof ProjectileBehavior
      */
     constructor(options = {}) {
-        const { startPos, targetPos } = options;
+        const {
+            startPos,
+            targetPos,
+            fadeInFrames,
+            radius,
+            sprites
+        } = options;
         super();
 
         this.startPos = startPos;
         this.targetPos = targetPos;
+        this.fadeInFrames = fadeInFrames;
+        this.radius = radius;
+        this.sprites = sprites;
         this.targetPos.x = Math.round(this.targetPos.x);
         this.targetPos.y = Math.round(this.targetPos.y);
-        this.radius = 15;
     }
 
     awake() {
         console.log(`Projectile with name: ${this.actor.name} created`);
         this.sprite = this.actor.addComponent(
-            new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
+            new AnimatedSpriteEx(this.sprites.name, { defaultAnimation: this.sprites.start })
         );
 
         this.actor.pos = this.startPos;
@@ -48,7 +54,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
             this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", 2);
             this.die("hit player");
         }
-        else if (this.tick >= kDefaultFadeInFrames) {
+        else if (this.tick >= this.fadeInFrames) {
             this.die("timeout");
         }
         else if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
@@ -66,7 +72,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
             }
 
             this.actor.applyVelocity();
-            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
+            this.sprite.playAnimation(this.actor.moving ? this.sprites.while : this.sprites.end);
         }
         else {
             this.die("hit targeted position");

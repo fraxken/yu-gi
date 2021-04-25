@@ -132,7 +132,15 @@ export default class CasterBehavior extends ScriptBehavior {
     initShoot() {
         game.rootScene.add(EntityBuilder.create("actor:projectile", {
             startPos: { x: this.actor.x, y: this.actor.y },
-            targetPos: { x: this.target.x, y: this.target.y }
+            targetPos: { x: this.target.x, y: this.target.y },
+            fadeInFrames: 240,
+            radius: 15,
+            sprites: {
+                name: "adventurer",
+                start: "adventurer-idle",
+                while: "adventurer-run",
+                end: "adventurer-die"
+            }
         }));
     }
 
