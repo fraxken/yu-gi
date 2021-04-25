@@ -7,17 +7,8 @@ const kHandicapForDeplacement = 120;
 const kHandicapForAttacking = 240;
 
 export default class MeleeBehavior extends ScriptBehavior {
-
-    constructor(options = { x: 0, y: 0, radius: 200 }) {
+    constructor() {
         super();
-
-        const r = options.radius * Math.sqrt(Math.random());
-        const theta = Math.random() * 2 * Math.PI;
-
-        this.position = {
-            x: Math.round(options.x + r * Math.cos(theta)),
-            y: Math.round(options.y + r * Math.sin(theta))
-        };
 
         // Default stats
         this.radius = 40;
@@ -47,8 +38,6 @@ export default class MeleeBehavior extends ScriptBehavior {
         });
 
         this.actor.addChild(this.lifeBar.container);
-
-        this.actor.position.set(this.position.x, this.position.y);
     }
 
     start() {
@@ -66,14 +55,14 @@ export default class MeleeBehavior extends ScriptBehavior {
             if (!this.isMoving) {
                 const r = (this.radius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
-                const x = Math.round(this.position.x + r * Math.cos(theta));
-                const y = Math.round(this.position.y + r * Math.sin(theta));
+                const x = Math.round(this.actor.x + r * Math.cos(theta));
+                const y = Math.round(this.actor.y + r * Math.sin(theta));
 
                 this.nextPos.x = x;
                 this.nextPos.y = y;
             }
 
-            if (Math.pow(this.position.x - this.target.x, 2) + Math.pow(this.position.y - this.target.y, 2) <= this.targetRange * this.targetRange) {
+            if (Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.targetRange * this.targetRange) {
                 this.nextPos.x = this.target.x;
                 this.nextPos.y = this.target.y
             }
