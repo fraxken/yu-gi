@@ -10,6 +10,7 @@ import { EntityBuilder, Key, LifeBar } from "../helpers";
 import { Button } from "../helpers/input.class";
 import DieScreen from "../helpers/DieScreen";
 import DamageText from "../helpers/DamageText";
+import { Deck } from "../helpers/Deck/Deck";
 
 import { Inputs } from "../keys";
 
@@ -40,6 +41,8 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
         });
+
+        this.cardDeck = new Deck();
     }
 
     teleport(position) {
@@ -259,6 +262,17 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.dashTimer.reset();
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
         }
+
+        if (game.input.wasKeyJustPressed(Key._1)) {
+            this.cardDeck.useOffensiveSkill();
+        } else if (game.input.wasKeyJustPressed(Key._2)) {
+            this.cardDeck.useDefensiveSkill();
+        } else if (game.input.wasKeyJustPressed(Key._3)) {
+            this.cardDeck.useConsumable();
+        } else if (game.input.wasKeyJustPressed(Key.X)) {
+            this.cardDeck.carouselSlot();
+        }
+
         this.lifeBar.update(this.currentHp);
         this.actor.applyVelocity();
     }
