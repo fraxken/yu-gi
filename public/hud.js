@@ -63,10 +63,6 @@ window.addEventListener("DOMContentLoaded", () => {
         hudevents.on("minimap", (open) => triggerModal(open, "mini-map"));
         hudevents.on("picker", (open) => triggerModal(open, "dungeon-picker"));
         hudevents.on("store", (open) => triggerModal(open, "modal-store"));
-        hudevents.on("offensive_card", updateOffensiveCard);
-        hudevents.on("defensive_card", updateDefensiveCard);
-        hudevents.on("passive_card", updatePassiveCard);
-        hudevents.on("consomable_card", updateConsomableCard);
 
         const elementName = `#${name}`;
         const template = document.querySelector(elementName);
