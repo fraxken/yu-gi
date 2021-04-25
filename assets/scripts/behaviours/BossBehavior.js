@@ -3,6 +3,7 @@ import { ScriptBehavior, getActor, Timer, Components } from "../ECS";
 import { LifeBar } from "../helpers";
 import DamageText from "../helpers/DamageText";
 import { Inputs } from "../keys";
+import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 // CONSTS
 const kHandicapBetweenDeplacement = 60;
@@ -22,8 +23,12 @@ export default class BossBehavior extends ScriptBehavior {
 
         // Default stats
         this.deplacementAreaRadius = 10;
-        this.targetingRange = 200;
-        this.attackingRange = 10;
+        this.targetingRangeForMelee = 120;
+        this.attackingRangeForMelee = 30;
+        this.meleeDamage = 4;
+        this.minRangeForDist = 60;
+        this.attackingRangeForDist = 240;
+        this.rangedDamage = 1;
         this.currentHp = 5;
         this.maxHp = 25;
 
@@ -35,7 +40,7 @@ export default class BossBehavior extends ScriptBehavior {
         this.isAttacking = false;
         // Melee Attack
         this.delayBeforeNextMeleeAttack = new Timer(kHandicapBetweenMeleeAttack, { autoStart: false, keepIterating: false });
-        this.timerForCurrentAttack = new Timer(kHandicapForMeleeAttack, { autoStart: false, keepIterating: false });
+        this.timerForCurrentMeleeAttack = new Timer(kHandicapForMeleeAttack, { autoStart: false, keepIterating: false });
 
         // Dist Attack
         this.delayBeforeNextDistAttack = new Timer(kHandicapBetweenDistAttack, { autoStart: false, keepIterating: false });
@@ -45,9 +50,8 @@ export default class BossBehavior extends ScriptBehavior {
         this.delayBeforeNextSpecialAttack = new Timer(kHandicapBetweenSpecialAttack, { autoStart: false, keepIterating: false });
         this.timerForSpecialAttack = new Timer(kHandicapForSpecialAttack, { autoStart: false, keepIterating: false });
 
-        // Die
         this.isDead = false;
-        this.timerForDying = new Timer(180, { autoStart: false, keepIterating: false });
+        this.timerForDying = new Timer(160, { autoStart: false, keepIterating: false });
 
         this.teleporting = false;
         this.damageContainer = new Set();
@@ -80,16 +84,25 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     canBeAttacked() {
-        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+        const isInsideRangeOfPlayer = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
 
-        if (isInside) {
+        if (isInsideRangeOfPlayer) {
             this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
-        } else {
+        }
+        else {
             this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
         }
     }
 
-    takeDamage(damage) {
+    takeDamage(damage, { isCritical = false } = {}) {
+        if (typeof damage !== "number") {
+            damage = 0;
+        }
+
+        if (this.currentHp - damage <= 0) {
+            this.currentHp = 0;
+        }
+
         this.currentHp -= damage;
         const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
         dmg.once("done", () => this.damageContainer.delete(dmg));
@@ -98,9 +111,92 @@ export default class BossBehavior extends ScriptBehavior {
         return this;
     }
 
+    canAttack() {
+        const distance = this.actor.pos.distanceTo(this.target.pos);
+
+        if (distance <= this.attackingRangeForMelee) {
+            if (!this.delayBeforeNextMeleeAttack.isStarted) {
+                this.delayBeforeNextMeleeAttack.start();
+
+                if (!this.timerForCurrentMeleeAttack.isStarted) {
+                    this.timerForCurrentMeleeAttack.start();
+                }
+
+                if (this.timerForCurrentMeleeAttack.walk()) {
+                    return false;
+                }
+
+                return "melee-attack";
+            }
+
+            if (!this.delayBeforeNextMeleeAttack.walk()) {
+                return false;
+            }
+        } else if (distance <= this.attackingRangeForDist && distance >= this.minRangeForDist) {
+            if (!this.delayBeforeNextDistAttack.isStarted) {
+                this.delayBeforeNextDistAttack.start();
+
+                if (!this.timerForCurrentDistAttack.isStarted) {
+                    this.timerForCurrentDistAttack.start();
+                }
+
+                if (this.timerForCurrentDistAttack.walk()) {
+                    return false;
+                }
+
+                return "dist-attack";
+            }
+
+            if (!this.delayBeforeNextDistAttack.walk()) {
+                return false;
+            }
+        } else {
+            if (this.timerForCurrentDistAttack.isStarted) {
+                this.timerForCurrentDistAttack.reset();
+            }
+
+            if (this.timerForCurrentMeleeAttack.isStarted) {
+                this.timerForCurrentMeleeAttack.reset();
+            }
+        }
+
+        return false;
+    }
+
+    initAttack(type) {
+        if (type === "melee-attack") {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.meleeDamage);
+        } else if (type === "dist-attack") {
+            game.rootScene.add(EntityBuilder.create("actor:projectile", {
+                startPos: { x: this.actor.x, y: this.actor.y },
+                targetPos: { x: this.target.x, y: this.target.y },
+                stat: {
+                    fadeInFrames: 240,
+                    radius: 25,
+                    damage: this.rangedDamage
+                },
+                sprites: {
+                    name: "adventurer",
+                    start: "adventurer-idle",
+                    while: "adventurer-run",
+                    end: "adventurer-die"
+                }
+            }));
+        }
+    }
+
+    die() {
+        if (!this.isDead && this.isDying()) {
+            this.sprite.playAnimation("adventurer-die");
+        }
+
+        if (!this.isDead && !this.isDying()) {
+            this.cleanSprite();
+        }
+    }
+
     isDying() {
         if (!this.timerForDying.isStarted) {
-            console.log("first trigger");
             this.timerForDying.start();
         }
 
@@ -111,7 +207,7 @@ export default class BossBehavior extends ScriptBehavior {
         }
     }
 
-    die() {
+    cleanSprite() {
         this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
 
         this.lifeBar.cleanup();
@@ -126,19 +222,15 @@ export default class BossBehavior extends ScriptBehavior {
     update() {
         this.canBeAttacked();
 
+        const attackStatus = this.canAttack();
+        if (attackStatus) {
+            this.initAttack(attackStatus);
+        }
+
         this.lifeBar.update(this.currentHp);
 
         if (this.currentHp <= 0) {
-
-            if (!this.isDead && this.isDying()) {
-                this.sprite.playAnimation("adventurer-die");
-            }
-
-            if (!this.isDead && !this.isDying()) {
-                console.log("die");
-                this.die();
-            }
-
+            this.die();
 
             if (this.isDead) {
                 if (this.teleporting) {
