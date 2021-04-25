@@ -52,7 +52,7 @@ export const Metrics = {
 // wasKeyJustReleased -> la touche clavier est remonté (déclenché une fois).
 
 function someKey(keyName, action, actionPad = "isLeftStick") {
-    return Keys[keyName].some((key) => {
+    const hasSome = Keys[keyName].some((key) => {
         let result;
         if (key.type === Type.Gamepad) {
             result = game.input[key.button ? "wasGamepadButtonJustPressed" : actionPad](key.code);
@@ -68,6 +68,11 @@ function someKey(keyName, action, actionPad = "isLeftStick") {
 
         return result;
     });
+    if (hasSome) {
+        window.hudevents("input_action", keyName, action);
+    }
+
+    return hasSome;
 }
 
 export const Inputs = {
@@ -77,6 +82,5 @@ export const Inputs = {
     down: () => someKey("bottom", "isKeyDown"),
     jump: () => someKey("jump", "wasKeyJustPressed"),
     dash: () => someKey("dash", "wasKeyJustPressed"),
-    useBis: () => someKey("use", "isKeyDown"),
     use: () => someKey("use", "wasKeyJustPressed"),
 }
