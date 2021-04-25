@@ -9,6 +9,7 @@ import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key, LifeBar } from "../helpers";
 import { Button } from "../helpers/input.class";
 import DieScreen from "../helpers/DieScreen";
+import DamageText from "../helpers/DamageText";
 
 import { Inputs } from "../keys";
 
@@ -33,8 +34,9 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(120, { autoStart: false, keepIterating: false});
         this.staticJumpTimer = new Timer(90, { autoStart: false, keepIterating: false});
-        this.time = new Timer(60);
+        this.time = new Timer(60 * 10);
         this.dieScreen = null;
+        this.damageContainer = new Set();
 
         this.speed = new ProgressiveNumber(speed, speed * 2, {
             easing: "easeInQuad", frame: 90
@@ -79,6 +81,9 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     takeDamage(damage) {
         this.currentHp -= damage;
+        const dmg = new DamageText(damage, this.actor, { isCritical: true });
+        dmg.once("done", () => this.damageContainer.delete(dmg));
+        this.damageContainer.add(dmg);
 
         return this;
     }
@@ -160,6 +165,8 @@ export default class PlayerBehavior extends ScriptBehavior {
             acceleration: 0.016,
             radius: 40,
         });
+
+
     }
 
     update() {
@@ -173,6 +180,10 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
         if (this.isTeleporting.isStarted) {
             this.isTeleporting.walk();
+        }
+
+        for (const dmg of this.damageContainer) {
+            dmg.update();
         }
 
         if (this.time.walk() && this.currentHp < this.maxHp) {
@@ -230,6 +241,10 @@ export default class PlayerBehavior extends ScriptBehavior {
         else if (Inputs.down() && isBottomWalkable) {
             this.actor.moveY(currentSpeed);
         }
+
+        // if(game.input.wasKeyJustPressed(Key.M)) {
+        //     this.takeDamage(Math.random() > 0.5 ? 1 : 0);
+        // }
 
         if (game.input.wasKeyJustPressed(Key.SPACE) && !this.jumpTimer.isStarted) {
             this.actor.moving ? this.jumpTimer.start() : this.staticJumpTimer.start();

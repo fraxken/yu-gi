@@ -289,6 +289,7 @@ export default class AnimatedText extends PIXI.Container {
 
     destroy() {
         this.started = false;
+        this.emit("done");
         super.destroy({ children: true, baseTexture: true, texture: true });
     }
 

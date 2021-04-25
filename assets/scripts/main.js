@@ -20,7 +20,7 @@ import { BackgroundMediaPlayer, Key } from "./helpers";
 
 // Import Behaviors and Scenes
 import "./behaviours";
-import { DungeonScene, DefaultScene, TextScene } from "./scenes";
+import { DungeonScene, DefaultScene } from "./scenes";
 
 import assetsURL from "../assets.json";
 
@@ -40,7 +40,7 @@ async function main() {
     });
     // TODO: setup default scene depending on player.inDungeon
 
-    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
+    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         // .registerTileSet("TilesetFloorB")
         .init();
