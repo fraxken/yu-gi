@@ -35,7 +35,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
-        this.attackTimer = new Timer(90, { autoStart: false, keepIterating: false });
+        this.attackTimer = new Timer(110, { autoStart: false, keepIterating: false });
         this.randomAttack = null;
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
@@ -117,11 +117,11 @@ export default class PlayerBehavior extends ScriptBehavior {
             return true;
         }
 
-        if (this.attackTimer.walk()) {
+        if (!this.attackTimer.walk()) {
             return false;
         }
 
-        if (!this.attackTimer.walk()) {
+        if (this.attackTimer.walk()) {
             this.attackTimer.reset();
         }
 
