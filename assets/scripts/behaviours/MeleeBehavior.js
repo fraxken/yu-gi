@@ -1,4 +1,5 @@
 import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
+import { LifeBar } from "../helpers";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
@@ -17,9 +18,12 @@ export default class MeleeBehavior extends ScriptBehavior {
             y: Math.round(options.y + r * Math.sin(theta))
         };
 
+        // Default stats
         this.radius = 40;
         this.targetRange = 60;
         this.range = 4;
+        this.currentHp = 8;
+        this.maxHp = 8;
 
         this.isMoving = false;
         this.nextPos = { x: null, y: null };
@@ -32,6 +36,15 @@ export default class MeleeBehavior extends ScriptBehavior {
         this.sprite = this.actor.addComponent(
             new Components.AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
+
+        this.lifeBar = new LifeBar({
+            spriteHeight: this.sprite.height,
+            currentHp: this.currentHp,
+            relativeMaxHp: this.maxHp,
+            maxHpBarLength: 60
+        });
+
+        this.actor.addChild(this.lifeBar.container);
 
         this.actor.position.set(this.position.x, this.position.y);
     }
@@ -69,6 +82,8 @@ export default class MeleeBehavior extends ScriptBehavior {
         } else {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
+
+        this.lifeBar.update(this.currentHp);
     }
 
     canAttack() {

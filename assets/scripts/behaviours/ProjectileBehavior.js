@@ -28,6 +28,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.sprite = this.actor.addComponent(
             new AnimatedSpriteEx("adventurer", { defaultAnimation: "adventurer-idle" })
         );
+
         this.actor.pos = this.startPos;
         this.tick = 0;
         this.target = getActor("player");
