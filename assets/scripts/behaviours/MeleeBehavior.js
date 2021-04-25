@@ -1,5 +1,6 @@
 import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
 import { LifeBar } from "../helpers";
+import DamageText from "../helpers/DamageText";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
@@ -30,6 +31,7 @@ export default class MeleeBehavior extends ScriptBehavior {
         this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
         this.delayToAttack = new Timer(kHandicapForAttacking, { autoStart: false, keepIterating: false });
         this.attackTimer = new Timer(90, { autoStart: false, keepIterating: false });
+        this.damageContainer = new Set();
     }
 
     awake() {
@@ -54,6 +56,8 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     update() {
+        this.canBeAttacked();
+
         if (this.canAttack()) {
             this.initAttack();
         }
@@ -84,6 +88,35 @@ export default class MeleeBehavior extends ScriptBehavior {
         }
 
         this.lifeBar.update(this.currentHp);
+
+        if (this.currentHp <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+
+        this.actor.cleanup();
+    }
+
+    takeDamage(damage) {
+        this.currentHp -= damage;
+        const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
+        dmg.once("done", () => this.damageContainer.delete(dmg));
+        this.damageContainer.add(dmg);
+
+        return this;
+    }
+
+    canBeAttacked() {
+        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+
+        if (isInside) {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
+        } else {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+        }
     }
 
     canAttack() {

@@ -2,6 +2,7 @@
 
 import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
 import { LifeBar } from "../helpers";
+import DamageText from "../helpers/DamageText";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
@@ -30,6 +31,7 @@ export default class CasterBehavior extends ScriptBehavior {
         this.nextPos = { x: null, y: null };
         this.delayToMove = new Timer(kHandicapForDeplacement, { keepIterating: false });
         this.delayToShoot = new Timer(kHandicapForShooting, { autoStart: false, keepIterating: false });
+        this.damageContainer = new Set();
     }
 
     awake() {
@@ -54,10 +56,10 @@ export default class CasterBehavior extends ScriptBehavior {
     }
 
     update() {
+        this.canBeAttacked();
+
         if (this.canShoot()) {
             this.initShoot();
-
-            return;
         }
 
         if (this.delayToMove.walk() || this.isMoving) {
@@ -76,10 +78,40 @@ export default class CasterBehavior extends ScriptBehavior {
 
         this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         this.lifeBar.update(this.currentHp);
+
+        if (this.currentHp <= 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+
+        this.actor.cleanup();
+    }
+
+    takeDamage(damage) {
+        this.currentHp -= damage;
+        const dmg = new DamageText(damage, this.actor, { isCritical: Math.random() > 0.5 });
+        dmg.once("done", () => this.damageContainer.delete(dmg));
+        this.damageContainer.add(dmg);
+
+        return this;
+    }
+
+    canBeAttacked() {
+        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+
+        if (isInside) {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
+        } else {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+        }
     }
 
     canShoot() {
         const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.range * this.range;
+
         if (isInside) {
             if (!this.delayToShoot.isStarted) {
                 this.delayToShoot.start();

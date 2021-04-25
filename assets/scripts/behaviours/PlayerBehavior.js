@@ -29,7 +29,9 @@ export default class PlayerBehavior extends ScriptBehavior {
             spawnActorName: "spawnActorName"
         });
 
+        this.inRangeEnemies = new Set();
         this.maxHp = maxHp;
+        this.damage = 2;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false});
@@ -44,6 +46,22 @@ export default class PlayerBehavior extends ScriptBehavior {
         });
 
         this.cardDeck = new Deck();
+    }
+
+    inRange(actorName) {
+        if (!this.inRangeEnemies.has(actorName)) {
+            this.inRangeEnemies.add(actorName);
+        }
+
+        return this;
+    }
+
+    outRange(actorName) {
+        if (this.inRangeEnemies.has(actorName)) {
+            this.inRangeEnemies.delete(actorName);
+        }
+
+        return this;
     }
 
     teleport(position) {
@@ -108,6 +126,28 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         return false;
+    }
+
+    dealsDamage() {
+        this.inRangeEnemies.forEach((enemy) => {
+            const actor = getActor(enemy);
+            const isLookingToRight = this.sprite.scale.x === 1 ? true : false;
+
+            let canBeHit;
+            if (isLookingToRight) {
+                canBeHit = this.actor.x < actor.x ? true : false;
+            } else {
+                canBeHit = this.actor.x > actor.x ? true : false;
+            }
+
+            if (canBeHit) {
+                if (actor.name.startsWith("melee")) {
+                    actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", this.damage);
+                } else if (actor.name.startsWith("caster")) {
+                    actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", this.damage);
+                }
+            }
+        });
     }
 
     die(cause = "no-pv") {
@@ -267,9 +307,9 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.jumpTimer.start();
         }
 
-        if (game.input.wasKeyJustPressed(Key.A)) {
+        if (game.input.wasKeyJustPressed(Key.F)) {
             if (this.canAttack()) {
-                console.log("must attack");
+                this.dealsDamage();
             }
         }
 
