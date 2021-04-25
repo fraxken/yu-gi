@@ -94,9 +94,10 @@ class DungeonPicker extends LitElement {
     generateRoom(niveau) {
         let [roomOneLocked, roomTwoLocked, roomThreeLocked] = ["room locked", "room locked", "room locked"];
         if (niveau <= this.niveauId) {
+            const inferiorNiveau = niveau < this.niveauId;
             roomOneLocked = "room";
-            roomTwoLocked = this.roomId >= 2 ? "room" : "room locked";
-            roomThreeLocked = this.roomId >= 3 ? "room" : "room locked";
+            roomTwoLocked = inferiorNiveau || this.roomId >= 2 ? "room" : "room locked";
+            roomThreeLocked = inferiorNiveau || this.roomId >= 3 ? "room" : "room locked";
         }
 
         return html`
