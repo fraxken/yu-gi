@@ -1,6 +1,6 @@
 
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
-import { Actor, ScriptBehavior } from "../ECS";
+import { Actor, ScriptBehavior, getActor } from "../ECS";
 import { EntityBuilder } from "../helpers";
 
 const kDefaultFadeInFrames = 240;
@@ -30,17 +30,24 @@ export default class ProjectileBehavior extends ScriptBehavior {
         );
         this.actor.pos = this.startPos;
         this.tick = 0;
+        this.target = getActor("player");
     }
 
     die(cause) {
         console.log("projectile die because: ", cause);
+
         this.actor.cleanup();
     }
 
     update() {
         this.tick++;
 
-        if (this.tick >= kDefaultFadeInFrames) {
+        if (Math.round(this.actor.x) === Math.round(this.target.x)
+        && Math.round(this.actor.y) === Math.round(this.target.y)) {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", 2);
+            this.die("hit player");
+        }
+        else if (this.tick >= kDefaultFadeInFrames) {
             this.die("timeout");
         }
         else if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
@@ -61,7 +68,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
         }
         else {
-            this.die("hit");
+            this.die("hit targeted position");
         }
     }
 }
