@@ -47,7 +47,7 @@ export default class BossBehavior extends ScriptBehavior {
 
         // Die
         this.isDead = false;
-        this.timerForDying = new Timer(110, { autoStart: false, keepIterating: false });
+        this.timerForDying = new Timer(180, { autoStart: false, keepIterating: false });
 
         this.teleporting = false;
         this.damageContainer = new Set();
@@ -100,6 +100,7 @@ export default class BossBehavior extends ScriptBehavior {
 
     isDying() {
         if (!this.timerForDying.isStarted) {
+            console.log("first trigger");
             this.timerForDying.start();
         }
 
@@ -129,9 +130,15 @@ export default class BossBehavior extends ScriptBehavior {
 
         if (this.currentHp <= 0) {
 
+            if (!this.isDead && this.isDying()) {
+                this.sprite.playAnimation("adventurer-die");
+            }
+
             if (!this.isDead && !this.isDying()) {
+                console.log("die");
                 this.die();
             }
+
 
             if (this.isDead) {
                 if (this.teleporting) {
