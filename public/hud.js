@@ -13,6 +13,9 @@ import "./components/action-keys/action-key.js"
 // MODALS
 import "./components/modals/manager.js";
 
+// COMMON
+import "./components/common/index.js";
+
 function newInputType(newType) {
     console.log("new input usage: ", newType);
 }

@@ -1,4 +1,4 @@
-import { Card } from '../../../assets/scripts/helpers/Deck/Card';
+import { Card } from '../assets/scripts/helpers/Deck/Card';
 
 export function buildFakeCard(id) {
   const card = new Card(`Potion n ${id}`, 3, 0, 1, 0, 5);

@@ -20,10 +20,25 @@ class CardDetail extends LitElement {
         margin: 5px;
         font-weight: bold;
         padding: 10px 10px 10px 10px ;
-        background-color: lightgray;
+        background-color: burlywood;
         border-radius: 7px;
         box-shadow: 0 .2em gray; 
         cursor: pointer;
+      }
+      
+      .skills {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .skill-item {
+        background-color: #37474F;
+        border-radius: 10px;
+        margin: 10px;
+        height: 40px;
+        width: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
       }
     `;
   }
@@ -54,16 +69,18 @@ class CardDetail extends LitElement {
 
     return html`
       <div>
-        <h2 class="title-detail">Detail of ${name}</h2>
+        <h2 class="title-detail">
+          Detail of ${name}
+          ${(new Array(stars).fill(1)).map(() => html`<icon-star></icon-star>`)}
+        </h2>
         <p>${description}</p>
         <h4>Skills</h4>
-        <ul>
-          <li>Offense: ${offensiveSkill}</li>
-          <li>Defense: ${defensiveSkill}</li>
-          <li>Passive: ${passiveSkill}</li>
-          <li>Consumable: ${consumableSkill}</li>
-        </ul>
-        <h4>Stars: ${stars}</h4>
+        <div class="skills">
+          <div class="skill-item" title="Offense"><icon-offense width=${30}></icon-offense><div>${offensiveSkill}</div></div>
+          <div class="skill-item" title="Defense"><icon-defense width=${30}></icon-defense><div>${defensiveSkill}</div></div>
+          <div class="skill-item" title="Passive"><icon-passive width=${30}></icon-passive><div>${passiveSkill}</div></div>
+          <div class="skill-item" title="Consumable"><icon-consumable width=${30}></icon-consumable><div>${consumableSkill}</div></div>
+        </div>
         <button
           @click=${() => alert('Gimme the loot !')}
           class="buy-button"

@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit-element'
 
-import { buildFakeCards } from '../../common/fixtures'
+import { buildFakeCards } from '../../../fixtures'
 
 class RecuperatorDeckModal extends LitElement {
   static get properties() {
@@ -12,6 +12,13 @@ class RecuperatorDeckModal extends LitElement {
 
   static get styles() {
     return css`
+      .modal-recuperator-deck {
+        min-width: 600px;
+        padding: 20px;
+        box-shadow: 1px 1px 10px black;
+        background: rgba(20, 40, 20, 0.65);
+        border-radius: 10px;
+      }
       .modal-recuperator-deck-card {
         display: grid;
         grid-template-columns: repeat(5, 1fr);

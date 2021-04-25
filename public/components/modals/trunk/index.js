@@ -1,6 +1,6 @@
 import { css, LitElement, html } from 'lit-element';
 
-import { buildFakeCards } from '../../common/fixtures';
+import { buildFakeCards } from '../../../fixtures';
 
 class TrunkModal extends LitElement {
   static get properties() {

@@ -13,7 +13,7 @@ const kAssetsDir = path.join(__dirname, "assets");
 const kPublicDir = path.join(__dirname, "public");
 const kOutDir = path.join(__dirname, "out");
 
-const kAssetsDirToMove = ["sprites", "tilemaps", "tilesets", "sounds", "controllers-icon"];
+const kAssetsDirToMove = ["sprites", "tilemaps", "tilesets", "sounds", "images"];
 const kExtensionToExclude = new Set([".tsx", ".tmx"]);
 
 fse.mkdirSync(kOutDir, { recursive: true });
