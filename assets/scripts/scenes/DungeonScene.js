@@ -61,23 +61,27 @@ export default class DungeonScene extends Scene {
         }
 
         for (let room of this.rooms) {
+            // IN ROOM
+            const maxPossibleEnemiesInRoom = 3;
+            const minPossibleEnemiesInRoom = 1;
+            const maxEnemyInThisRoom = Math.floor(Math.random() * maxPossibleEnemiesInRoom) + minPossibleEnemiesInRoom;
+            const generatedEnemyForThisRoom = []
+
+            for (let index = 0; index < maxEnemyInThisRoom; ++index) {
+                const randomUnit = Math.random() <= 0.7 ? "melee" : "caster";
+
+                generatedEnemyForThisRoom.push(randomUnit);
+            }
+
             for (let object of room[1].tiledMap.objects) {
-                // IN ROOM
-                const maxEnemyInThisRoom = Math.floor(Math.random() * 4) + 1;
-                const generatedEnemyForThisRoom = []
-
-                for (let index = 0; index < maxEnemyInThisRoom; ++index) {
-                    const randomUnit = Math.random() <= 0.7 ? "melee" : "caster";
-
-                    generatedEnemyForThisRoom.push(randomUnit);
-                }
-
                 if (object[0].startsWith("enemy_")) {
                     // IN ZONE
-                    const nBEnemyForThisZone = Math.floor(Math.random() * generatedEnemyForThisRoom.length) + 1;
+                    const minPossibleEnemiesInZone = 1;
+                    const nBEnemyForThisZone = Math.floor(Math.random() * generatedEnemyForThisRoom.length) + minPossibleEnemiesInZone;
                     const enemyForThisZone = generatedEnemyForThisRoom.splice(0, nBEnemyForThisZone);
 
                     for (const enemy of enemyForThisZone) {
+                        console.log(`added ${enemy}`)
                         this.add(...EntityBuilder.createMany(`actor:${enemy}`, 1, {
                             radius: 20,
                             x: object[1].x,
@@ -87,7 +91,6 @@ export default class DungeonScene extends Scene {
                 }
             }
         }
-        // console.log(this.rooms);
     }
 
     exitDungeon(failure = true) {

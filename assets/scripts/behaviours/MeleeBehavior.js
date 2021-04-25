@@ -94,6 +94,10 @@ export default class MeleeBehavior extends ScriptBehavior {
             }
         }
 
+        if (this.attackTimer.isStarted) {
+            this.attackTimer.reset();
+        }
+
         return false;
     }
 
