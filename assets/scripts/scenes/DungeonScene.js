@@ -63,7 +63,7 @@ export default class DungeonScene extends Scene {
 
         for (let room of this.rooms) {
             // IN ROOM
-            const maxPossibleEnemiesInRoom = 3;
+            const maxPossibleEnemiesInRoom = 1;
             const minPossibleEnemiesInRoom = 1;
             const nbEnemyInThisRoom = Math.floor(Math.random() * maxPossibleEnemiesInRoom) + minPossibleEnemiesInRoom;
             const generatedEnemyForThisRoom = []

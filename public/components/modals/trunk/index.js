@@ -65,7 +65,7 @@ class TrunkModal extends LitElement {
   constructor() {
     super();
 
-    this.cards = buildFakeCards(5);
+    this.cards = window.trunkCards || buildFakeCards(3);
     this.selectedCardIds = [];
     this.handLimit = 2;
   }
