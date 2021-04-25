@@ -96,6 +96,11 @@ export default class Engine extends AssetLoader {
             TiledMap.sharedCollisionLayer = null;
             this.rootScene = null;
 
+            const hp = this.state.getState("player.currentHp");
+            if (hp === 0) {
+                this.state.setState("player.currentHp", 1);
+            }
+
             this._initRootScene(sceneInstance, ...options);
         });
     }

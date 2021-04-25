@@ -101,6 +101,10 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     takeDamage(damage, { isCritical = false } = {}) {
+        if (typeof damage !== "number") {
+            damage = 0;
+        }
+
         if (this.currentHp - damage <= 0) {
             this.currentHp = 0;
             this.die();
@@ -179,9 +183,9 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             this.dieScreen = new DieScreen();
             this.dieScreen.once("cleanup", () => {
+                this.currentHp = 1;
                 this.playable = true;
                 this.dieScreen = null;
-                this.currentHp = 1;
                 game.fade.in();
             });
             this.dieScreen.zIndex = 31;
@@ -241,34 +245,12 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.cardDeck.loadState();
     }
 
-    update() {
-        game.fade.centerPosition = this.actor.pos;
-
-        if (this.dieScreen !== null) {
-            this.dieScreen.update();
-        }
-        if (!this.playable) {
-            return;
-        }
-        if (this.isTeleporting.isStarted) {
-            this.isTeleporting.walk();
-        }
-
-        for (const dmg of this.damageContainer) {
-            dmg.update();
-        }
-
-        // TODO: remove this later
-        if (this.time.walk() && this.currentHp < this.maxHp) {
-            this.currentHp += 1;
-        }
-
+    computeMovement() {
         const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
         const isLeftWalkable = !neighbours.left || neighbours.right;
         const isRightWalkable = !neighbours.right || neighbours.left;
         const isTopWalkable = !neighbours.top || neighbours.bottom;
         const isBottomWalkable = !neighbours.bottom || neighbours.top;
-
 
         const currentSpeed = this.speed.walk(!this.actor.moving);
         const dashSpeed = currentSpeed * 3;
@@ -315,14 +297,16 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.moveY(currentSpeed);
         }
 
+        this.jump();
+    }
+
+    jump() {
         if (Inputs.jump() && !this.jumpTimer.isStarted && (Inputs.right() || Inputs.left()) && (!Inputs.down() && !Inputs.up())) {
             this.jumpTimer.start();
         }
+    }
 
-        if (game.input.wasKeyJustPressed(Key.F) && this.canAttack()) {
-            this.dealsDamage();
-        }
-
+    computeAnimations() {
         if (this.attackTimer.isStarted && !this.attackTimer.walk()) {
             this.sprite.playAnimation(`adventurer-attack${this.randomAttack}`);
         }
@@ -336,7 +320,9 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.dashTimer.reset();
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
         }
+    }
 
+    computeSkills() {
         if (game.input.wasKeyJustPressed(Key._1)) {
             this.cardDeck.useOffensiveSkill();
         }
@@ -349,6 +335,38 @@ export default class PlayerBehavior extends ScriptBehavior {
         else if (game.input.wasKeyJustPressed(Key.X)) {
             this.cardDeck.carouselSlot();
         }
+    }
+
+    update() {
+        game.fade.centerPosition = this.actor.pos;
+        if (this.dieScreen !== null) {
+            this.dieScreen.update();
+        }
+        if (!this.playable) {
+            return;
+        }
+        // Timer to avoid double teleportation bug
+        if (this.isTeleporting.isStarted) {
+            this.isTeleporting.walk();
+        }
+
+        // Update damage text
+        for (const dmg of this.damageContainer) {
+            dmg.update();
+        }
+
+        // TODO: remove this later
+        if (this.time.walk() && this.currentHp < this.maxHp) {
+            this.currentHp += 1;
+        }
+
+        this.computeMovement();
+        if (game.input.wasKeyJustPressed(Key.F) && this.canAttack()) {
+            this.dealsDamage();
+        }
+
+        this.computeAnimations();
+        this.computeSkills();
 
         this.lifeBar.update(this.currentHp);
         this.actor.applyVelocity();
