@@ -4,7 +4,8 @@ import { LitElement, html, css } from "lit-element";
 import './store/index';
 import './minimap/index';
 import './recuperator-deck/index';
-import './dungeon-picker/index'
+import './trunk/index';
+import './dungeon-picker/index';
 
 class ModalManager extends LitElement {
   constructor() {
