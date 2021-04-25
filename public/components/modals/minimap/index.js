@@ -1,6 +1,28 @@
 import { LitElement, html, css } from 'lit-element';
 
+import roomIconURL from "../../../images/minimap/room.png";
+import specialIconURL from "../../../images/minimap/special.png";
+import bossIconURL from "../../../images/minimap/boss.png";
+import endIconURL from "../../../images/minimap/end.png";
+import startIconURL from "../../../images/minimap/start.png";
+import recuperateurIconURL from "../../../images/minimap/recuperateur.png";
+import survivalIconURL from "../../../images/minimap/survival.png";
+import trapIconURL from "../../../images/minimap/trap.png";
+import parcoursIconURL from "../../../images/minimap/parcours.png";
+
 class Minimap extends LitElement {
+    static Icons = {
+        room: roomIconURL,
+        special: specialIconURL,
+        boss: bossIconURL,
+        end: endIconURL,
+        start: startIconURL,
+        recuperateur: recuperateurIconURL,
+        survival: survivalIconURL,
+        trap: trapIconURL,
+        parcours: parcoursIconURL
+    }
+
     static get properties() {
         return { name: { type: String } };
     }
@@ -46,6 +68,10 @@ class Minimap extends LitElement {
                 position: relative;
                 border-radius: 10px;
                 flex-direction: column;
+            }
+            .centered-room > img {
+                width: 30px;
+                height: 30px;
             }
             .centered-room > b {
                 font-size: 13px;
@@ -102,11 +128,12 @@ class Minimap extends LitElement {
     drawRoom(side) {
         if (this.minimap.currentRoom.side.has(side)) {
             const room = this.minimap.connectedRooms.get(side);
+            console.log(room.type);
 
             return html`<div class="room">
                 <div class="centered-room">
-                    <p>${room.id}</p>
-                    <b>${room.type}</b>
+                    <!-- <p>${room.id}</p> -->
+                    <img src="${Minimap.Icons[room.type]}"></img>
                     ${[...room.side].map(this.drawDoor)}
                 </div>
             </div>`;
@@ -126,8 +153,8 @@ class Minimap extends LitElement {
                 ${this.drawRoom("left")}
                 <div class="room">
                     <div class="centered-room">
-                        <p>${this.minimap.currentRoom.id}</p>
-                        <b>${this.minimap.currentRoom.type}</b>
+                        <!-- <p>${this.minimap.currentRoom.id}</p> -->
+                        <img src="${Minimap.Icons[this.minimap.currentRoom.type]}"></img>
                         ${[...this.minimap.currentRoom.side].map(this.drawDoor)}
                     </div>
                 </div>

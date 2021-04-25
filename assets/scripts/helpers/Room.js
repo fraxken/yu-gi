@@ -46,10 +46,11 @@ export default class Room {
         this.roomIA = [];
         this.doorLockTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
 
-        /** @type {"end" | "boss" | "room" | "special" | "secret"} */
+        /** @type {"end" | "boss" | "room" | "special" | "secret" | "recuperateur"} */
         this.type = type;
         this.isRecuperateurRoom = this.type === "special" && !parent.hasRecuperateurRoom;
         if (this.isRecuperateurRoom) {
+            this.type = "recuperateur";
             parent.hasRecuperateurRoom = true;
         }
         this.doors = doors;

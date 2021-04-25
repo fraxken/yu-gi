@@ -27,7 +27,7 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    constructor(roomsId = 1, niveauId = 1) {
+    constructor(roomsId = 3, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         this.roomWidth = 40;
         this.roomHeight = 26;
@@ -61,9 +61,15 @@ export default class DungeonScene extends Scene {
         }
     }
 
-    exitDungeon() {
+    exitDungeon(failure = true) {
         const state = getCurrentState();
         state.setState("spawnActorName", "test");
+
+        if (!failure) {
+            const progression = state.getState("dungeon.progression");
+            // TODO: calcule progression to add
+        }
+
         game.loadScene("default");
     }
 
@@ -77,7 +83,7 @@ export default class DungeonScene extends Scene {
 
             connectedRooms.set(side, {
                 id: room.id,
-                type: room.tiledRoomName,
+                type: room.type,
                 side: new Set([...room.getActiveDoors()].map((row) => row.side))
             });
         }
@@ -85,7 +91,7 @@ export default class DungeonScene extends Scene {
         return {
             currentRoom: {
                 id: this.playerCurrentRoomId,
-                type: currentRoom.tiledRoomName,
+                type: currentRoom.type,
                 side: new Set(currentDoors.map((row) => row.side))
             },
             connectedRooms
@@ -122,9 +128,8 @@ export default class DungeonScene extends Scene {
             hudevents.emit("minimap", false);
         }
 
-        for (const room of this.rooms.values()) {
-            room.update();
-        }
+        const currentRoom = this.rooms.get(this.playerCurrentRoomId);
+        currentRoom.update();
     }
 }
 
