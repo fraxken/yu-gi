@@ -23,13 +23,13 @@ export default class CasterBehavior extends ScriptBehavior {
         this.deplacementAreaRadius = 20;
         this.deplacementMaxAreaRadius = 160;
         this.attackingRange = 220;
-        this.damage = 1 * options.attackMultiplier;
-        this.missRatio = options.missRatio;
-        this.defense = 0.5 * options.defenseMultiplier;
-        this.currentHp = 3 * options.hpMultiplier;
-        this.maxHp = 3 * options.hpMultiplier;
+        this.damage = 1 * options[0].attackMultiplier;
+        this.missRatio = options[0].missRatio;
+        this.defense = 0.5 * options[0].defenseMultiplier;
+        this.currentHp = 3 * options[0].hpMultiplier;
+        this.maxHp = 3 * options[0].hpMultiplier;
         this.currentSpeed = 0.5;
-        this.goldReward = 5 * options.goldMultiplier;
+        this.goldReward = 5 * options[0].goldMultiplier;
 
         // Deplacements
         this.isMoving = false;

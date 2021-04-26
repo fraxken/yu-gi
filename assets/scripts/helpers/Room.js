@@ -285,7 +285,7 @@ export default class Room {
             actor.name = EntityBuilder.increment("door");
         }
         else if (actor.name.startsWith("enemy")) {
-            actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior", this.creatureOptions);
+            actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior", [this.creatureOptions]);
             actor.name = EntityBuilder.increment("enemy");
             this.parent.add(actor);
         }
@@ -297,7 +297,7 @@ export default class Room {
 
         for (const [actorName, config] of Object.entries(kRoomEntities)) {
             if (actor.name.startsWith(actorName)) {
-                actor.createScriptedBehavior(config.behavior);
+                actor.createScriptedBehavior(config.behavior, actorName === "boss" ? [this.creatureOptions] : null);
                 actor.name = EntityBuilder.increment(actorName);
                 this.parent.add(actor);
 

@@ -36,18 +36,18 @@ export default class BossBehavior extends ScriptBehavior {
         this.deplacementMaxAreaRadius = 320;
         this.targetingRangeForMelee = 120;
         this.attackingRangeForMelee = 20;
-        this.meleeDamage = 2 * options.attackMultiplier;
+        this.meleeDamage = 2 * options[0].attackMultiplier;
         this.minRangeForDist = 120;
         this.attackingRangeForDist = 200;
-        this.rangedDamage = 1 * options.attackMultiplier;
+        this.rangedDamage = 1 * options[0].attackMultiplier;
         this.attackingRangeForSpecialAttack = 60;
-        this.specialAttackDamage = 4 * options.attackMultiplier;
-        this.missRatio = 0.5 * options.missRatio;
-        this.defense = 1 * options.defenseMultiplier;
-        this.currentHp = 10 * options.hpMultiplier;
-        this.maxHp = 10 * options.hpMultiplier;
+        this.specialAttackDamage = 4 * options[0].attackMultiplier;
+        this.missRatio = 0.5 * options[0].missRatio;
+        this.defense = 1 * options[0].defenseMultiplier;
+        this.currentHp = 10 * options[0].hpMultiplier;
+        this.maxHp = 10 * options[0].hpMultiplier;
         this.currentSpeed = 0.8;
-        this.goldReward = 35 * options.goldMultiplier;
+        this.goldReward = 35 * options[0].goldMultiplier;
 
         // Deplacements
         this.isMoving = false;

@@ -23,13 +23,13 @@ export default class MeleeBehavior extends ScriptBehavior {
         this.deplacementMaxAreaRadius = 280;
         this.targetingRange = 60;
         this.attackingRange = 10;
-        this.damage = 2 * options.attackMultiplier;
-        this.missratio = options.missRatio;
-        this.defense = 1 * options.defenseMultiplier;
-        this.currentHp = 8 * options.hpMultiplier;
-        this.maxHp = 8 * options.hpMultiplier;
+        this.damage = 2 * options[0].attackMultiplier;
+        this.missratio = options[0].missRatio;
+        this.defense = 1 * options[0].defenseMultiplier;
+        this.currentHp = 8 * options[0].hpMultiplier;
+        this.maxHp = 8 * options[0].hpMultiplier;
         this.currentSpeed = 0.7;
-        this.goldReward = 2 * options.goldMultiplier;
+        this.goldReward = 2 * options[0].goldMultiplier;
 
         // Deplacements
         this.isMoving = false;

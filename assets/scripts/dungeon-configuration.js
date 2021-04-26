@@ -11,7 +11,7 @@ module.exports = {
             ia: {
                 defenseMultiplier: 1,
                 attackMultiplier: 1,
-                hpMultiplier: 5,
+                hpMultiplier: 1,
                 missRatio: 0.45
             },
             goldMultiplier: 1
@@ -23,7 +23,7 @@ module.exports = {
             ia: {
                 defenseMultiplier: 1,
                 attackMultiplier: 1,
-                hpMultiplier: 5,
+                hpMultiplier: 1,
                 missRatio: 0.40
             },
             goldMultiplier: 1.25
@@ -35,7 +35,7 @@ module.exports = {
             ia: {
                 defenseMultiplier: 1,
                 attackMultiplier: 1,
-                hpMultiplier: 5,
+                hpMultiplier: 1,
                 missRatio: 0.35
             },
             goldMultiplier: 1.5
