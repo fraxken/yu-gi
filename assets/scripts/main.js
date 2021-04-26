@@ -36,8 +36,17 @@ async function main() {
             gold: 1000,
             currentHp: 100,
             maxHp: 150
+        },
+        deck: {
+            slotHUD: {},
+            discard: [],
+            draw: [],
+            lockedCard: [],
+            recuperator: [],
         }
     });
+
+    gameState.reset();
 
     const game = new Engine({ defaultScene: DungeonScene, state: gameState })
         .loadAssetFromFile(assetsURL)
