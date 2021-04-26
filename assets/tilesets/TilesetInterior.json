@@ -4,12 +4,12 @@
   "name": "TilesetInterior",
   "tilewidth": 16,
   "tileheight": 16,
-  "tilecount": 880,
-  "columns": 22,
+  "tilecount": 460,
+  "columns": 23,
   "image": {
     "source": "tilesets/TilesetInterior.png",
     "width": 352,
-    "height": 640
+    "height": 352
   },
   "margin": 0
 }
