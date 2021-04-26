@@ -471,12 +471,8 @@ export default class BossBehavior extends ScriptBehavior {
             this.sprite.destroy();
         }
 
-        const player = this.state.getState("player");
-        this.state.setState("player", {
-            currentHp: player.currentHp,
-            gold: player.gold + this.goldReward,
-            maxHp: player.maxHp
-        });
+        const playerGold = this.state.getState("player.gold");
+        this.state.setState("player.gold", playerGold + this.goldReward);
 
         this.isDead = true;
     }

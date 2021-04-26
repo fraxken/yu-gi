@@ -83,12 +83,8 @@ export default class MeleeBehavior extends ScriptBehavior {
     die() {
         this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
 
-        const player = this.state.getState("player");
-        this.state.setState("player", {
-            currentHp: player.currentHp,
-            gold: player.gold + this.goldReward,
-            maxHp: player.maxHp
-        });
+        const playerGold = this.state.getState("player.gold");
+        this.state.setState("player.gold", playerGold + this.goldReward);
 
         this.actor.cleanup();
     }
