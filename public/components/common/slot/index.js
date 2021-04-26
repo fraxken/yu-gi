@@ -35,9 +35,10 @@ class Slot extends LitElement {
                 width: 123px;
                 position: absolute;
                 font-family: Roboto;
+                text-transform: uppercase;
                 font-size: smaller;
+                text-shadow: 2px 2px 2px #000000;
                 color: white;
-                text-shadow: rgb(116 116 116) 1px 1px 1px;
                 top: 31px;
             }
             .stars {
@@ -168,6 +169,9 @@ class Slot extends LitElement {
                 width: 60px;
                 top: 60px;
                 left: 35px;
+                color: white;
+                text-transform: capitalize;
+                text-shadow: 2px 2px 2px #000000;
                 display: flex;
                 flex-direction: column;
             }

@@ -42,7 +42,7 @@ class DeckModal extends LitElement {
             }
             .isNotSelected {
                 border: 1px solid black;
-                border-radius: 4px;
+                border-radius: 4px; 
             }
             .slot {
                 height: 175px;
