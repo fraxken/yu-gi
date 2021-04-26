@@ -46,8 +46,8 @@ export default class PNJBehavior extends ScriptBehavior {
                 })
             ]
         });
-        this.shopTitle.gameObject.anchor.set(0.5);
-        this.shopTitle.position.set(0, -25);
+        this.shopTitle.gameObject.anchor.set(0);
+        this.shopTitle.position.set(-10, -10);
         this.actor.addChild(this.shopTitle);
 
         this.sprite = this.actor.addComponent(
