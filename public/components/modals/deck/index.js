@@ -119,8 +119,7 @@ class DeckModal extends LitElement {
     }
 
     handleSelectSlot(selectedId, selectedSlot) {
-        console.log({ selectedId, selectedSlot });
-        window.hudevents.emit('selectedCard', selectedId, selectedSlot);
+        window.hudevents.emit('selectSlotForCard', selectedId, selectedSlot);
     }
 
     renderSlotSelector() {
