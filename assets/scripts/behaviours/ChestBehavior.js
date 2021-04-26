@@ -65,7 +65,7 @@ export default class ChestBehavior extends ScriptBehavior {
         if (Inputs.use() && !this.opened && inArea) {
             this.open();
         }
-        else if (this.opened && !inArea) {
+        else if (this.opened && (!inArea || Inputs.escape())) {
             this.close();
         }
     }

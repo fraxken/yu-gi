@@ -23,9 +23,10 @@ class RecuperatorDeckModal extends LitElement {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 10px 8px;
-        overflow-y: scroll;
+        overflow-y: auto;
         height: 250px;
         width: 100%;
+        background: red;
       }
 
       .card-wrapper {
@@ -47,9 +48,9 @@ class RecuperatorDeckModal extends LitElement {
         margin-top: 10px;
         font-weight: bold;
         padding: 10px 10px 10px 10px ;
-        background-color: lightgray;
+        background-color: green;
         border-radius: 7px;
-        box-shadow: 0 .2em gray; 
+        box-shadow: 0 .2em gray;
         cursor: pointer;
       }
     `;
@@ -57,7 +58,10 @@ class RecuperatorDeckModal extends LitElement {
 
   constructor() {
     super();
-    this.cards = buildFakeCards(30);
+
+    const cards = game.state.getState("deck.recuperator");
+    console.log(cards);
+    this.cards = buildFakeCards(5);
     this.selectedCardIds = [];
 
     this.handleSubmitSelect = this.handleSubmitSelect.bind(this)
@@ -110,7 +114,7 @@ class RecuperatorDeckModal extends LitElement {
   renderCard(self) { // 🤮
     return (card) => {
       const isSelected = self.selectedCardIds.includes(card.id);
-  
+
       return html`
         <div class="card-wrapper" @click=${self.handleSelect(card.id)}>
           <action-card .card=${{ typeCard: card.name }}></action-card>

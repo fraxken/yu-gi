@@ -84,7 +84,7 @@ export default class PNJBehavior extends ScriptBehavior {
             hudevents.emit("store", true);
             this.open = true;
         }
-        else if (this.open && !inArea) {
+        else if (this.open && (!inArea || Inputs.escape())) {
             hudevents.emit("store", false);
             this.open = false;
         }

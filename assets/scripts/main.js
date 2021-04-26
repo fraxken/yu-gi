@@ -38,9 +38,8 @@ async function main() {
             maxHp: 150
         }
     });
-    // TODO: setup default scene depending on player.inDungeon
 
-    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
+    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         // .registerTileSet("TilesetFloorB")
         .init();

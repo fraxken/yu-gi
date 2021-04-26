@@ -20,8 +20,11 @@ Recently, it has been activated and you have been sent there to make a report, b
 - **C** for dash.
 - **SPACE** to jump.
 
-Cards activation:
-- TBC
+Cards:
+- **&** or **NUM_1** (use offensive card)
+- **é** or **NUM_2** (use defensive card)
+- **"** or **NUM_3** (use consumable card)
+- **X** or **ENTER** (re-roll cards in the deck)
 
 ### Credits
 

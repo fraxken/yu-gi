@@ -40,6 +40,25 @@ export const Keys = {
     use: [
         { code: Key.E, type: null },
         { code: Button.A, type: Type.Gamepad, button: true }
+    ],
+    cardAttack: [
+        { code: Key._1, type: Type.KeyboardL },
+        { code: Key.NUM_1, type: Type.KeyboardR }
+    ],
+    cardDefense: [
+        { code: Key._2, type: Type.KeyboardL },
+        { code: Key.NUM_2, type: Type.KeyboardR }
+    ],
+    cardConsumable: [
+        { code: Key._3, type: Type.KeyboardL },
+        { code: Key.NUM_3, type: Type.KeyboardR }
+    ],
+    cardRefresh: [
+        { code: Key.X, type: Type.KeyboardL },
+        { code: Key.ENTER, type: Type.KeyboardR }
+    ],
+    escape: [
+        { code: Key.ESCAPE, type: null },
     ]
 }
 
@@ -82,5 +101,10 @@ export const Inputs = {
     down: () => someKey("bottom", "isKeyDown"),
     jump: () => someKey("jump", "wasKeyJustPressed"),
     dash: () => someKey("dash", "wasKeyJustPressed"),
+    escape: () => someKey("escape", "wasKeyJustPressed"),
+    offensive: () => someKey("cardAttack", "wasKeyJustPressed"),
+    defensive: () => someKey("cardDefense", "wasKeyJustPressed"),
+    consumable: () => someKey("cardConsumable", "wasKeyJustPressed"),
+    refresh: () => someKey("cardRefresh", "wasKeyJustPressed"),
     use: () => someKey("use", "wasKeyJustPressed"),
 }

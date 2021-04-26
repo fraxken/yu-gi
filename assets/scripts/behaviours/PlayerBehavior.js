@@ -333,16 +333,16 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     computeSkills() {
-        if (game.input.wasKeyJustPressed(Key._1)) {
+        if (Inputs.offensive()) {
             this.cardDeck.useOffensiveSkill();
         }
-        else if (game.input.wasKeyJustPressed(Key._2)) {
+        else if (Inputs.defensive()) {
             this.cardDeck.useDefensiveSkill();
         }
-        else if (game.input.wasKeyJustPressed(Key._3)) {
+        else if (Inputs.consumable()) {
             this.cardDeck.useConsumable();
         }
-        else if (game.input.wasKeyJustPressed(Key.X)) {
+        else if (Inputs.refresh()) {
             this.cardDeck.carouselSlot();
         }
     }

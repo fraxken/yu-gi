@@ -31,7 +31,7 @@ export default class RecuperateurBehavior extends ScriptBehavior {
             hudevents.emit("recuperator", true);
             this.open = true;
         }
-        else if (this.open && !inArea) {
+        else if (this.open && (!inArea || Inputs.escape())) {
             hudevents.emit("recuperator", false);
             this.open = false;
         }

@@ -29,7 +29,7 @@ export default class PortalBehavior extends ScriptBehavior {
             hudevents.emit("picker", true);
             this.open = true;
         }
-        else if (this.open && distance > PortalBehavior.DistanceToOpen) {
+        else if (this.open && (distance > PortalBehavior.DistanceToOpen || Inputs.escape())) {
             hudevents.emit("picker", false);
             this.open = false;
         }
