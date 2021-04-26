@@ -24,7 +24,7 @@ export default class DungeonScene extends Scene {
      * @param {number} [roomsId=1]
      * @param {number} [niveauId=1]
      */
-    constructor(roomsId = 1, niveauId = 1) {
+    constructor(roomsId = 3, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         Object.assign(this, { roomsId, niveauId }, kRoomConfig);
         this.config = DungeonConfiguration[niveauId][roomsId];

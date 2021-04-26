@@ -8,8 +8,8 @@
   "columns": 23,
   "image": {
     "source": "tilesets/TilesetInterior.png",
-    "width": 352,
-    "height": 352
+    "width": 368,
+    "height": 320
   },
   "margin": 0
 }

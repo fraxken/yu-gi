@@ -41,10 +41,17 @@ export default class TiledSet {
         const { margin, image } = data;
         for (let y = margin; y < image.height; y += this.tileHeight) {
             for (let x = margin; x < image.width; x += this.tileWidth) {
-                const tileRectangle = new PIXI.Rectangle(x, y, this.tileWidth, this.tileHeight);
-                const texture = new PIXI.Texture(this.baseTexture, tileRectangle);
+                try {
+                    const tileRectangle = new PIXI.Rectangle(x, y, this.tileWidth, this.tileHeight);
+                    const texture = new PIXI.Texture(this.baseTexture, tileRectangle);
 
-                this.textures.push(texture);
+                    this.textures.push(texture);
+                }
+                catch (err) {
+                    console.log(`[INFO] Failed to load TiledSet name '${this.name}'`);
+
+                    // throw err;
+                }
             }
         }
         if (this.debug) {
