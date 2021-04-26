@@ -81,6 +81,9 @@ export default class BossBehavior extends ScriptBehavior {
 
     start() {
         this.target = getActor("player");
+
+        this.winSound = sound.find("win");
+        this.winSound.volume = 0.1;
     }
 
     warp() {
@@ -353,6 +356,7 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     die() {
+        this.winSound.play();
         if (!this.isDead && this.isDying()) {
             this.sprite.playAnimation("adventurer-die");
         }

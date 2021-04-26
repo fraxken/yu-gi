@@ -71,6 +71,11 @@ export default class DefaultScene extends Scene {
         }
     }
 
+    awake() {
+        super.awake();
+        window.mediaplayer.play("town");
+    }
+
     update() {
         super.update();
 

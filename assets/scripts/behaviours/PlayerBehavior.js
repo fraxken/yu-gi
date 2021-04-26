@@ -176,8 +176,8 @@ export default class PlayerBehavior extends ScriptBehavior {
     die(cause = "no-pv") {
         this.playable = false;
         this.sprite.playAnimation("adventurer-die", { loop: false });
-        if (!this.deathSound.isPlaying) {
-            this.deathSound.play();
+        if (!this.gameOverSound.isPlaying) {
+            this.gameOverSound.play();
         }
 
         if (this.actor.isInDungeon) {
@@ -226,8 +226,8 @@ export default class PlayerBehavior extends ScriptBehavior {
             this.actor.addChild(this.lifeBar.container);
         }
 
-        this.deathSound = sound.find("death");
-        this.deathSound.volume = 0.1;
+        this.gameOverSound = sound.find("gameover");
+        this.gameOverSound.volume = 0.1;
     }
 
     start() {

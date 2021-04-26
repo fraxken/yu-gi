@@ -11,10 +11,14 @@ export default class DoorBehavior extends ScriptBehavior {
     start() {
         this.target = getActor("player");
         this.connectedTo = getActor(this.actor.tileProperties.connectTo);
+        this.track = this.actor.tileProperties.track || null;
     }
 
     warp() {
         this.warpTimer.start();
+        if (this.track !== null) {
+            window.mediaplayer.play(this.track);
+        }
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
         script.sendMessage("teleport", this.connectedTo.centerPosition);

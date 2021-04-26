@@ -16,7 +16,7 @@ require("pixi-layers");
 
 // Import ECS & Helpers Dependencies
 import { State, Engine } from "./ECS";
-import { BackgroundMediaPlayer, Key } from "./helpers";
+import { BackgroundMediaPlayer } from "./helpers";
 
 // Import Behaviors and Scenes
 import "./behaviours";
@@ -40,35 +40,38 @@ async function main() {
     });
     // TODO: setup default scene depending on player.inDungeon
 
-    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
+    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         // .registerTileSet("TilesetFloorB")
         .init();
 
-    // new BackgroundMediaPlayer({
-    //     defaultTrack: "default",
-    //     defaultFilters: [
-    //         new filters.DistortionFilter(0.05),
-    //         new filters.ReverbFilter(1, 9)
-    //     ],
-    //     tracks: {
-    //         default: [
-    //             { name: "ambient-sound", volume: 0.025 },
-    //             { name: "ambient-void", volume: 0.025 }
-    //         ]
-    //     }
-    // }).bindToEngine(game);
+    window.mediaplayer = new BackgroundMediaPlayer({
+        defaultTrack: "town",
+        defaultFilters: [
+            new filters.DistortionFilter(0.05),
+            new filters.ReverbFilter(1, 9)
+        ],
+        tracks: {
+            town: [
+                { name: "town0", volume: 0.010 },
+                { name: "town1", volume: 0.010 }
+            ],
+            donjon: [
+                { name: "donjon1", volume: 0.010 },
+                { name: "donjon2", volume: 0.010 },
+                { name: "donjon3", volume: 0.010 }
+            ],
+            battle: [
+                { name: "battle", volume: 0.010 }
+            ],
+            house: [
+                { name: "house", volume: 0.010 }
+            ]
+        }
+    }).bindToEngine(game);
 
     game.on("awake", () => {
         loadHUD("test_hud");
-
-        // TODO: we have to successfully build this!
-        // const layer = new PIXI.display.Layer();
-        // console.log(layer);
-    });
-
-    game.on("interaction", ({ emitter, target }) => {
-        console.log(emitter, target);
     });
 }
 main().catch(console.error);

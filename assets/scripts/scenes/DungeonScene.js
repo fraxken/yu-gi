@@ -183,6 +183,8 @@ export default class DungeonScene extends Scene {
         this.playerActor.isInDungeon = true;
         this.playerActor.position.set(this.roomWidth * 16 / 2, this.roomHeight * 16 / 2);
         this.add(this.playerActor);
+
+        window.mediaplayer.play("donjon");
     }
 
     update() {

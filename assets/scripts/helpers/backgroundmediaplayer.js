@@ -68,6 +68,9 @@ export default class BackgroundMediaPlayer {
     }
 
     play(trackName = this.defaultTrack, startSound = null) {
+        if (trackName === this.currentTrack) {
+            return;
+        }
         if (this.isStarted) {
             this.stop();
         }

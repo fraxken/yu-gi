@@ -721,14 +721,16 @@
   <object id="2" name="test" x="304.667" y="-361.333" width="42" height="40">
    <ellipse/>
   </object>
-  <object id="5" name="door1" x="362.667" y="67.3333" width="32.6667" height="20">
+  <object id="5" name="door1" x="352" y="66" width="48.6667" height="34.6667">
    <properties>
     <property name="connectTo" value="doorMarket"/>
+    <property name="track" value="house"/>
    </properties>
   </object>
   <object id="8" name="doorMarket" x="1311" y="-22" width="48" height="39">
    <properties>
     <property name="connectTo" value="door1"/>
+    <property name="track" value="town"/>
    </properties>
   </object>
   <object id="9" name="stele1" x="-48" y="-54.6667" width="31.3333" height="31.3333"/>

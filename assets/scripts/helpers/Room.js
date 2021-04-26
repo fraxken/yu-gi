@@ -248,8 +248,15 @@ export default class Room {
 
         if (this.type === "trap") {
             // TODO: send events to IA of the rooms ?
+            window.mediaplayer.play("battle");
             this.setDoorLock("locked");
             this.parent.triggerLockedText();
+        }
+        else if (this.type === "boss") {
+            window.mediaplayer.play("battle");
+        }
+        else {
+            window.mediaplayer.play("donjon");
         }
     }
 
