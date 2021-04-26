@@ -1,6 +1,9 @@
 // Import Third-party Dependencies
 import { LitElement, html, css } from 'lit-element';
-import { progressionParser } from "../../../../assets/scripts/helpers/index"
+import { progressionParser } from "../../../../assets/scripts/helpers/index";
+
+import openURL from "../../../images/biome_open.png";
+import closeURL from "../../../images/biome_close.png";
 
 class DungeonPicker extends LitElement {
     static get properties() {
@@ -15,7 +18,7 @@ class DungeonPicker extends LitElement {
             }
 
             .picker {
-                width: 500px;
+                width: 560px;
                 display: flex;
                 flex-direction: column;
                 position: relative;
@@ -25,9 +28,14 @@ class DungeonPicker extends LitElement {
                 height: 90px;
                 display: flex;
                 flex-direction: column;
-                box-shadow: 1px 1px 10px black;
-                background: rgba(20, 40, 20, 0.65);
+                background: #2d2d2d;
+                background: -moz-linear-gradient(top,  #2d2d2d 0%, #1c1916 100%);
+                background: -webkit-linear-gradient(top,  #2d2d2d 0%,#1c1916 100%);
+                background: linear-gradient(to bottom,  #2d2d2d 0%,#1c1916 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d2d2d', endColorstr='#1c1916',GradientType=0 );
+                border: 2px solid black;
                 padding: 5px;
+                border-radius: 10px;
             }
             .picker > .niveau + .niveau {
                 margin-top: 16px;
@@ -59,10 +67,12 @@ class DungeonPicker extends LitElement {
                 height: 45px;
                 background: #37474F;
                 border-radius: 10px;
+                border: 2px solid black;
+                overflow: hidden;
             }
-
-            .niveau .rooms .room.locked {
-                background: red !important;
+            .niveau .rooms .room.unlock {
+                border-color: #FFF !important;
+                cursor: pointer;
             }
         `
     }
@@ -92,18 +102,24 @@ class DungeonPicker extends LitElement {
     }
 
     generateRoom(niveau) {
-        let [roomOneLocked, roomTwoLocked, roomThreeLocked] = ["room locked", "room locked", "room locked"];
+        let [roomOneLocked, roomTwoLocked, roomThreeLocked] = [true, true, true];
         if (niveau <= this.niveauId) {
             const inferiorNiveau = niveau < this.niveauId;
-            roomOneLocked = "room";
-            roomTwoLocked = inferiorNiveau || this.roomId >= 2 ? "room" : "room locked";
-            roomThreeLocked = inferiorNiveau || this.roomId >= 3 ? "room" : "room locked";
+            roomOneLocked = false;
+            roomTwoLocked = inferiorNiveau || this.roomId >= 2 ? false : true;
+            roomThreeLocked = inferiorNiveau || this.roomId >= 3 ? false : true;
         }
 
         return html`
-            <div class=${roomOneLocked} data-id="1.${niveau}" @click=${this.roomClicked}></div>
-            <div class=${roomTwoLocked} data-id="2.${niveau}" @click=${this.roomClicked}></div>
-            <div class=${roomThreeLocked} data-id="3.${niveau}" @click=${this.roomClicked}></div>
+            <div class="room ${roomOneLocked ? "lock" : "unlock"}" data-id="1.${niveau}" @click=${this.roomClicked}>
+                <img src=${roomOneLocked ? closeURL : openURL} />
+            </div>
+            <div class="room ${roomTwoLocked ? "lock" : "unlock"}" data-id="2.${niveau}" @click=${this.roomClicked}>
+                <img src=${roomTwoLocked ? closeURL : openURL} />
+            </div>
+            <div class="room ${roomThreeLocked ? "lock" : "unlock"}" data-id="3.${niveau}" @click=${this.roomClicked}>
+                <img src=${roomThreeLocked ? closeURL : openURL} />
+            </div>
         `;
     }
 
