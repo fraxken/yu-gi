@@ -15,7 +15,12 @@ class DeckModal extends LitElement {
                 min-width: 600px;
                 padding: 20px;
                 box-shadow: 1px 1px 10px black;
-                background: rgba(20, 40, 20, 0.65);
+                background: #2d2d2d;
+                background: -moz-linear-gradient(top,  #2d2d2d 0%, #1c1916 100%);
+                background: -webkit-linear-gradient(top,  #2d2d2d 0%,#1c1916 100%);
+                background: linear-gradient(to bottom,  #2d2d2d 0%,#1c1916 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d2d2d', endColorstr='#1c1916',GradientType=0 );
+                border: 2px solid black;
                 border-radius: 10px;
             }
             .list-card {
