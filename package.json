@@ -7,6 +7,7 @@
     "start": "cross-env npm run build && http-server ./out",
     "test": "echo \"Error: no test specified\" && exit 1",
     "asset:cleanup": "node scripts/cleanupTiledMap.js",
+    "atlas": "node scripts/atlasCreator.js",
     "donjon": "node scripts/donjonPreview.js",
     "build": "node build.js",
     "watch": "watch -p \"public/**/*.js\" -p \"assets/scripts/**/*.js\" -c \"npm run build\""

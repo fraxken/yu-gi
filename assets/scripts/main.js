@@ -28,6 +28,7 @@ async function main() {
     const gameState = new State("gameState", {
         spawnActorName: "spawn",
         playable: true,
+        stoneEnabled: false,
         dungeon: {
             enabled: false,
             progression: "1.1"

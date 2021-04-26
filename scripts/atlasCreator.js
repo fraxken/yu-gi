@@ -1,3 +1,7 @@
+const path = require("path");
+const fs = require("fs");
+
+const kAssetPath = path.join(__dirname, "..", "assets", "sprites");
 
 function createFrame(width, height, x, y, anchor) {
     const w = width;
@@ -38,7 +42,7 @@ function createAtlas(options = {}) {
             const xEnd = yEnd ? end[1] + 1 : maxSpriteW;
 
             for (let x = start[1]; x < xEnd; x+= 1) {
-                frameNames.push(`line${y}-${x}`);
+                frameNames.push(`line${y * spriteWidth}-${x * spriteHeight}`);
             }
         }
 
@@ -60,16 +64,37 @@ function createAtlas(options = {}) {
     }
 }
 
-const test = createAtlas({
+function writeToAsset(data) {
+    const fileName = `${path.basename(data.image, ".png")}.json`;
+    const atlasJSON = createAtlas(data);
+
+    fs.writeFileSync(path.join(kAssetPath, fileName), JSON.stringify(atlasJSON, null, 2));
+}
+
+const steleAtlasHelper = {
     size: {
-        image: [200, 2035],
-        sprite: [50, 37]
+        image: [576, 384],
+        sprite: [32, 32]
     },
+    image: "stele.png",
     anchor: [0, 0],
     animations: {
-        test: {
-            start: [0, 0], end: [2, 2]
-        }
+        idle: {
+            start: [0, 0], end: [0, 11]
+        },
+        activate: {
+            start: [1, 0], end: [1, 17]
+        },
+        enabled: {
+            start: [2, 0], end: [2, 4]
+        },
+        idleEnabled: {
+            start: [3, 0], end: [3, 11]
+        },
+        disabled: {
+            start: [4, 0], end: [4, 3]
+        },
     }
-});
-console.log(JSON.stringify(test.animations, null, 2));
+};
+writeToAsset(steleAtlasHelper);
+

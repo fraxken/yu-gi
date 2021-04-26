@@ -3284,9 +3284,9 @@
     <property name="track" value="town"/>
    </properties>
   </object>
-  <object id="9" name="stele1" x="-144.333" y="-331.667" width="31.3333" height="31.3333"/>
-  <object id="10" name="stele3" x="329" y="135.667" width="31.3333" height="31.3333"/>
-  <object id="11" name="stele2" x="396" y="-406.333" width="31.3333" height="31.3333"/>
+  <object id="9" name="stele1" x="326.167" y="135.333" width="31.3333" height="31.3333"/>
+  <object id="10" name="stele3" x="352.5" y="-416.833" width="31.3333" height="31.3333"/>
+  <object id="11" name="stele2" x="-138" y="-322.333" width="31.3333" height="31.3333"/>
   <object id="12" name="shop" x="1190.17" y="-263" width="60.6667" height="42"/>
   <object id="13" name="portal" x="188.333" y="-402.667" width="87.3333" height="68.6667"/>
  </objectgroup>

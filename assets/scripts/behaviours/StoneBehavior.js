@@ -1,7 +1,8 @@
 import PIXI from "pixi.js";
 
 // Import dependencies
-import { ScriptBehavior, getActor } from "../ECS";
+import { ScriptBehavior, getActor, Components } from "../ECS";
+import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import { AnimatedText, Animations } from "../helpers";
 
 import { Inputs } from "../keys";
@@ -10,7 +11,7 @@ export default class StoneBehavior extends ScriptBehavior {
     static DistanceToActive = 50;
     static DisabledColor = "#FFFDE7";
 
-    static titleStype() {
+    static style() {
         return {
             fill: "#E3F2FD",
             fontFamily: "Verdana",
@@ -24,15 +25,22 @@ export default class StoneBehavior extends ScriptBehavior {
         }
     }
 
-    constructor() {
-        super({
-            enabled: "dungeon.enabled"
-        });
-    }
-
     awake() {
-        this.active = this.enabled;
-        this.stoneHelperText = new AnimatedText(`Activated!`, StoneBehavior.titleStype(), {
+        this.active = game.state.getState("stoneEnabled");
+        console.log("ACTIVE ?: ", this.active);
+
+        const spriteComponent = new Components.AnimatedSpriteEx("stele", {
+            defaultAnimation: "idle"
+        });
+        spriteComponent.anchor.set(0, 0);
+
+        /** @type {AnimatedSpriteEx} */
+        this.sprite = this.actor.addComponent(spriteComponent);
+        if (this.active) {
+            this.retract();
+        }
+
+        this.stoneHelperText = new AnimatedText(`Activated!`, StoneBehavior.style(), {
             autoStart: false,
             animations: [
                 new Animations.FadeTextAnimation({
@@ -50,53 +58,39 @@ export default class StoneBehavior extends ScriptBehavior {
         this.stoneHelperText.gameObject.anchor.set(0.5);
         this.stoneHelperText.position.set(0, -25);
         this.actor.addChild(this.stoneHelperText);
-
-        if (this.active) {
-            this.transformGraphic();
-        }
-        else {
-            this.transformGraphic(StoneBehavior.DisabledColor);
-        }
     }
 
     start() {
         this.target = getActor("player");
         this.stoneControlScript = getActor("stoneControl").getScriptedBehavior("StoneControlBehavior");
         this.stoneControlScript.sendMessage("registerStone", this.actor);
-
-        /** @type {PIXI.Graphics} */
-        this.graphic = this.actor.children[0];
     }
 
-    transformGraphic(color = "#EF5350") {
-        if (this.graphic) {
-            const { width, height } = this.graphic;
-            this.graphic.clear()
-                .beginFill(PIXI.utils.string2hex(color), 0.6)
-                .drawRect(0, 0, width, height)
-                .endFill();
-        }
+    retract() {
+        this.sprite.playAnimation("activate", { force: true, loop: false });
     }
 
     disableStone() {
         this.active = false;
-        this.transformGraphic(StoneBehavior.DisabledColor);
         this.stoneHelperText.reset();
+        this.sprite.playAnimation("disabled", { loop: false });
     }
 
     activateStone() {
         this.stoneHelperText.start();
         this.stoneHelperText.once("stop", () => this.stoneHelperText.reset());
-        this.transformGraphic();
+        this.sprite.playAnimation("enabled", { loop: false });
 
         this.active = true;
         this.stoneControlScript.sendMessage("activateStone", this.actor.name);
     }
 
     update() {
-        if (this.enabled) {
+        if (this.active) {
             return;
         }
+
+        this.sprite.playAnimation(this.active ? "idleEnabled" : "idle");
         this.stoneHelperText.update();
         if (this.active) {
             return;

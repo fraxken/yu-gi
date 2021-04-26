@@ -4,19 +4,13 @@ import { Actor, ScriptBehavior, Timer } from "../ECS";
 import { EntityBuilder } from "../helpers";
 
 export default class StoneControlBehavior extends ScriptBehavior {
-    constructor() {
-        super({
-            enabled: "dungeon.enabled"
-        });
-    }
-
     awake() {
         /** @type {Set<Actor>} */
         this.stoneActors = new Set();
-        this.stoneOrder = ["stele2", "stele1", "stele3"];
+        this.stoneOrder = ["stele1", "stele2", "stele3"];
         this.currentOrder = [];
-        this.allStonesHaveBeenActivated = this.enabled;
-        this.activationTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
+        this.allStonesHaveBeenActivated = game.state.getState("stoneEnabled");;
+        this.activationTimer = new Timer(60 * 60, { autoStart: false, keepIterating: false });
     }
 
     /**
@@ -35,7 +29,12 @@ export default class StoneControlBehavior extends ScriptBehavior {
             this.checkSoneActivationOrder();
         }
         else {
-            this.activationTimer.start();
+            if (this.activationTimer.isStarted) {
+                this.activationTimer.tick = 0;
+            }
+            else {
+                this.activationTimer.start();
+            }
         }
     }
 
@@ -49,8 +48,12 @@ export default class StoneControlBehavior extends ScriptBehavior {
         }
 
         this.activationTimer.reset();
-        this.enabled = true;
+        game.state.setState("stoneEnabled", true);
         this.allStonesHaveBeenActivated = true;
+        for (const stoneActor of this.stoneActors) {
+            const script = stoneActor.behaviors[0];
+            script.sendMessage("retract");
+        }
     }
 
     disableAllStone() {
