@@ -8,18 +8,18 @@ import { Inputs } from "../keys";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 // CONSTS
-const kHandicapBetweenDeplacement = 360;
+const kHandicapBetweenDeplacement = 200;
 
 const kHandicapBetweenMeleeAttack = 160;
 const kHandicapForMeleeAttack = 110;
 
-const kHandicapBetweenDistAttack = 240;
+const kHandicapBetweenDistAttack = 200;
 const kHandicapForDistAttack = 110;
 
-const kHandicapBetweenSpecialAttack = 300;
+const kHandicapBetweenSpecialAttack = 240;
 const kHandicapForSpecialAttack = 110;
 
-const kDelayToDie = 160;
+const kDelayToDie = 120;
 
 export default class BossBehavior extends ScriptBehavior {
     constructor(options = {
@@ -35,17 +35,17 @@ export default class BossBehavior extends ScriptBehavior {
         this.deplacementAreaRadius = 30;
         this.deplacementMaxAreaRadius = 320;
         this.targetingRangeForMelee = 120;
-        this.attackingRangeForMelee = 20;
-        this.meleeDamage = 2 * options[0].attackMultiplier;
+        this.attackingRangeForMelee = 40;
+        this.meleeDamage = 4.5 * options[0].attackMultiplier;
         this.minRangeForDist = 120;
         this.attackingRangeForDist = 200;
-        this.rangedDamage = 1 * options[0].attackMultiplier;
+        this.rangedDamage = 3 * options[0].attackMultiplier;
         this.attackingRangeForSpecialAttack = 60;
-        this.specialAttackDamage = 4 * options[0].attackMultiplier;
+        this.specialAttackDamage = 7 * options[0].attackMultiplier;
         this.missRatio = 0.5 * options[0].missRatio;
         this.defense = 1 * options[0].defenseMultiplier;
-        this.currentHp = 10 * options[0].hpMultiplier;
-        this.maxHp = 10 * options[0].hpMultiplier;
+        this.currentHp = 25 * options[0].hpMultiplier;
+        this.maxHp = 25 * options[0].hpMultiplier;
         this.currentSpeed = 0.8;
         this.goldReward = 35 * options[0].goldMultiplier;
 
@@ -252,6 +252,12 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     initAttack(type) {
+        if (this.actor.x < this.target.pos.x) {
+            this.sprite.scale.x = 1;
+        } else {
+            this.sprite.scale.x = -1;
+        }
+
         const isCritical = Math.random() < 0.05;
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
@@ -355,7 +361,6 @@ export default class BossBehavior extends ScriptBehavior {
             this.nextPos.x = null;
             this.nextPos.y = null;
 
-            this.sprite.scale.x = 1;
             this.isMoving = false;
             this.delayToMove.reset()
                 .start();
