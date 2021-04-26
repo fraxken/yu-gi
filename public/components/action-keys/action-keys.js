@@ -17,9 +17,7 @@ class ActionKeys extends LitElement {
            flex-direction: column;
         }
         .container {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
+            margin-top: 20px;
         }
         `;
     }
@@ -62,8 +60,8 @@ class ActionKeys extends LitElement {
             <div class="action-keys-container">
                 ${this._renderMoveKeys()}
                 <div class='container'>
-                    <action-key key='E' typeAction='ACTION'></action-key> 
-                    <action-key key='U' typeAction='DECK'></action-key>
+                    <action-key key='E' typeAction='action'></action-key> 
+                    <action-key key='T' typeAction='deck'></action-key>
                 </div>
             </div>
         `;

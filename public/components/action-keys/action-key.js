@@ -13,21 +13,36 @@ class ActionKey extends LitElement {
     static get styles() {
         return css`
         .action-keys-container {
-            height: 60px;
-            width: 60px;
+            margin-top: 20px;
+            height: 76px;
+            width: 118px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 60px 60px 0 60px;
-            background: #FFFEF9;
-            box-shadow: 1px 1px 8px 0 #7a7a7a;
-            border: solid #FFFFFF 2px;
             position: relative;
+        }
+        .name{
+            position: absolute;
+            bottom: 19px;
+            left: 2px;
+            text-transform: uppercase;
+            font-size: smaller;
+            height: 23px;
+            width: 62px;
+            line-height: 23px;
+            text-align: center;
+            color: white;
         }
         .button {
             position:absolute;
-            right: 0;
-            bottom: 0;
+            right: 8px;
+            bottom: 18px;
+        }
+        .action {
+            background: url('./images/icons/action.png') no-repeat;
+        }
+        .deck {
+            background: url('./images/icons/deck.png') no-repeat;
         }
         `;
     }
@@ -35,13 +50,13 @@ class ActionKey extends LitElement {
     constructor() {
         super();
         this.key = '';
-        this.typeAction = 'inventaire';
+        this.typeAction = 'action';
     }
 
     render() {
         return html`
-            <div class="action-keys-container">
-                <div>${this.typeAction}</div>
+            <div class="action-keys-container ${this.typeAction}">
+                <div class='name'>${this.typeAction}</div>
                 <div class='button'>
                     <keyboard-icon key='${this.key}' ?isPress=${false}></keyboard-icon>
                 </div>

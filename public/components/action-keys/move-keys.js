@@ -16,7 +16,7 @@ class MoveKeys extends LitElement {
         .move-keys-container {
             display: grid;
             position: relative;
-            gap: 16px;
+            gap: 6px;
             margin-top: 34px;
             grid-template-columns: repeat(5, 1fr);
             grid-template-rows: repeat(4, 1fr);
@@ -42,7 +42,7 @@ class MoveKeys extends LitElement {
         }
         .downLabel {
             grid-area: downLabel;
-            transform: translate(-16px, -6px);
+            transform: translateX(-16px);
         }
         .rightLabel {
             grid-area: rightLabel;
