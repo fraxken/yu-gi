@@ -11,6 +11,7 @@ export const Type = {
 export const Keys = {
     left: [
         { code: Key.Q, type: Type.KeyboardL },
+        { code: Key.A, type: Type.KeyboardL },
         { code: Key.LEFT, type: Type.KeyboardR },
         { code: "LEFT", type: Type.Gamepad, button: false }
     ],
@@ -21,6 +22,7 @@ export const Keys = {
     ],
     top: [
         { code: Key.Z, type: Type.KeyboardL },
+        { code: Key.W, type: Type.KeyboardL },
         { code: Key.UP, type: Type.KeyboardR },
         { code: "UP", type: Type.Gamepad, button: false }
     ],
