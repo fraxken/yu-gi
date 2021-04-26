@@ -34,25 +34,25 @@ export default class DefaultScene extends Scene {
         const stoneControlActor = EntityBuilder.create("actor:stoneControl");
         this.add(stoneControlActor);
 
-        this.graph = new Actor("graph");
-        {
-            const temp = new PIXI.Graphics()
-                .beginFill(PIXI.utils.string2hex("#000"), 0.2)
-                .drawCircle(0, 0, 30)
-                .endFill();
-            this.graph.addChild(temp);
-        }
-        this.graph.position.set(0, 0);
-        this.addChild(this.graph);
+        // this.graph = new Actor("graph");
+        // {
+        //     const temp = new PIXI.Graphics()
+        //         .beginFill(PIXI.utils.string2hex("#000"), 0.2)
+        //         .drawCircle(0, 0, 30)
+        //         .endFill();
+        //     this.graph.addChild(temp);
+        // }
+        // this.graph.position.set(0, 0);
+        // this.addChild(this.graph);
 
-        this.zManager = new zIndexManager(playerActor, [this.graph]);
+        // this.zManager = new zIndexManager(playerActor, [this.graph]);
     }
 
-    cleanup() {
-        this.zManager.stop();
-        this.zManager = null;
-        super.cleanup();
-    }
+    // cleanup() {
+    //     this.zManager.stop();
+    //     this.zManager = null;
+    //     super.cleanup();
+    // }
 
     /**
      * @param {!Actor} actor
@@ -77,13 +77,13 @@ export default class DefaultScene extends Scene {
         window.mediaplayer.play("town");
     }
 
-    update() {
-        super.update();
+    // update() {
+    //     super.update();
 
-        if (this.zManager !== null) {
-            this.zManager.update();
-        }
-    }
+    //     if (this.zManager !== null) {
+    //         this.zManager.update();
+    //     }
+    // }
 }
 
 Scene.define("default", DefaultScene);
