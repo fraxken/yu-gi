@@ -93,18 +93,21 @@ export default class ProjectileBehavior extends ScriptBehavior {
         const targetY = Math.round(this.targetPos.y);
 
         const distanceBetweenActorAndDest = this.actor.pos.distanceTo(this.targetPos);
+        const distanceBetweenProjectileAndActor = this.actor.pos.distanceTo(this.target.pos);
 
-        if (boxesIntersect(this.actor, this.target)) {
+        if (distanceBetweenProjectileAndActor <= this.radius) {
             this.hit();
         }
         else if (this.tick >= this.fadeInFrames) {
             this.die("timeout");
         }
-        else if (distanceBetweenActorAndDest > 10) {
+        else if (distanceBetweenActorAndDest > this.radius) {
             if (actorX < targetX) {
                 this.actor.moveX(this.velocityX);
+                this.sprite.scale.x = 1;
             } else if (actorX > targetX) {
                 this.actor.moveX(-this.velocityX);
+                this.sprite.scale.x = -1;
             }
 
             if (actorY < targetY) {

@@ -287,7 +287,7 @@ export default class BossBehavior extends ScriptBehavior {
                 targetPos: { x: this.target.x, y: this.target.y },
                 stat: {
                     fadeInFrames: 240,
-                    radius: 25,
+                    radius: 15,
                     damage: damageToApply,
                     missRatio: this.missRatio
                 },
