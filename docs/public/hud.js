@@ -32424,6 +32424,11 @@ void main() {
 
   // public/components/player-hp.js
   init_lit_element();
+
+  // assets/images/bg-monnaie.png
+  var bg_monnaie_default = "./bg-monnaie-W5YL54YR.png";
+
+  // public/components/player-hp.js
   var PlayerHp = class extends LitElement {
     constructor() {
       super();
@@ -32487,7 +32492,7 @@ void main() {
         <div class="player-hp">
           <div class="gold-wrapper">
             <div class="gold">${this.gold}</div>
-            <img width=${50} src="../images/bg-monnaie.png"/>
+            <img width=${50} src=${bg_monnaie_default}/>
           </div>
           <div class="life-bar">
             <div class="current-life" style="width: ${lifePercent}% "></div>
