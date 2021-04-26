@@ -18,7 +18,7 @@ export default class DonjonBehaviorExit extends ScriptBehavior {
         this.teleporting = true;
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
-        script.sendMessage("exitDungeon", false);
+        script.sendMessage("exitDungeon", true);
     }
 
     update() {
