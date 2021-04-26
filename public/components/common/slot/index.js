@@ -238,13 +238,13 @@ class Slot extends LitElement {
                 description = card.offensiveSkill.name
                 break;
             case 'defensive':
-                description = card.defensiveSkill
+                description = card.defensiveSkill.name
                 break;
             case 'passive':
                 description = card.passiveSkill.name
                 break;
             case 'consumable':
-                description = card.consumableSkill
+                description = card.consumableSkill.name
                 break;
         }
 
@@ -279,7 +279,7 @@ class Slot extends LitElement {
                 html`
                     <span class="small-info">
                     <div class="icon icon-defensive-defensive icon-small"></div>
-                    <span class="small-description">${card.defensiveSkill}</span>
+                    <span class="small-description">${card.defensiveSkill.name}</span>
                 </span>
                 `
             )
@@ -301,7 +301,7 @@ class Slot extends LitElement {
                 html`
                     <span class="small-info">
                     <div class="icon icon-consumable-consumable icon-small"></div>
-                    <span class="small-description">${card.consumableSkill}</span>
+                    <span class="small-description">${card.consumableSkill.name}</span> 
                 </span>
                 `
             )
