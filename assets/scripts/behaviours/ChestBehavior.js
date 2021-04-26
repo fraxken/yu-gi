@@ -22,15 +22,10 @@ export default class ChestBehavior extends ScriptBehavior {
         }
 
         this.opened = false;
-        this.destroyOnClose = false;
     }
 
     start() {
         this.target = getActor("player");
-    }
-
-    remove() {
-        this.actor.cleanup();
     }
 
     destroy() {
@@ -50,13 +45,15 @@ export default class ChestBehavior extends ScriptBehavior {
         hudevents.emit("trunk", false);
         this.opened = false;
         window.trunkCards = null;
-
-        if (this.destroyOnClose) {
-            this.remove();
-        }
     }
 
     update() {
+        if (this.cards.length === 0) {
+            this.actor.cleanup();
+            hudevents.emit("trunk", false);
+            return;
+        }
+
         const distance = this.actor.pos.distanceTo(this.target.pos);
         const inArea = distance < ChestBehavior.DistanceToOpen;
 
