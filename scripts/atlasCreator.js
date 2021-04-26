@@ -71,30 +71,48 @@ function writeToAsset(data) {
     fs.writeFileSync(path.join(kAssetPath, fileName), JSON.stringify(atlasJSON, null, 2));
 }
 
-const steleAtlasHelper = {
+// const steleAtlasHelper = {
+//     size: {
+//         image: [576, 384],
+//         sprite: [32, 32]
+//     },
+//     image: "stele.png",
+//     anchor: [0, 0],
+//     animations: {
+//         idle: {
+//             start: [0, 0], end: [0, 11]
+//         },
+//         activate: {
+//             start: [1, 0], end: [1, 17]
+//         },
+//         enabled: {
+//             start: [2, 0], end: [2, 4]
+//         },
+//         idleEnabled: {
+//             start: [3, 0], end: [3, 11]
+//         },
+//         disabled: {
+//             start: [4, 0], end: [4, 3]
+//         },
+//     }
+// };
+
+const chestAtlesHelper = {
     size: {
-        image: [576, 384],
-        sprite: [32, 32]
+        image: [448, 64],
+        sprite: [64, 64]
     },
-    image: "stele.png",
+    image: "chest.png",
     anchor: [0, 0],
     animations: {
         idle: {
-            start: [0, 0], end: [0, 11]
+            start: [0, 0], end: [0, 0]
         },
-        activate: {
-            start: [1, 0], end: [1, 17]
-        },
-        enabled: {
-            start: [2, 0], end: [2, 4]
-        },
-        idleEnabled: {
-            start: [3, 0], end: [3, 11]
-        },
-        disabled: {
-            start: [4, 0], end: [4, 3]
-        },
+        open: {
+            start: [0, 0], end: [0, 6]
+        }
     }
 };
-writeToAsset(steleAtlasHelper);
+
+writeToAsset(chestAtlesHelper);
 

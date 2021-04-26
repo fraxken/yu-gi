@@ -23,6 +23,7 @@
         "no_enemy_room": "tilemaps/no_enemy_room.json",
         "adventurer": "sprites/adventurer.json",
         "stele": "sprites/stele.json",
+        "chest": "sprites/chest.json",
         "town0": "sounds/town0.wav",
         "town1": "sounds/town1.wav",
         "donjon1": "sounds/donjon1.wav",

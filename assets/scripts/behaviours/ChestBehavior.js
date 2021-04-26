@@ -1,5 +1,6 @@
 // Import dependencies
-import { ScriptBehavior, getActor } from "../ECS";
+import { ScriptBehavior, getActor, Components } from "../ECS";
+import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import { Card } from "../helpers/Deck/Card";
 import { Inputs } from "../keys";
 
@@ -22,6 +23,15 @@ export default class ChestBehavior extends ScriptBehavior {
         }
 
         this.opened = false;
+
+        const spriteComponent = new Components.AnimatedSpriteEx("chest", {
+            defaultAnimation: "idle"
+        });
+        spriteComponent.anchor.set(0, 0);
+
+        /** @type {AnimatedSpriteEx} */
+        this.sprite = this.actor.addComponent(spriteComponent);
+        this.sprite.scale.set(0.5, 0.5);
     }
 
     start() {
@@ -36,7 +46,6 @@ export default class ChestBehavior extends ScriptBehavior {
 
     open() {
         window.trunkCards = this.cards;
-
         hudevents.emit("trunk", true);
         this.opened = true;
     }
@@ -56,9 +65,12 @@ export default class ChestBehavior extends ScriptBehavior {
 
         const distance = this.actor.pos.distanceTo(this.target.pos);
         const inArea = distance < ChestBehavior.DistanceToOpen;
+        if (!this.opened && inArea) {
+            this.sprite.playAnimation("open", { loop: false });
 
-        if (Inputs.use() && !this.opened && inArea) {
-            this.open();
+            if (Inputs.use()) {
+                this.open();
+            }
         }
         else if (this.opened && (!inArea || Inputs.escape())) {
             this.close();
