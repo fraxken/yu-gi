@@ -33,9 +33,9 @@ async function main() {
             progression: "1.1"
         },
         player: {
-            name: "Thomas",
-            currentHp: 10,
-            maxHp: 15
+            gold: 1000,
+            currentHp: 100,
+            maxHp: 150
         }
     });
     // TODO: setup default scene depending on player.inDungeon

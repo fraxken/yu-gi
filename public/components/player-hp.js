@@ -10,7 +10,7 @@ class PlayerHp extends LitElement {
     constructor() {
         super();
         bindToScriptEvent(this, "player.currentHp", "currentHp");
-        bindToScriptEvent(this, "player.name", "name");
+        bindToScriptEvent(this, "player.gold", "gold");
         bindToScriptEvent(this, "player.maxHp", "maxHp");
     }
 
@@ -57,8 +57,8 @@ class PlayerHp extends LitElement {
         <div class="life-bar">
           <div class="current-life" style="width: ${lifePercent}% "></div>
         </div>
-        <span class="name">${this.name}</span>
-        <span class="resources">10525541</span>
+        <span class="name">${this.gold}</span>
+        <!-- <span class="resources">10525541</span> -->
     `;
     }
 }
