@@ -7,7 +7,8 @@ export default class DefaultScene extends Scene {
 
         {
             const map = new Actor("map");
-            const tiledMap = new Components.TiledMap("map1", {
+            const tiledMap = new Components.TiledMap("village", {
+                debug: true,
                 showObjects: true
             });
             tiledMap.on("object", this.build.bind(this));
@@ -63,7 +64,7 @@ export default class DefaultScene extends Scene {
         else if (actor.name.startsWith("stele")) {
             actor.createScriptedBehavior("StoneBehavior");
         }
-        else if (actor.name === "test") {
+        else if (actor.name.startsWith("portal")) {
             actor.createScriptedBehavior("PortalBehavior");
         }
         else if (actor.name === "shop") {

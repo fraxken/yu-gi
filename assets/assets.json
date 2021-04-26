@@ -15,7 +15,7 @@
         "TilesetWater"
     ],
     "assets": {
-        "map1": "tilemaps/test.json",
+        "village": "tilemaps/village.json",
         "room": "tilemaps/room.json",
         "boss_room": "tilemaps/boss.json",
         "no_enemy_room": "tilemaps/no_enemy_room.json",

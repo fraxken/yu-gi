@@ -41,12 +41,12 @@ export class Card {
 export const StarterCards = Object.freeze([
     new Card("First Card", "sword", "shieldParry", "attackDamageBoost", "healthUp", 1),
     new Card("Second Card", "bow", "shieldDefense", "attackDamageBoost", "healthUp", 3),
-    new Card("Third Card", "spear", "shieldDefense", "attackDamageBoost", "healthUp", 2),
+    new Card("Third Card", "spear", "shieldDefense", "attackDamageBoost", "healthUp", 10),
     new Card("Fourth Card", "axe", "dodge", "attackDamageBoost", "healthUp", 2),
-    new Card("Fifth Card", "crossbow", "shieldParry", "defenseBoost", "healthUp", 2),
+    new Card("Fifth Card", "crossbow", "shieldParry", "defenseBoost", "healthUp", 6),
     new Card("Sixth Card", "hammer", "dodge", "defenseBoost", "invincible", 2),
-    new Card("Seventh Card", "knife", "counter", "defenseBoost", "elementaryImmunity", 2),
-    new Card("Eighth Card", "crossbow", "dash", "defenseBoost", "discardToChest", 2),
+    new Card("Seventh Card", "knife", "counter", "defenseBoost", "elementaryImmunity", 7),
+    new Card("Eighth Card", "crossbow", "dash", "defenseBoost", "discardToChest", 8),
     new Card("Nineth Card", "spell", "dash", "elementaryDamage", "deckToChest", 2),
     new Card("Tenth Card", "spear", "shieldDefense", "attackDamageBoost", "secretVision", 2)
 ]);
