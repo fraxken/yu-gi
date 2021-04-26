@@ -3,7 +3,7 @@ import { sound } from "@pixi/sound";
 import * as PIXI from "pixi.js";
 
 // Import dependencies
-import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor } from "../ECS";
+import { Actor, ScriptBehavior, Components, Timer, ProgressiveNumber, getActor, Vector2 } from "../ECS";
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
 import CollisionLayer from "../ECS/components/collisionLayer.class";
 import { EntityBuilder, Key, LifeBar } from "../helpers";
@@ -69,6 +69,15 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         return this;
+    }
+
+    shooting(event) {
+        const targetPos = new Vector2(event.x, event.y);
+
+        const distance = targetPos.distanceTo(this.actor.pos);
+        if (distance <= (game.viewport.worldScreenHeight * 0.30) || distance <= (game.viewport.worldScreenWidth * 0.30)) {
+            console.log("shooting !");
+        }
     }
 
     teleport(position) {

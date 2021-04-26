@@ -182,10 +182,18 @@ export default class Engine extends AssetLoader {
 
         // this.app.stage.on("pointermove", (event) => {
         //     this.mousePosition = event.data.global;
+        //     console.log(this.mousePosition);
 
         //     const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
         //     this.cursorSprite.position.set(localPos.x, localPos.y);
         // });
+
+        this.app.stage.on("pointerdown", (event) => {
+            this.mousePosition = event.data.global;
+
+            const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
+            this.app.stage.children[0].children[0].actors.get("player").getScriptedBehavior("PlayerBehavior").sendMessage("shooting", localPos);
+        });
 
         const fadeGraphic = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)
