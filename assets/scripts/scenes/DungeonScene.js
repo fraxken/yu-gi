@@ -4,75 +4,56 @@ import { Scene, Actor, getCurrentState, Timer } from "../ECS";
 import Room from "../helpers/Room";
 
 import RoomSpawner from "../helpers/RoomSpawner.class";
+import DungeonConfiguration from "../dungeon-configuration";
 
 // CONSTANTS
 const kSecretRoomChanceFactor = 0.1;
+const kRoomConfig = {
+    roomWidth: 40,
+    roomHeight: 26
+};
+const kSpawnerDefaultConfig = {
+    ...Object.assign({}, kRoomConfig),
+    tileSize: 16,
+    marginWidth: 4,
+    marginHeight: 4
+};
 
 export default class DungeonScene extends Scene {
-    static Settings = {
-        1: {
-            1: { minRooms: 2, maxRooms: 3, specialRooms: 1 },
-            2: { minRooms: 5, maxRooms: 7, specialRooms: 1 },
-            3: { minRooms: 6, maxRooms: 8, specialRooms: 1, includeSecretRoom: true, maxBoss: 2 }
-        },
-        2: {
-            1: { minRooms: 7, maxRooms: 10, specialRooms: 2 },
-            2: { minRooms: 8, maxRooms: 12, specialRooms: 2 },
-            3: { minRooms: 9, maxRooms: 14, specialRooms: 2, includeSecretRoom: true, maxBoss: 2 }
-        },
-        3: {
-            1: { minRooms: 10, maxRooms: 15, specialRooms: 3, includeSecretRoom: true },
-            2: { minRooms: 12, maxRooms: 17, specialRooms: 4, includeSecretRoom: true },
-            3: { minRooms: 15, maxRooms: 20, specialRooms: 5, includeSecretRoom: true, maxBoss: 2 }
-        }
-    }
-
-    static textStyle(color = "#E3F2FD") {
-        return {
-            fill: color,
-            fontFamily: "Verdana",
-            fontSize: 8,
-            fontVariant: "small-caps",
-            fontWeight: "bold",
-            letterSpacing: 1,
-            lineJoin: "round",
-            strokeThickness: 2,
-            align: "right"
-        }
-    }
-
+    /**
+     * @param {number} [roomsId=1]
+     * @param {number} [niveauId=1]
+     */
     constructor(roomsId = 1, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
-        this.roomWidth = 40;
-        this.roomHeight = 26;
-        this.roomsId = roomsId;
-        this.niveauId = niveauId;
-        this.hasRecuperateurRoom = false;
-        this.playerCurrentRoomId = 45;
+        Object.assign(this, { roomsId, niveauId }, kRoomConfig);
+        this.config = DungeonConfiguration[roomsId][niveauId];
+
         /** @type {Actor[]} */
         this.connectedToSecret = [];
-        this.resetTextTimer = new Timer(120, { autoStart: false, keepIterating: false });
 
-        const defaultSettings = {
-            roomWidth: this.roomWidth,
-            roomHeight: this.roomHeight,
-            tileSize: 16,
-            marginWidth: 4,
-            marginHeight: 4
-        };
-        // defaultSettings.includeSecretRoom = Math.random() < kSecretRoomChanceFactor;
-        defaultSettings.includeSecretRoom = true;
+        /** @type {Map<number, Room>} */
+        this.rooms = new Map();
+        this.resetTextTimer = new Timer(120, {
+            autoStart: false, keepIterating: false
+        });
 
-        this.hasSecretRoom = defaultSettings.includeSecretRoom;
+        const spawnerOptions = Object.assign({
+            includeSecretRoom: Math.random() < kSecretRoomChanceFactor
+        }, kSpawnerDefaultConfig);
+        // TODO: remove this line
+        spawnerOptions.includeSecretRoom = true;
+
+        // Launch Spawner class to draw a dungeon layout
         const spawner = new RoomSpawner(10, {
-            ...DungeonScene.Settings[roomsId][niveauId],
-            ...defaultSettings
+            ...this.config.spawner, ...spawnerOptions
         });
         spawner.draw();
-
         const levelRooms = [...spawner.getWorldRooms()];
-        this.rooms = new Map();
-        this.startRoom = levelRooms[0];
+
+        this.playerCurrentRoomId = spawner.startPosition; // 45
+        this.hasSecretRoom = spawnerOptions.includeSecretRoom;
+        this.hasRecuperateurRoom = false;
 
         for (let i = 0; i < levelRooms.length; i++) {
             const room = levelRooms[i];
@@ -85,6 +66,9 @@ export default class DungeonScene extends Scene {
         this.createLockedText();
     }
 
+    /**
+     * @param {"lock" | "unlock"} [state="lock"]
+     */
     setSecretRoomDoors(state = "lock") {
         for (const actor of this.connectedToSecret) {
             actor.behaviors[0].sendMessage(state);
@@ -97,7 +81,19 @@ export default class DungeonScene extends Scene {
     }
 
     createLockedText() {
-        this.lockedText = new AnimatedText(`Oh no! Survive.`, DungeonScene.textStyle(), {
+        const style = {
+            fill: "#E3F2FD",
+            fontFamily: "Verdana",
+            fontSize: 8,
+            fontVariant: "small-caps",
+            fontWeight: "bold",
+            letterSpacing: 1,
+            lineJoin: "round",
+            strokeThickness: 2,
+            align: "right"
+        };
+
+        this.lockedText = new AnimatedText(`Oh no! Survive.`, style, {
             autoStart: false,
             animations: [
                 new Animations.WritingTextAnimation({
@@ -121,6 +117,9 @@ export default class DungeonScene extends Scene {
         this.addChild(this.lockedText);
     }
 
+    /**
+     * @param {boolean} [failure=true]
+     */
     exitDungeon(failure = true) {
         const state = getCurrentState();
         state.setState("spawnActorName", "test");
@@ -160,6 +159,7 @@ export default class DungeonScene extends Scene {
     }
 
     awake() {
+        /** @type {Room} */
         let secretRoom = null;
         for (const room of this.rooms.values()) {
             room.connectDoors();
@@ -181,30 +181,24 @@ export default class DungeonScene extends Scene {
         /** @type {Actor} */
         this.playerActor = EntityBuilder.create("actor:player");
         this.playerActor.isInDungeon = true;
-
-        const startCenter = {
-            x: this.startRoom.x + (this.roomWidth * 16 / 2),
-            y: this.startRoom.y + (this.roomHeight * 16 / 2)
-        };
-
-        this.playerActor.position.set(startCenter.x, startCenter.y);
+        this.playerActor.position.set(this.roomWidth * 16 / 2, this.roomHeight * 16 / 2);
         this.add(this.playerActor);
     }
 
     update() {
         super.update();
 
+        // Update and handle timer for text that show we enter a survival room.
         if (this.resetTextTimer.walk()) {
             this.lockedText.reset();
         }
-
         if (this.lockedText.started || this.resetTextTimer.isStarted) {
             const centerPosition = this.playerActor.centerPosition;
-            // const { height } = game.screenSize;
             this.lockedText.position.set(centerPosition.x - 30, centerPosition.y - 80);
             this.lockedText.update();
         }
 
+        // Open and close minimap
         if(game.input.wasKeyJustPressed(Key.M)) {
             hudevents.emit("minimap", true);
         }
