@@ -39,20 +39,20 @@ export class Card {
 }
 
 export const StarterCards = Object.freeze([
-    new Card("First Card", "sword", "shieldParry", "speedBoost", "healthUp", 1),
-    new Card("Second Card", "bow", "shieldDefense", "speedBoost", "healthUp", 3),
-    new Card("Third Card", "spear", "shieldDefense", "speedBoost", "healthUp", 2),
-    new Card("Fourth Card", "axe", "dodge", "speedBoost", "healthUp", 2),
-    new Card("Fifth Card", "crossbow", "shieldParry", "defenseBoost", "healthUp", 2),
-    new Card("Sixth Card", "hammer", "dodge", "defenseBoost", "invincible", 2),
-    new Card("Seventh Card", "knife", "counter", "defenseBoost", "elementaryImmunity", 3),
-    new Card("Eighth Card", "crossbow", "dash", "defenseBoost", "discardToChest", 4),
-    new Card("Nineth Card", "spell", "dash", "elementaryDamage", "deckToChest", 2),
-    new Card("Tenth Card", "spear", "shieldDefense", "attackDamageBoost", "secretVision", 2)
+    new Card("First Card", "sword", "shield", "speed", "heal", 1),
+    new Card("Second Card", "bow", "shield", "speed", "heal", 3),
+    new Card("Third Card", "spear", "shield", "speed", "invincible", 2),
+    new Card("Fourth Card", "axe", "dodge", "speed", "heal", 2),
+    new Card("Fifth Card", "crossbow", "shield", "defense", "heal", 2),
+    new Card("Sixth Card", "hammer", "dodge", "defense", "invincible", 2),
+    new Card("Seventh Card", "knife", "counter", "defense", "resistance", 3),
+    new Card("Eighth Card", "crossbow", "dash", "defense", "resistance", 4),
+    new Card("Nineth Card", "spell", "dash", "special", "invincible", 2),
+    new Card("Tenth Card", "spear", "shield", "attack", "secretVision", 2)
 ]);
 /*
 export const AdditionalCards = Object.freeze([
-    new Card("Eighth Card", "crossbow", "dash", "speedBoost", "discardToChest", 2),
-    new Card("Nineth Card", "wand", "dash", "elementaryDamage", "deckToChest", 2),
-    new Card("Tenth Card", "spear", "shieldDefense", "attackRangeBoost", "secretVision", 2)
+    new Card("Eighth Card", "crossbow", "dash", "speed", "discardToChest", 2),
+    new Card("Nineth Card", "wand", "dash", "special", "deckToChest", 2),
+    new Card("Tenth Card", "spear", "shield", "attackRangeBoost", "secretVision", 2)
 ]); */
