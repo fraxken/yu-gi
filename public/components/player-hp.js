@@ -1,6 +1,7 @@
 import { LitElement, css, html } from "lit-element";
 
 import { bindToScriptEvent } from "../helpers";
+import bgMonnaieURL from "../../assets/images/bg-monnaie.png";
 
 class PlayerHp extends LitElement {
     // static get properties() {
@@ -72,7 +73,7 @@ class PlayerHp extends LitElement {
         <div class="player-hp">
           <div class="gold-wrapper">
             <div class="gold">${this.gold}</div>
-            <img width=${50} src="../images/bg-monnaie.png"/>
+            <img width=${50} src=${bgMonnaieURL}/>
           </div>
           <div class="life-bar">
             <div class="current-life" style="width: ${lifePercent}% "></div>
