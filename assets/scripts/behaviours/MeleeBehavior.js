@@ -184,7 +184,7 @@ export default class MeleeBehavior extends ScriptBehavior {
             }
 
             const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
-            if (distanceBetweenAnchorAndNextPos >= 300) {
+            if (distanceBetweenAnchorAndNextPos >= 60) {
                 this.nextPos.x = this.anchor.x;
                 this.nextPos.y = this.anchor.y;
             }

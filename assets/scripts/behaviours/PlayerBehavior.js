@@ -222,15 +222,6 @@ export default class PlayerBehavior extends ScriptBehavior {
 
             /** @type {AnimatedSpriteEx} */
             this.sprite = this.actor.addComponent(spriteComponent);
-
-            this.lifeBar = new LifeBar({
-                spriteHeight: this.sprite.height,
-                currentHp: this.currentHp,
-                relativeMaxHp: this.maxHp,
-                maxHpBarLength: 60
-            });
-
-            this.actor.addChild(this.lifeBar.container);
         }
 
         this.gameOverSound = sound.find("gameover");
@@ -396,7 +387,6 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.computeSkills();
         this.computeDeck();
 
-        this.lifeBar.update(this.currentHp);
         this.actor.applyVelocity();
     }
 
