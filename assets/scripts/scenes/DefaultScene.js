@@ -3,12 +3,12 @@ import { Scene, Actor, Components, getActor } from "../ECS";
 
 export default class DefaultScene extends Scene {
     constructor() {
-        super({ useLRUCache: true, debug: true });
+        super({ useLRUCache: true, debug: false });
 
         {
             const map = new Actor("map");
             const tiledMap = new Components.TiledMap("village", {
-                debug: true,
+                debug: false,
                 showObjects: true
             });
             tiledMap.on("object", this.build.bind(this));

@@ -32,6 +32,18 @@ class ActionBarSlotCard extends LitElement {
     }
 
     render() {
+
+        if (this.consumable === undefined || this.consumable === null) {
+            return html`
+            <div class='action-bar-container'>
+                <render-slot .card='${this.offensive}' typeCard='offensive' key='1'></render-slot>
+                <render-slot .card='${this.defensive}' typeCard='defensive'  key='2'></render-slot>
+                <render-slot .card='${this.passive}' typeCard='passive'></render-slot>
+                <refresh-action-card key='X'></refresh-action-card>
+            </div>
+        `;
+        }
+
         return html`
             <div class='action-bar-container'>
                 <render-slot .card='${this.offensive}' typeCard='offensive' key='1'></render-slot>

@@ -27,7 +27,9 @@ export default class DungeonScene extends Scene {
     constructor(roomsId = 1, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         Object.assign(this, { roomsId, niveauId }, kRoomConfig);
+        console.log({ roomsId, niveauId });
         this.config = DungeonConfiguration[niveauId][roomsId];
+        console.log(this.config);
 
         /** @type {Actor[]} */
         this.connectedToSecret = [];

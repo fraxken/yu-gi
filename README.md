@@ -19,9 +19,10 @@ Recently, it has been activated and you have been sent there to make a report, b
 - **E** to interact.
 - **C** for dash.
 - **SPACE** to jump.
+- **M** to open minimap in the dungeon.
 
 Cards:
-- **&** or **NUM_1** (use offensive card)
+- **&** or **NUM_1** (use offensive card to attack)
 - **é** or **NUM_2** (use defensive card)
 - **"** or **NUM_3** (use consumable card)
 - **X** or **ENTER** (re-roll cards in the deck)

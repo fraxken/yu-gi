@@ -50,7 +50,6 @@ async function main() {
 
     const game = new Engine({ defaultScene: DefaultScene, state: gameState })
         .loadAssetFromFile(assetsURL)
-        // .registerTileSet("TilesetFloorB")
         .init();
 
     window.mediaplayer = new BackgroundMediaPlayer({
