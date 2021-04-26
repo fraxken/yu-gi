@@ -385,7 +385,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
 
         this.computeMovement();
-        if (game.input.wasKeyJustPressed(Key.F) && this.canAttack()) {
+        if (Inputs.offensive() && this.canAttack()) {
             this.dealsDamage();
         }
 
