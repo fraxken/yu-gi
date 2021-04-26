@@ -1,4 +1,4 @@
-import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
+import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2, getCurrentState } from "../ECS";
 import { LifeBar } from "../helpers";
 import DamageText from "../helpers/DamageText";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
@@ -9,7 +9,12 @@ const kHandicapBetweenAttack = 240;
 const kHandicapForAttack = 110;
 
 export default class MeleeBehavior extends ScriptBehavior {
-    constructor() {
+    constructor(options = {
+        defenseMultiplier: 1,
+        attackMultiplier: 1,
+        hpMultiplier: 1,
+        missRatio: 0.45
+    }) {
         super();
 
         // Default stats
@@ -17,9 +22,11 @@ export default class MeleeBehavior extends ScriptBehavior {
         this.deplacementMaxAreaRadius = 280;
         this.targetingRange = 60;
         this.attackingRange = 10;
-        this.damage = 2;
-        this.currentHp = 8;
-        this.maxHp = 8;
+        this.damage = 2 * options.attackMultiplier;
+        this.missratio = options.missRatio;
+        this.defense = 1 * options.defenseMultiplier;
+        this.currentHp = 8 * options.hpMultiplier;
+        this.maxHp = 8 * options.hpMultiplier;
         this.currentSpeed = 0.7;
 
         // Deplacements
@@ -30,6 +37,8 @@ export default class MeleeBehavior extends ScriptBehavior {
         // Attacks
         this.delayBeforeNextAttack = new Timer(kHandicapBetweenAttack, { autoStart: false, keepIterating: false });
         this.timerForCurrentAttack = new Timer(kHandicapForAttack, { autoStart: false, keepIterating: false });
+
+        this.state = getCurrentState();
 
         this.damageContainer = new Set();
     }
@@ -58,6 +67,13 @@ export default class MeleeBehavior extends ScriptBehavior {
     die() {
         this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
 
+        const player = this.state.getState("player");
+        this.state.setState("player", {
+            currentHp: player.currentHp,
+            gold: player.gold + 8,
+            maxHp: player.maxHp
+        });
+
         this.actor.cleanup();
     }
 
@@ -73,6 +89,10 @@ export default class MeleeBehavior extends ScriptBehavior {
     takeDamage(damage, { isCritical = false } = {}) {
         if (typeof damage !== "number") {
             damage = 0;
+        }
+
+        if (damage !== 0) {
+            damage -= this.defense;
         }
 
         if (this.currentHp - damage <= 0) {
@@ -118,7 +138,17 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     initAttack() {
-        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.damage);
+        const isCritical = Math.random() < 0.05;
+        const damageToApply = isCritical ? this.damage * 2 : this.damage;
+
+        const script = this.target.getScriptedBehavior("PlayerBehavior");
+        const isHitting = Math.random() < this.missratio ? false : true;
+        if (isHitting) {
+            script.sendMessage("takeDamage", damageToApply, { isCritical });
+        }
+        else {
+            script.sendMessage("takeDamage", 0);
+        }
     }
 
     computeMovement() {

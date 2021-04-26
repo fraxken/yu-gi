@@ -1,6 +1,4 @@
-
-
-import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2 } from "../ECS";
+import { Actor, ScriptBehavior, Components, Timer, getActor, Vector2, getCurrentState } from "../ECS";
 import { LifeBar } from "../helpers";
 import DamageText from "../helpers/DamageText";
 import * as EntityBuilder from "../helpers/entitybuilder.js";
@@ -12,17 +10,24 @@ const kHandicapForShoot = 110;
 
 export default class CasterBehavior extends ScriptBehavior {
 
-    constructor() {
+    constructor(options = {
+        defenseMultiplier: 1,
+        attackMultiplier: 1,
+        hpMultiplier: 1,
+        missRatio: 0.45
+    }) {
         super();
 
         // Default stats
         this.deplacementAreaRadius = 20;
         this.deplacementMaxAreaRadius = 160;
-        this.attackingRange = 160;
-        this.damage = 1;
-        this.currentHp = 3;
-        this.maxHp = 3;
-        this.currentSpeed = 0.5
+        this.attackingRange = 220;
+        this.damage = 1 * options.attackMultiplier;
+        this.missRatio = options.missRatio;
+        this.defense = 0.5 * options.defenseMultiplier;
+        this.currentHp = 3 * options.hpMultiplier;
+        this.maxHp = 3 * options.hpMultiplier;
+        this.currentSpeed = 0.5;
 
         // Deplacements
         this.isMoving = false;
@@ -32,6 +37,8 @@ export default class CasterBehavior extends ScriptBehavior {
         // Attacks
         this.delayBeforeNextShoot = new Timer(kHandicapBetweenShoot, { autoStart: false, keepIterating: false });
         this.timerForCurrentShoot = new Timer(kHandicapForShoot, { autoStart: false, keepIterating: false });
+
+        this.state = getCurrentState();
 
         this.damageContainer = new Set();
     }
@@ -60,6 +67,13 @@ export default class CasterBehavior extends ScriptBehavior {
     die() {
         this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
 
+        const player = this.state.getState("player");
+        this.state.setState("player", {
+            currentHp: player.currentHp,
+            gold: player.gold + 10,
+            maxHp: player.maxHp
+        });
+
         this.actor.cleanup();
     }
     canBeAttacked() {
@@ -75,6 +89,10 @@ export default class CasterBehavior extends ScriptBehavior {
     takeDamage(damage, { isCritical = false } = {}) {
         if (typeof damage !== "number") {
             damage = 0;
+        }
+
+        if (damage !== 0) {
+            damage -= this.defense;
         }
 
         if (this.currentHp - damage <= 0) {
@@ -122,7 +140,8 @@ export default class CasterBehavior extends ScriptBehavior {
             stat: {
                 fadeInFrames: 240,
                 radius: 15,
-                damage: this.damage
+                damage: this.damage,
+                missRatio: this.missRatio
             },
             sprites: {
                 name: "adventurer",

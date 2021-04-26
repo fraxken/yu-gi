@@ -1,7 +1,7 @@
 import { sound } from "@pixi/sound";
 
 // Import dependencies
-import { ScriptBehavior, getActor, Timer, Components, Vector2 } from "../ECS";
+import { ScriptBehavior, getActor, Timer, Components, Vector2, getCurrentState } from "../ECS";
 import { LifeBar } from "../helpers";
 import DamageText from "../helpers/DamageText";
 import { Inputs } from "../keys";
@@ -22,7 +22,12 @@ const kHandicapForSpecialAttack = 110;
 const kDelayToDie = 160;
 
 export default class BossBehavior extends ScriptBehavior {
-    constructor() {
+    constructor(options = {
+        defenseMultiplier: 1,
+        attackMultiplier: 1,
+        hpMultiplier: 1,
+        missRatio: 0.45
+    }) {
         super();
 
         // Default stats
@@ -30,14 +35,16 @@ export default class BossBehavior extends ScriptBehavior {
         this.deplacementMaxAreaRadius = 320;
         this.targetingRangeForMelee = 120;
         this.attackingRangeForMelee = 20;
-        this.meleeDamage = 2;
+        this.meleeDamage = 2 * options.attackMultiplier;
         this.minRangeForDist = 120;
         this.attackingRangeForDist = 200;
-        this.rangedDamage = 1;
+        this.rangedDamage = 1 * options.attackMultiplier;
         this.attackingRangeForSpecialAttack = 60;
-        this.specialAttackDamage = 4;
-        this.currentHp = 10;
-        this.maxHp = 10;
+        this.specialAttackDamage = 4 * options.attackMultiplier;
+        this.missRatio = 0.5 * options.missRatio;
+        this.defense = 1 * options.defenseMultiplier;
+        this.currentHp = 10 * options.hpMultiplier;
+        this.maxHp = 10 * options.hpMultiplier;
         this.currentSpeed = 0.8;
 
         // Deplacements
@@ -60,6 +67,8 @@ export default class BossBehavior extends ScriptBehavior {
 
         this.isDead = false;
         this.timerForDying = new Timer(kDelayToDie, { autoStart: false, keepIterating: false });
+
+        this.state = getCurrentState();
 
         this.teleporting = false;
         this.rageMode = false;
@@ -116,6 +125,10 @@ export default class BossBehavior extends ScriptBehavior {
 
         if (this.currentHp - damage <= 0) {
             this.currentHp = 0;
+        }
+
+        if (damage !== 0) {
+            damage -= this.defense;
         }
 
         this.currentHp -= damage;
@@ -198,7 +211,7 @@ export default class BossBehavior extends ScriptBehavior {
                         return false;
                     }
 
-                    return "rage-melee-attack";
+                    return "melee-attack";
                 }
 
                 if (!this.delayBeforeNextMeleeAttack.walk()) {
@@ -216,7 +229,7 @@ export default class BossBehavior extends ScriptBehavior {
                         return false;
                     }
 
-                    return "rage-special-attack";
+                    return "special-attack";
                 }
 
                 if (!this.delayBeforeNextSpecialAttack.walk()) {
@@ -237,16 +250,38 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     initAttack(type) {
-        if (type === "melee-attack") {
-            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.meleeDamage);
+        const isCritical = Math.random() < 0.05;
+
+        const script = this.target.getScriptedBehavior("PlayerBehavior");
+        const isHitting = Math.random() < this.missratio ? false : true;
+
+        if (type === "melee-attack" || type === "special-attack") {
+            if (isHitting) {
+                if (type === "melee-attack") {
+                    const damageToApply = isCritical ? this.meleeDamage * 2 : this.meleeDamage;
+
+                    script.sendMessage("takeDamage", damageToApply, { isCritical });
+                }
+                else if (type === "special-attack") {
+                    const damageToApply = isCritical ? this.specialAttackDamage * 2 : this.specialAttackDamage;
+
+                    script.sendMessage("takeDamage", damageToApply, { isCritical });
+                }
+            }
+            else {
+                script.sendMessage("takeDamage", 0, false);
+            }
         } else if (type === "dist-attack") {
+            const damageToApply = isCritical ? this.rangedDamage * 2 : this.rangedDamage;
+
             game.rootScene.add(EntityBuilder.create("actor:projectile", {
                 startPos: { x: this.actor.x, y: this.actor.y },
                 targetPos: { x: this.target.x, y: this.target.y },
                 stat: {
                     fadeInFrames: 240,
                     radius: 25,
-                    damage: this.rangedDamage
+                    damage: damageToApply,
+                    missRatio: this.missRatio
                 },
                 sprites: {
                     name: "adventurer",
@@ -255,10 +290,6 @@ export default class BossBehavior extends ScriptBehavior {
                     end: "adventurer-die"
                 }
             }));
-        } else if (type === "rage-melee-attack") {
-            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.meleeDamage + 1);
-        } else if (type === "rage-special-attack") {
-            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("takeDamage", this.specialAttackDamage);
         }
     }
 
@@ -368,6 +399,7 @@ export default class BossBehavior extends ScriptBehavior {
     rageModeOn() {
         console.log("rage mode on !");
 
+        this.meleeDamage += 1;
         this.currentSpeed *= 2;
         this.rageMode = true;
     }
@@ -375,7 +407,8 @@ export default class BossBehavior extends ScriptBehavior {
     rageModeOff() {
         console.log("rage mode off!");
 
-        this.currentSpeed = 1;
+        this.meleeDamage -= 1;
+        this.currentSpeed = 0.8;
         this.rageMode = false;
     }
 
@@ -410,6 +443,13 @@ export default class BossBehavior extends ScriptBehavior {
         if (this.sprite) {
             this.sprite.destroy();
         }
+
+        const player = this.state.getState("player");
+        this.state.setState("player", {
+            currentHp: player.currentHp,
+            gold: player.gold + 10,
+            maxHp: player.maxHp
+        });
 
         this.isDead = true;
     }

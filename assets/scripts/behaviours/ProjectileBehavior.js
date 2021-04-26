@@ -22,7 +22,8 @@ export default class ProjectileBehavior extends ScriptBehavior {
         stat: {
             fadeInFrames: 240,
             radius: 15,
-            damage: 2
+            damage: 2,
+            missRatio: 0.45
         },
         sprites: {
             name: "adventurer",
@@ -38,6 +39,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.fadeInFrames = options.fadeInFrames;
         this.radius = options.stat.radius;
         this.damage = options.stat.damage;
+        this.missRatio = options.stat.missRatio;
         this.sprites = options.sprites;
         this.targetPos.x = Math.round(this.targetPos.x);
         this.targetPos.y = Math.round(this.targetPos.y);
@@ -65,7 +67,14 @@ export default class ProjectileBehavior extends ScriptBehavior {
         const damageToApply = isCritical ? this.damage * 2 : this.damage;
 
         const script = this.target.getScriptedBehavior("PlayerBehavior");
-        script.sendMessage("takeDamage", damageToApply, { isCritical });
+        const isHitting = Math.random() < this.missRatio ? false : true;
+        if (isHitting) {
+            script.sendMessage("takeDamage", damageToApply, { isCritical });
+        }
+        else {
+            script.sendMessage("takeDamage", 0, false);
+        }
+
 
         this.die("hit player");
     }
