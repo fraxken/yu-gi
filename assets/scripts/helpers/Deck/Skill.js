@@ -68,30 +68,25 @@ export const OffensiveSkills = Object.freeze({
 });
 
 export const DefensiveSkills = Object.freeze({
-    shieldParry: new DefensiveSkill("shieldParry", 1),
-    shieldDefense: new DefensiveSkill("shieldDefense", 1),
+    shield: new DefensiveSkill("shield", 1),
     dodge: new DefensiveSkill("dodge", 1),
     counter: new DefensiveSkill("counter", 1),
     dash: new DefensiveSkill("dash", 1),
 });
 
 export const PassiveSkills = Object.freeze({
-    attackDamageBoost: new PassiveSkill("attackDamageBoost", 1),
-    defenseBoost: new PassiveSkill("defenseBoost", 1),
-    elementaryDamage: new PassiveSkill("elementaryDamage", 1),
-    speedBoost: new PassiveSkill("speedBoost", 1),
+    attack: new PassiveSkill("attack", 1),
+    defense: new PassiveSkill("defense", 1),
+    special: new PassiveSkill("special", 1),
+    speed: new PassiveSkill("speed", 1),
     healthRegenBoost: new PassiveSkill("healthRegenBoost", 1)
 });
 
 export const ConsumableSkills = Object.freeze({
-    healthUp: new ConsumableSkill("healthUp", 4),
+    heal: new ConsumableSkill("heal", 4),
     portal: new ConsumableSkill("portal", 1),
     nuke: new ConsumableSkill("nuke", 1),
-    singleTargetSpecial: new ConsumableSkill("singleTargetSpecial", 1),
-    multiTargetSpecial: new ConsumableSkill("multiTargetSpecial", 1),
     invincible: new ConsumableSkill("invincible", 1),
-    elementaryImmunity: new ConsumableSkill("elementaryImmunity", 1),
-    discardToChest: new ConsumableSkill("discardToChest", 1),
-    deckToChest: new ConsumableSkill("deckToChest", 1),
+    resistance: new ConsumableSkill("resistance", 1),
     secretVision: new ConsumableSkill("secretVision", 1)
 });

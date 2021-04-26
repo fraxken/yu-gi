@@ -409,7 +409,7 @@ export default class PlayerBehavior extends ScriptBehavior {
     consumable(name, value) {
         console.log("consume", name, value);
         switch (name) {
-            case "healthUp":
+            case "heal":
                 this.addHealth(value);
                 break;
 
@@ -423,16 +423,16 @@ export default class PlayerBehavior extends ScriptBehavior {
             case "healthRegenBoost":
                 this.healthRegeneration = value;
                 break;
-            case "speedBoost":
+            case "speed":
                 this.speedBoost = value;
                 break;
-            case "attackDamageBoost":
+            case "attack":
                 this.damage += value;
                 break;
-            case "defenseBoost":
+            case "defense":
                 this.defense = value;
                 break;
-            case "elementaryDamage":
+            case "special":
                 break;
             default:
                 break;
@@ -444,16 +444,16 @@ export default class PlayerBehavior extends ScriptBehavior {
             case "healthRegenBoost":
                 this.healthRegeneration = DEFAULT_HEALTH_REGENERATION;
                 break;
-            case "speedBoost":
+            case "speed":
                 this.speedBoost = DEFAULT_SPEED_BOOST;
                 break;
-            case "attackDamageBoost":
+            case "attack":
                 this.damage = DEFAULT_DAMAGE;
                 break;
-            case "defenseBoost":
+            case "defense":
                 this.defense = DEFAULT_DEFENSE;
                 break;
-            case "elementaryDamage":
+            case "special":
                 break;
             default:
                 break;
