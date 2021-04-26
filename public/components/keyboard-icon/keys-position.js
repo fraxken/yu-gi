@@ -1,6 +1,6 @@
 export const PIXEL_GAP = 224;
 
-export const PIXEL_SCALE = 1.8;
+export const PIXEL_SCALE = 1.3;
 
 export const PIXEL_SCALE_MOUSE = 1.2;
 

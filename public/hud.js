@@ -8,7 +8,8 @@ import "./components/action-bar/action-button.js";
 import "./components/keyboard-icon/keyboard-icon.js";
 import "./components/action-keys/action-keys.js";
 import "./components/action-keys/move-keys.js";
-import "./components/action-keys/action-key.js"
+import "./components/action-keys/action-key.js";
+import "./components/common/slot/index";
 
 // MODALS
 import "./components/modals/manager.js";
@@ -63,6 +64,7 @@ window.addEventListener("DOMContentLoaded", () => {
         hudevents.on("minimap", (open) => triggerModal(open, "mini-map"));
         hudevents.on("picker", (open) => triggerModal(open, "dungeon-picker"));
         hudevents.on("store", (open) => triggerModal(open, "modal-store"));
+        hudevents.on("deck", (open) => triggerModal(open, "modal-deck"));
         hudevents.on("trunk", (open) => triggerModal(open, "modal-trunk"));
         hudevents.on("recuperator", (open) => triggerModal(open, "modal-recuperator-deck"));
 
