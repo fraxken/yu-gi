@@ -6,29 +6,30 @@ import './minimap/index';
 import './recuperator-deck/index';
 import './trunk/index';
 import './dungeon-picker/index';
+import './deck/index';
 
 class ModalManager extends LitElement {
-  constructor() {
-    super();
-  }
+    constructor() {
+        super();
+    }
 
-  static get styles() {
-    return css`
+    static get styles() {
+        return css`
       .modal {
         pointer-events: all;
         font-family: Roboto;
         color: white;
       }
     `
-  }
+    }
 
-  render() {
-    return html`
+    render() {
+        return html`
       <div class="modal">
         <slot name="modal"></slot>
       </div>
     `;
-  }
+    }
 }
 
 customElements.define("modal-manager", ModalManager);

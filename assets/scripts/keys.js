@@ -41,6 +41,9 @@ export const Keys = {
         { code: Key.E, type: null },
         { code: Button.A, type: Type.Gamepad, button: true }
     ],
+    openDeck: [
+        { code: Key.T, type: null },
+    ],
     cardAttack: [
         { code: Key._1, type: Type.KeyboardL },
         { code: Key.NUM_1, type: Type.KeyboardR }
@@ -107,4 +110,5 @@ export const Inputs = {
     consumable: () => someKey("cardConsumable", "wasKeyJustPressed"),
     refresh: () => someKey("cardRefresh", "wasKeyJustPressed"),
     use: () => someKey("use", "wasKeyJustPressed"),
+    openDeck: () => someKey("openDeck", "wasKeyJustPressed")
 }

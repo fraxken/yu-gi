@@ -2,13 +2,18 @@ import { LitElement, css, html } from "lit-element";
 
 class ActionBarSlotCard extends LitElement {
 
+    static get properties() {
+        return {
+            slotHUD: { type: Object }
+        }
+    }
+
     static get styles() {
         return css`
             .action-bar-container {
                 display: grid;
-                grid-template-columns: repeat(5, 80px);
-                gap: 20px;
-                height: 100px;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
                 margin-bottom: 40px;
             }
         `;
@@ -16,17 +21,19 @@ class ActionBarSlotCard extends LitElement {
 
     constructor() {
         super();
-        this.isTest = false;
+        const state = game.state;
+        this.slotHUD = state.getState("deck.slotHUD");
+        console.log(this.slotHUD);
     }
 
     render() {
         return html`
             <div class='action-bar-container'>
-                <action-card card='{ "typeCard" : "actif_att", "key" : "MOUSE_RIGHT_CLICK" }'></action-card>
-                <action-card card='{ "typeCard" : "actif_def", "key" : "MOUSE_LEFT_CLICK"  }'></action-card>
-                <action-card card='{ "typeCard" : "passif" }'></action-card>
-                <action-card card='{ "typeCard" : "conso", "key" : "1"  }'></action-card>
-                <refresh-action-card key='2'></refresh-action-card>
+                <render-slot .card='${this.slotHUD.offensive}' typeCard='offensive' key='1'></render-slot>
+                <render-slot .card='${this.slotHUD.defensive}' typeCard='defensive'  key='2'></render-slot>
+                <render-slot .card='${this.slotHUD.passive}' typeCard='passive'></render-slot>
+                <render-slot .card='${this.slotHUD.consumable}' typeCard='consumable' key='3'></render-slot>
+                <refresh-action-card key='X'></refresh-action-card>
             </div>
         `;
     }

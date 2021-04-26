@@ -347,6 +347,16 @@ export default class PlayerBehavior extends ScriptBehavior {
         }
     }
 
+    computeDeck() {
+        if (Inputs.openDeck()) {
+            window.hudevents.emit('deck', true);
+        }
+
+        if (Inputs.escape()) {
+            window.hudevents.emit('deck', false);
+        }
+    }
+
     update() {
         game.fade.centerPosition = this.actor.pos;
         if (this.dieScreen !== null) {
@@ -377,6 +387,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.computeAnimations();
         this.computeSkills();
+        this.computeDeck();
 
         this.lifeBar.update(this.currentHp);
         this.actor.applyVelocity();
