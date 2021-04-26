@@ -20,7 +20,7 @@ export default class MeleeBehavior extends ScriptBehavior {
 
         // Default stats
         this.deplacementAreaRadius = 40;
-        this.deplacementMaxAreaRadius = 280;
+        this.deplacementMaxAreaRadius = 200;
         this.targetingRange = 60;
         this.attackingRange = 10;
         this.damage = 2 * options[0].attackMultiplier;
@@ -178,9 +178,15 @@ export default class MeleeBehavior extends ScriptBehavior {
         }
 
         if (this.isFocusing) {
-            if (!this.timerForCurrentAttack.isStarted) {
+            if (!this.isMoving && !this.timerForCurrentAttack.isStarted) {
                 this.nextPos.x = this.target.x;
                 this.nextPos.y = this.target.y;
+            }
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= 300) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
             }
 
             this.goTo();

@@ -176,6 +176,16 @@ export default class CasterBehavior extends ScriptBehavior {
         }));
     }
 
+    getRandomPos() {
+        const r = (120 / 2) * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
+        const x = Math.round(this.target.pos.x + r * Math.cos(theta));
+        const y = Math.round(this.target.pos.y + r * Math.sin(theta));
+
+        this.nextPos.x = x;
+        this.nextPos.y = y;
+    }
+
     computeMovement() {
         if (this.timerForCurrentShoot.isStarted) {
             this.delayToMove.reset();
@@ -185,13 +195,18 @@ export default class CasterBehavior extends ScriptBehavior {
 
         if (this.isFocusing) {
             if (!this.isMoving && !this.timerForCurrentShoot.isStarted) {
-                const r = (60 / 2) * Math.sqrt(Math.random());
-                const theta = Math.random() * 2 * Math.PI;
-                const x = Math.round(this.target.pos.x + r * Math.cos(theta));
-                const y = Math.round(this.target.pos.y + r * Math.sin(theta));
+                this.getRandomPos();
+            }
 
-                this.nextPos.x = x;
-                this.nextPos.y = y;
+            const distanceBetweenTargetAndNextPos = this.target.pos.distanceTo(this.nextPos);
+            if (this.isMoving && distanceBetweenTargetAndNextPos > 120) {
+                this.getRandomPos();
+            }
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= 300) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
             }
 
             this.goTo();
