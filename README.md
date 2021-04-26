@@ -6,6 +6,11 @@ WARNING: The game is not finished !!!.
 
 > This game require **WebGL** (it use [Pixi.js](https://www.pixijs.com/) under the hood).
 
+|  |  |
+| --- | --- |
+| ![](https://i.imgur.com/FlEwg3P.png) | ![](https://i.imgur.com/TihX98V.png) |
+| ![](https://i.imgur.com/nz5SXLf.png) | ![](https://i.imgur.com/pUARBIF.png) |
+
 ## Game
 
 ### Story
