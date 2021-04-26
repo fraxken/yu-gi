@@ -118,7 +118,7 @@ export default class Room {
             this.map.position.set(x, y);
 
             this.tiledMap = new Components.TiledMap(Room.getRandomRoom(this.type), {
-                debug: true,
+                debug: false,
                 showObjects: kDebug,
                 useSharedCollision: true,
                 autoAddObjects: false,
