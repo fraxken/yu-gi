@@ -5,7 +5,7 @@ import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
 
-const kHandicapBetweenAttack = 240;
+const kHandicapBetweenAttack = 200;
 const kHandicapForAttack = 110;
 
 export default class MeleeBehavior extends ScriptBehavior {
@@ -124,9 +124,9 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     canAttack() {
-        const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.attackingRange;
+        const distance = this.actor.pos.distanceTo(this.target.pos);
 
-        if (isInside) {
+        if (distance <= this.attackingRange) {
             if (!this.delayBeforeNextAttack.isStarted) {
                 this.delayBeforeNextAttack.start();
 
@@ -134,20 +134,23 @@ export default class MeleeBehavior extends ScriptBehavior {
                     this.timerForCurrentAttack.start();
                 }
 
-                if (this.timerForCurrentAttack.walk()) {
+                if (!this.timerForCurrentAttack.walk()) {
                     return false;
                 }
 
+
                 return true;
+            } else {
+                if (!this.delayBeforeNextAttack.walk()) {
+                    return false;
+                }
             }
 
-            if (!this.delayBeforeNextAttack.walk()) {
-                return false;
+            return true;
+        } else {
+            if (this.timerForCurrentAttack.isStarted) {
+                this.timerForCurrentAttack.reset();
             }
-        }
-
-        if (this.timerForCurrentAttack.isStarted) {
-            this.timerForCurrentAttack.reset();
         }
 
         return false;
@@ -168,6 +171,12 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     computeMovement() {
+        if (this.timerForCurrentAttack.isStarted) {
+            this.delayToMove.reset();
+
+            return;
+        }
+
         if (this.isFocusing) {
             if (!this.timerForCurrentAttack.isStarted) {
                 this.nextPos.x = this.target.x;
@@ -179,21 +188,26 @@ export default class MeleeBehavior extends ScriptBehavior {
             return;
         }
 
-        if ((this.delayToMove.walk() || this.isMoving) && !this.timerForCurrentAttack.isStarted) {
-            if (this.isMoving) {
-                const distance = this.actor.pos.distanceTo(this.target.pos);
-                if (distance < this.targetingRange) {
-                    this.nextPos.x = this.target.x;
-                    this.nextPos.y = this.target.y
-                }
-
-                const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
-                if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
-                    this.nextPos.x = this.anchor.x;
-                    this.nextPos.y = this.anchor.y;
-                }
+        if (!this.delayToMove.isStarted && this.isMoving) {
+            const distance = this.actor.pos.distanceTo(this.target.pos);
+            if (distance < this.targetingRange) {
+                this.nextPos.x = this.target.x;
+                this.nextPos.y = this.target.y
             }
-            else {
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
+            }
+
+            this.goTo();
+
+            return;
+        }
+
+        if (this.delayToMove.walk() || this.isMoving) {
+            if (!this.isMoving) {
                 const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.actor.x + r * Math.cos(theta));
@@ -201,6 +215,18 @@ export default class MeleeBehavior extends ScriptBehavior {
 
                 this.nextPos.x = x;
                 this.nextPos.y = y;
+            }
+
+            const distance = this.actor.pos.distanceTo(this.target.pos);
+            if (distance < this.targetingRange) {
+                this.nextPos.x = this.target.x;
+                this.nextPos.y = this.target.y
+            }
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
             }
 
             this.goTo();
@@ -214,27 +240,48 @@ export default class MeleeBehavior extends ScriptBehavior {
 
             this.sprite.scale.x = 1;
             this.isMoving = false;
-            this.delayToMove.start();
+            this.delayToMove.reset()
+                .start();
         }
         else {
             this.isMoving = true;
             if (Math.round(this.actor.x) !== Math.round(this.nextPos.x)) {
                 if (this.actor.x < this.nextPos.x) {
-                    this.actor.moveX(this.currentSpeed);
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.nextPos.x - this.actor.x;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveX(speedToApply);
                     this.sprite.scale.x = 1;
                 }
                 else if (this.actor.x > this.nextPos.x) {
-                    this.actor.moveX(-this.currentSpeed);
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.actor.x - this.nextPos.x;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveX(-speedToApply);
                     this.sprite.scale.x = -1;
                 }
             }
 
             if (Math.round(this.actor.y) !== Math.round(this.nextPos.y)) {
                 if (this.actor.y < this.nextPos.y) {
-                    this.actor.moveY(this.currentSpeed);
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.nextPos.y - this.actor.y;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveY(speedToApply);
                 }
                 else if (this.actor.y > this.nextPos.y) {
-                    this.actor.moveY(-this.currentSpeed);
+                    let speedToApply = this.currentSpeed;
+
+                    const diff = this.actor.y - this.nextPos.y;
+                    if (diff < this.currentSpeed) speedToApply = diff;
+
+                    this.actor.moveY(-speedToApply);
                 }
             }
         }

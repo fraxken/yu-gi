@@ -296,13 +296,34 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     computeMovement() {
-        if ((
-                !this.timerForCurrentDistAttack.isStarted &&
-                !this.timerForCurrentMeleeAttack.isStarted &&
-                !this.timerForCurrentSpecialAttack.isStarted
-            ) && (
-                this.delayToMove.walk() || this.isMoving
-        )) {
+        if (this.timerForCurrentDistAttack.isStarted ||
+            this.timerForCurrentMeleeAttack.isStarted ||
+            this.timerForCurrentSpecialAttack.isStarted
+        ) {
+                this.delayToMove.reset();
+
+                return;
+        }
+
+        if (!this.delayToMove.isStarted && this.isMoving) {
+            const distance = this.actor.pos.distanceTo(this.target.pos);
+            if (distance < this.targetingRangeForMelee) {
+                this.nextPos.x = this.target.x;
+                this.nextPos.y = this.target.y
+            }
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
+            }
+
+            this.goTo();
+
+            return;
+        }
+
+        if (this.delayToMove.walk() || this.isMoving) {
             if (!this.isMoving) {
                 const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
@@ -327,8 +348,6 @@ export default class BossBehavior extends ScriptBehavior {
 
             this.goTo();
         }
-
-        return;
     }
 
     goTo() {
@@ -338,7 +357,8 @@ export default class BossBehavior extends ScriptBehavior {
 
             this.sprite.scale.x = 1;
             this.isMoving = false;
-            this.delayToMove.start();
+            this.delayToMove.reset()
+                .start();
         }
         else {
             this.isMoving = true;

@@ -5,7 +5,7 @@ import * as EntityBuilder from "../helpers/entitybuilder.js";
 
 const kHandicapForDeplacement = 120;
 
-const kHandicapBetweenShoot = 280;
+const kHandicapBetweenShoot = 220;
 const kHandicapForShoot = 110;
 
 export default class CasterBehavior extends ScriptBehavior {
@@ -31,7 +31,7 @@ export default class CasterBehavior extends ScriptBehavior {
         this.currentSpeed = 0.5;
         this.goldReward = 5 * options[0].goldMultiplier;
 
-        this.isFocusing = true;
+        this.isFocusing = false;
 
         // Deplacements
         this.isMoving = false;
@@ -131,16 +131,24 @@ export default class CasterBehavior extends ScriptBehavior {
             if (!this.delayBeforeNextShoot.isStarted) {
                 this.delayBeforeNextShoot.start();
 
-                return false
-            }
+                if (!this.timerForCurrentShoot.isStarted) {
+                    this.timerForCurrentShoot.start();
+                }
 
-            if (this.delayBeforeNextShoot.walk()) {
-                this.delayBeforeNextShoot.reset();
+                if (!this.timerForCurrentShoot.walk()) {
+                    return false;
+                }
+
 
                 return true;
+            } else {
+                if (!this.delayBeforeNextShoot.walk()) {
+                    return false;
+                }
             }
-        }
-        else {
+
+            return true;
+        } else {
             if (this.timerForCurrentShoot.isStarted) {
                 this.timerForCurrentShoot.reset();
             }
@@ -169,9 +177,15 @@ export default class CasterBehavior extends ScriptBehavior {
     }
 
     computeMovement() {
+        if (this.timerForCurrentShoot.isStarted) {
+            this.delayToMove.reset();
+
+            return;
+        }
+
         if (this.isFocusing) {
-            if (!this.timerForCurrentShoot.isStarted) {
-                const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
+            if (!this.isMoving && !this.timerForCurrentShoot.isStarted) {
+                const r = (60 / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.target.pos.x + r * Math.cos(theta));
                 const y = Math.round(this.target.pos.y + r * Math.sin(theta));
@@ -185,15 +199,20 @@ export default class CasterBehavior extends ScriptBehavior {
             return;
         }
 
-        if ((this.delayToMove.walk() || this.isMoving) && !this.timerForCurrentShoot.isStarted) {
-            if (!this.isMoving) {
-                const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
-                if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
-                    this.nextPos.x = this.anchor.x;
-                    this.nextPos.y = this.anchor.y;
-                }
+        if (!this.timerForCurrentShoot.isStarted && this.isMoving) {
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
             }
-            else {
+
+            this.goTo();
+
+            return;
+        }
+
+        if (this.delayToMove.walk() || this.isMoving) {
+            if (!this.isMoving) {
                 const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.actor.x + r * Math.cos(theta));
@@ -203,9 +222,16 @@ export default class CasterBehavior extends ScriptBehavior {
                 this.nextPos.y = y;
             }
 
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
+            }
+
             this.goTo();
         }
     }
+
     goTo() {
         if (Math.round(this.nextPos.x) === Math.round(this.actor.x) && Math.round(this.nextPos.y) === Math.round(this.actor.y)) {
             this.nextPos.x = null;
@@ -213,7 +239,8 @@ export default class CasterBehavior extends ScriptBehavior {
 
             this.sprite.scale.x = 1;
             this.isMoving = false;
-            this.delayToMove.start();
+            this.delayToMove.reset()
+                .start();
         }
         else {
             this.isMoving = true;
@@ -272,7 +299,7 @@ export default class CasterBehavior extends ScriptBehavior {
         this.computeMovement();
 
         if (this.timerForCurrentShoot.isStarted && !this.timerForCurrentShoot.walk()) {
-            this.sprite.playAnimation("adventurer-attack3");
+            this.sprite.playAnimation("adventurer-attack1");
         } else {
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
