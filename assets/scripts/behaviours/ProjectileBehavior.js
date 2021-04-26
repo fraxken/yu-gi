@@ -53,7 +53,7 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.target = getActor("player");
 
         this.actor.pos = new Vector2(this.startPos.x, this.startPos.y);
-        const angle = Math.abs(Math.abs(Math.atan2(this.actor.pos.y - this.target.pos.y, this.actor.pos.x - this.target.pos.x)) - 1.5);
+        const angle = Math.abs(Math.abs(Math.atan2(this.actor.pos.y - this.targetPos.y, this.actor.pos.x - this.targetPos.x)) - 1.5);
 
         this.velocityX = (angle * 1) / 1.5;
         this.velocityY = 1 - this.velocityX;
