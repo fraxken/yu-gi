@@ -159,8 +159,8 @@ export default class CasterBehavior extends ScriptBehavior {
 
     initShoot() {
         game.rootScene.add(EntityBuilder.create("actor:projectile", {
-            startPos: { x: this.actor.x, y: this.actor.y },
-            targetPos: { x: this.target.x, y: this.target.y },
+            startPos: { x: Math.round(this.actor.x), y: Math.round(this.actor.y) },
+            targetPos: { x: Math.round(this.target.x), y: Math.round(this.target.y) },
             stat: {
                 fadeInFrames: 240,
                 radius: 15,
