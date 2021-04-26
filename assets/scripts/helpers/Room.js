@@ -79,6 +79,13 @@ export default class Room {
         this.offsetX = x;
         this.offsetY = y;
         this.parent = parent;
+        this.creatureOptions = {
+            defenseMultiplier: this.parent.config.ia.defenseMultiplier,
+            attackMultiplier: this.parent.config.ia.attackMultiplier,
+            hpMultiplier: this.parent.config.ia.hpMultiplier,
+            missRatio: this.parent.config.ia.missRatio,
+            goldMultiplier: this.parent.config.goldMultiplier
+        }
         this.roomName = roomName;
         this.id = id;
         this.roomIA = [];
@@ -278,7 +285,7 @@ export default class Room {
             actor.name = EntityBuilder.increment("door");
         }
         else if (actor.name.startsWith("enemy")) {
-            actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior");
+            actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior", this.creatureOptions);
             actor.name = EntityBuilder.increment("enemy");
             this.parent.add(actor);
         }

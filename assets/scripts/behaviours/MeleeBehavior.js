@@ -13,7 +13,8 @@ export default class MeleeBehavior extends ScriptBehavior {
         defenseMultiplier: 1,
         attackMultiplier: 1,
         hpMultiplier: 1,
-        missRatio: 0.45
+        missRatio: 0.45,
+        goldMultiplier: 1
     }) {
         super();
 
@@ -28,6 +29,7 @@ export default class MeleeBehavior extends ScriptBehavior {
         this.currentHp = 8 * options.hpMultiplier;
         this.maxHp = 8 * options.hpMultiplier;
         this.currentSpeed = 0.7;
+        this.goldReward = 2 * options.goldMultiplier;
 
         // Deplacements
         this.isMoving = false;
@@ -70,7 +72,7 @@ export default class MeleeBehavior extends ScriptBehavior {
         const player = this.state.getState("player");
         this.state.setState("player", {
             currentHp: player.currentHp,
-            gold: player.gold + 8,
+            gold: player.gold + this.goldReward,
             maxHp: player.maxHp
         });
 
