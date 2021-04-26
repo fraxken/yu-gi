@@ -110,13 +110,19 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     canBeAttacked() {
-        const isInsideRangeOfPlayer = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+        const distance = this.actor.pos.distanceTo(this.target.pos);
 
-        if (isInsideRangeOfPlayer) {
-            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
+        if (distance <= 400) {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", { actorData: this.actor.name, isMelee: false });
+        } else {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", { actorData: this.actor.name, isMelee: false });
+        }
+
+        if (distance <= 40) {
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", { actorData: this.actor.name, isMelee: true });
         }
         else {
-            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+            this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", { actorData: this.actor.name, isMelee: true });
         }
     }
 

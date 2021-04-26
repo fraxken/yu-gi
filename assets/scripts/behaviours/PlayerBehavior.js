@@ -33,7 +33,8 @@ export default class PlayerBehavior extends ScriptBehavior {
             spawnActorName: "spawnActorName"
         });
 
-        this.inRangeEnemies = new Set();
+        this.inRangeEnemiesForMelee = new Set();
+        this.inRangeEnemiesForDist = new Set();
         this.maxHp = maxHp;
         this.damage = DEFAULT_DAMAGE;
         this.defense = DEFAULT_DEFENSE;
@@ -55,17 +56,31 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.cardDeck = new Deck();
     }
 
-    inRange(actorName) {
-        if (!this.inRangeEnemies.has(actorName)) {
-            this.inRangeEnemies.add(actorName);
+    inRange(options = { actorName, isMelee: false }) {
+        if (options.isMelee) {
+            if (!this.inRangeEnemiesForMelee.has(options.actorName)) {
+                this.inRangeEnemiesForMelee.add(options.actorName);
+            }
+        }
+        else {
+            if (this.inRangeEnemiesForDist.has(options.actorName)) {
+                this.inRangeEnemiesForDist.add(options.actorName);
+            }
         }
 
         return this;
     }
 
-    outRange(actorName) {
-        if (this.inRangeEnemies.has(actorName)) {
-            this.inRangeEnemies.delete(actorName);
+    outRange(options = { actorName, isMelee: false }) {
+        if (options.isMelee) {
+            if (this.inRangeEnemiesForMelee.has(options.actorName)) {
+                this.inRangeEnemiesForMelee.delete(options.actorName);
+            }
+        }
+        else {
+            if (this.inRangeEnemiesForDist.has(options.actorName)) {
+                this.inRangeEnemiesForDist.delete(options.actorName);
+            }
         }
 
         return this;
@@ -74,6 +89,16 @@ export default class PlayerBehavior extends ScriptBehavior {
     shooting(event) {
         const targetPos = new Vector2(event.x, event.y);
 
+        const possibleTargets = this.inRangeEnemiesForDist.values();
+        // const targets = [...this.inRangeEnemiesForDist.values().forEach((enemyPos) => {
+        //     const distance = targetPos.distanceTo(enemyPos);
+
+        //     if (distance <= 10) {
+        //         return enemyPos;
+        //     }
+        // })];
+
+        console.log(this.inRangeEnemiesForMelee, this.inRangeEnemiesForDist);
         const distance = targetPos.distanceTo(this.actor.pos);
         if (distance <= (game.viewport.worldScreenHeight * 0.30) || distance <= (game.viewport.worldScreenWidth * 0.30)) {
             console.log("shooting !");
@@ -160,7 +185,7 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     dealsDamage() {
-        this.inRangeEnemies.forEach((enemy) => {
+        this.inRangeEnemiesForMelee.forEach((enemy) => {
             const actor = getActor(enemy);
             const isLookingToRight = this.sprite.scale.x === 1 ? true : false;
 
