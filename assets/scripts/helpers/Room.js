@@ -39,7 +39,7 @@ const kRoomsConfiguration = {
     parcours: ["room"]
 };
 
-const kDebug = true;
+const kDebug = false;
 
 export default class Room {
     static getRandomRoom(type) {

@@ -10,6 +10,7 @@ const SkillIndex = Object.freeze({
 
 const MAK_NUMBER_OF_CARDS_IN_SLOT_HUD = 4;
 const MAX_NUMBER_OF_CARDS_IN_RECUPERATOR = 5;
+const DEBUG = false;
 
 export class Deck {
     constructor() {
@@ -225,7 +226,7 @@ export class Deck {
     }
 
     debugLog() {
-        if (true) {
+        if (DEBUG) {
             console.log("DISCARDED CARDS:", this.discardedCards);
             console.log("CARDDRAW:", this.cardDraw);
             console.log("HUD SLOTS:", this.slotHUD);

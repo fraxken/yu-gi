@@ -149,46 +149,46 @@ export default class TiledMap extends PIXI.Container {
         actor.rotation = object.rotation;
         TiledMap.assignProperties(actor, object.properties);
 
-        if (this.showObjects) {
-            const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
-            if (object.ellipse) {
-                areaGraphic.drawEllipse(0, 0, width, height);
-            }
-            else {
-                areaGraphic.drawRect(0, 0, width, height);
-            }
-            areaGraphic.interactive = true;
 
-            const areaNameText = new PIXI.Text(name.toLowerCase(), {
-                fill: "#12d94d",
-                fontFamily: "Verdana",
-                fontSize: 10,
-                fontVariant: "small-caps",
-                fontWeight: "bold",
-                letterSpacing: 1,
-                lineJoin: "round",
-                strokeThickness: 2,
-                align: "center"
-            });
-            areaNameText.anchor.set(0.5);
-
-            // areaGraphic.on("mouseover", () => {
-            //     console.log("in");
-            //     areaGraphic.beginFill(0xffffff, 1);
-            // });
-            // areaGraphic.on("mouseout", () => {
-            //     console.log("out");
-            //     areaGraphic.beginFill(0xffffff, 0.35);
-            // });
-            areaGraphic.endFill();
-
-            if (!object.ellipse) {
-                areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
-            }
-
-            areaGraphic.addChild(areaNameText);
-            actor.addChild(areaGraphic);
+        const areaGraphic = new PIXI.Graphics().beginFill(0xffffff, 0.35);
+        areaGraphic.alpha = this.showObjects ? 1 : 0;
+        if (object.ellipse) {
+            areaGraphic.drawEllipse(0, 0, width, height);
         }
+        else {
+            areaGraphic.drawRect(0, 0, width, height);
+        }
+        areaGraphic.interactive = true;
+
+        const areaNameText = new PIXI.Text(name.toLowerCase(), {
+            fill: "#12d94d",
+            fontFamily: "Verdana",
+            fontSize: 10,
+            fontVariant: "small-caps",
+            fontWeight: "bold",
+            letterSpacing: 1,
+            lineJoin: "round",
+            strokeThickness: 2,
+            align: "center"
+        });
+        areaNameText.anchor.set(0.5);
+
+        // areaGraphic.on("mouseover", () => {
+        //     console.log("in");
+        //     areaGraphic.beginFill(0xffffff, 1);
+        // });
+        // areaGraphic.on("mouseout", () => {
+        //     console.log("out");
+        //     areaGraphic.beginFill(0xffffff, 0.35);
+        // });
+        areaGraphic.endFill();
+
+        if (!object.ellipse) {
+            areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
+        }
+
+        areaGraphic.addChild(areaNameText);
+        actor.addChild(areaGraphic);
         this.objects.set(actor.name, actor);
         this.emit("object", actor);
 

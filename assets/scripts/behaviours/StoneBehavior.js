@@ -27,7 +27,7 @@ export default class StoneBehavior extends ScriptBehavior {
 
     awake() {
         this.active = game.state.getState("stoneEnabled");
-        console.log("ACTIVE ?: ", this.active);
+        // console.log("ACTIVE ?: ", this.active);
 
         const spriteComponent = new Components.AnimatedSpriteEx("stele", {
             defaultAnimation: "idle"
