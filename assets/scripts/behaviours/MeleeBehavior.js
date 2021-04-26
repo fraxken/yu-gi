@@ -31,6 +31,8 @@ export default class MeleeBehavior extends ScriptBehavior {
         this.currentSpeed = 0.7;
         this.goldReward = 2 * options[0].goldMultiplier;
 
+        this.isFocusing = false;
+
         // Deplacements
         this.isMoving = false;
         this.nextPos = { x: null, y: null };
@@ -64,6 +66,18 @@ export default class MeleeBehavior extends ScriptBehavior {
 
     start() {
         this.target = getActor("player");
+    }
+
+    focusOn() {
+        console.log("focusing player !");
+
+        this.isFocusing = true;
+    }
+
+    focusOff() {
+        console.log("Not focusing player ! ");
+
+        this.isFocusing = false;
     }
 
     die() {
@@ -154,8 +168,32 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     computeMovement() {
+        if (isFocusing) {
+            if (!this.timerForCurrentAttack.isStarted) {
+                this.nextPos.x = this.target.x;
+                this.nextPos.y = this.target.y;
+            }
+
+            this.goTo();
+
+            return;
+        }
+
         if ((this.delayToMove.walk() || this.isMoving) && !this.timerForCurrentAttack.isStarted) {
-            if (!this.isMoving) {
+            if (this.isMoving) {
+                const distance = this.actor.pos.distanceTo(this.target.pos);
+                if (distance < this.targetingRange) {
+                    this.nextPos.x = this.target.x;
+                    this.nextPos.y = this.target.y
+                }
+
+                const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+                if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                    this.nextPos.x = this.anchor.x;
+                    this.nextPos.y = this.anchor.y;
+                }
+            }
+            else {
                 const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.actor.x + r * Math.cos(theta));
@@ -165,22 +203,8 @@ export default class MeleeBehavior extends ScriptBehavior {
                 this.nextPos.y = y;
             }
 
-            const distance = this.actor.pos.distanceTo(this.target.pos);
-            if (distance < this.targetingRange) {
-                this.nextPos.x = this.target.x;
-                this.nextPos.y = this.target.y
-            }
-
-            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
-            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
-                this.nextPos.x = this.anchor.x;
-                this.nextPos.y = this.anchor.y;
-            }
-
             this.goTo();
         }
-
-        return;
     }
 
     goTo() {
