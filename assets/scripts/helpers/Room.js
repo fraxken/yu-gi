@@ -263,7 +263,7 @@ export default class Room {
             this.setDoorLock("locked");
             this.parent.triggerLockedText();
         }
-        else if (this.type === "boss") {
+        else if (this.type === "boss" || this.type === "end") {
             window.mediaplayer.play("battle");
         }
         else {
