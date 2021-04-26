@@ -34,7 +34,8 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.inRangeEnemies = new Set();
         this.maxHp = maxHp;
-        this.damage = 2;
+        this.damage = 2.5;
+        this.defense = 1;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false });
@@ -159,15 +160,18 @@ export default class PlayerBehavior extends ScriptBehavior {
                 canBeHit = this.actor.x > actor.x ? true : false;
             }
 
+            const isCritical = Math.random() < 0.05;
+            const damageToApply = isCritical ? this.damage * 2 : this.damage;
+
             if (canBeHit) {
                 if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Melee"))) {
-                    actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", this.damage);
+                    actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", damageToApply, { isCritical });
                 }
                 else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Caster"))) {
-                    actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", this.damage);
+                    actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", damageToApply, { isCritical });
                 }
                 else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Boss"))) {
-                    actor.getScriptedBehavior("BossBehavior").sendMessage("takeDamage", this.damage);
+                    actor.getScriptedBehavior("BossBehavior").sendMessage("takeDamage", damageToApply, { isCritical });
                 }
             }
         });
@@ -402,7 +406,7 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     offensiveSkill(aMessage) {
-        console.log("atack", aMessage);
+        console.log("attack", aMessage);
     }
 
     defensiveSkill(aMessage) {
