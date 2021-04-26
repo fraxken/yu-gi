@@ -25,7 +25,7 @@ class Card extends LitElement {
 
             }
             .card-container-offensive {
-                background: url('./images/slot/offensif.png') no-repeat; 
+                background: url('./images/slot/offensif.png') no-repeat;
             }
             .card-container-defensive {
                 background: url('./images/slot/defensif.png') no-repeat;
@@ -77,9 +77,18 @@ class Card extends LitElement {
                 display: flex;
                 align-items: center;
             }
+            .small-info + .small-info {
+                margin-top: 2px;
+            }
             .small-description {
                 font-size: 10px;
                 text-overflow: ellipsis;
+                font-family: Roboto;
+                letter-spacing: 1px;
+                color: #FFF;
+                font-weight: bold;
+                text-shadow: 1px 1px 5px rgba(20,20,20, 0.5);
+                margin-left: 5px;
             }
             .button {
                 position: absolute;
@@ -121,7 +130,7 @@ class Card extends LitElement {
                 </span>
                 <span class="small-info">
                     <div class="icon icon-consumable-consumable icon-small"></div>
-                    <span class="small-description">${card.consumableSkill.name}</span> 
+                    <span class="small-description">${card.consumableSkill.name}</span>
                 </span>
             </span>
         `

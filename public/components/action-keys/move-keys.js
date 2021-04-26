@@ -22,7 +22,7 @@ class MoveKeys extends LitElement {
             grid-template-rows: repeat(4, 1fr);
             grid-template-areas:
                 ". . upLabel . ."
-                ". . up . ." 
+                ". . up . ."
                 "leftLabel left down right rightLabel"
                 ". . downLabel . .";
         }
@@ -52,8 +52,10 @@ class MoveKeys extends LitElement {
             position: absolute;
             color: white;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             font-variant: small-caps;
+            font-family: Roboto;
+            text-shadow: 2px 2px 5px black;
          }
         `;
     }
@@ -82,16 +84,16 @@ class MoveKeys extends LitElement {
                     <keyboard-icon key='${this.rightKey}' ?isPress=${false}></keyboard-icon>
                 </div>
                 <div class='upLabel label'>
-                    <div>Up</div>
+                    <div>UP</div>
                 </div>
                 <div class='downLabel label'>
-                    <div>Down</div>
+                    <div>DOWN</div>
                 </div>
                 <div class='leftLabel label'>
-                    <div>Left</div>
+                    <div>LEFT</div>
                 </div>
                 <div class='rightLabel label'>
-                    <div>Right</div>
+                    <div>RIGHT</div>
                 </div>
             </div>
         `;
