@@ -38,7 +38,7 @@ export default class BossBehavior extends ScriptBehavior {
         this.specialAttackDamage = 4;
         this.currentHp = 10;
         this.maxHp = 10;
-        this.currentSpeed = 0.7;
+        this.currentSpeed = 0.8;
 
         // Deplacements
         this.isMoving = false;
@@ -292,7 +292,6 @@ export default class BossBehavior extends ScriptBehavior {
                 this.nextPos.y = this.anchor.y;
             }
 
-
             this.goTo();
         }
 
@@ -353,19 +352,15 @@ export default class BossBehavior extends ScriptBehavior {
 
     computeAnimations() {
         if (this.timerForCurrentMeleeAttack.isStarted && !this.timerForCurrentMeleeAttack.walk()) {
-            console.log("attack1");
             this.sprite.playAnimation("adventurer-attack1");
         }
         else if (this.timerForCurrentDistAttack.isStarted && !this.timerForCurrentDistAttack.walk()) {
-            console.log("attack2");
             this.sprite.playAnimation("adventurer-attack2");
         }
         else if (this.timerForCurrentSpecialAttack.isStarted && !this.timerForCurrentSpecialAttack.walk()) {
-            console.log("attack3");
             this.sprite.playAnimation("adventurer-attack3");
         }
         else {
-            console.log("depl");
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
         }
     }
