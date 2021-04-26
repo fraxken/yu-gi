@@ -46,7 +46,7 @@ export default class Engine extends AssetLoader {
         this.mousePosition = null;
 
         this.app.renderer.view.addEventListener("mousedown", () => {
-            // this.input.lockMouse();
+            this.input.lockMouse();
         }, { once: true });
 
         this.defaultRootScene = options.defaultScene;
@@ -150,7 +150,7 @@ export default class Engine extends AssetLoader {
         this.viewport.zoomPercent(1);
         this.viewport.wheel({ smooth: 150, lineHeight: 300 });
         this.viewport.decelerate();
-        // this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
+        this.viewport.clampZoom({ minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500 });
 
         this._initRootScene(this.defaultRootScene);
         this.app.ticker.add(this.update.bind(this));
@@ -172,20 +172,20 @@ export default class Engine extends AssetLoader {
         this.waitingScenes = [];
         console.log("[INFO] Waiting scenes added to current scene!");
 
-        this.cursorSprite = new PIXI.Graphics()
-            .beginFill(PIXI.utils.string2hex("#000"), 1)
-            .drawCircle(0, 0, 5)
-            .endFill();
-        this.cursorSprite.zIndex = 29;
+        // this.cursorSprite = new PIXI.Graphics()
+        //     .beginFill(PIXI.utils.string2hex("#000"), 1)
+        //     .drawCircle(0, 0, 5)
+        //     .endFill();
+        // this.cursorSprite.zIndex = 29;
         // const cursorSprite = new PIXI.Sprite(getTexture("adventurer", "adventurer-air-attack-3-end-00.png"));
         // cursorSprite.anchor.set(0.5, 0.5);
 
-        this.app.stage.on("pointermove", (event) => {
-            this.mousePosition = event.data.global;
+        // this.app.stage.on("pointermove", (event) => {
+        //     this.mousePosition = event.data.global;
 
-            const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
-            this.cursorSprite.position.set(localPos.x, localPos.y);
-        });
+        //     const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
+        //     this.cursorSprite.position.set(localPos.x, localPos.y);
+        // });
 
         const fadeGraphic = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)
@@ -197,7 +197,7 @@ export default class Engine extends AssetLoader {
             frame: 45, delayIn: 60, delayOut: 0, defaultState: "in"
         });
 
-        this.rootScene.addChild(this.cursorSprite);
+        // this.rootScene.addChild(this.cursorSprite);
         this.rootScene.addChild(fadeGraphic);
         this.rootScene.init(this);
     }
@@ -205,7 +205,7 @@ export default class Engine extends AssetLoader {
     _destroyRootScene() {
         this.app.stage.removeAllListeners("pointermove");
 
-        this.cursorSprite.destroy();
+        // this.cursorSprite.destroy();
         this.fade.displayObject.destroy({ children: true });
         this.fade = null;
         this.rootScene.cleanup();
