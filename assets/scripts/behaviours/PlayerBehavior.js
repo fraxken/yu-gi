@@ -436,13 +436,13 @@ export default class PlayerBehavior extends ScriptBehavior {
             case "speedBoost":
                 this.speedBoost = value;
                 break;
-            case "attackRangeBoost":
-                break;
             case "attackDamageBoost":
                 this.damage += value;
                 break;
             case "defenseBoost":
                 this.defense = value;
+                break;
+            case "elementaryDamage":
                 break;
             default:
                 break;
@@ -457,17 +457,21 @@ export default class PlayerBehavior extends ScriptBehavior {
             case "speedBoost":
                 this.speedBoost = DEFAULT_SPEED_BOOST;
                 break;
-            case "attackRangeBoost":
-                break;
             case "attackDamageBoost":
                 this.damage = DEFAULT_DAMAGE;
                 break;
             case "defenseBoost":
                 this.defense = DEFAULT_DEFENSE;
                 break;
+            case "elementaryDamage":
+                break;
             default:
                 break;
         }
+    }
+
+    recuperator() {
+        this.cardDeck.updateRecuperator();
     }
 }
 

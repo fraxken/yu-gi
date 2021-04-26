@@ -48,7 +48,7 @@ export const StarterCards = Object.freeze([
     new Card("Seventh Card", "knife", "counter", "defenseBoost", "elementaryImmunity", 2),
     new Card("Eighth Card", "crossbow", "dash", "defenseBoost", "discardToChest", 2),
     new Card("Nineth Card", "spell", "dash", "elementaryDamage", "deckToChest", 2),
-    new Card("Tenth Card", "spear", "shieldDefense", "attackRangeBoost", "secretVision", 2)
+    new Card("Tenth Card", "spear", "shieldDefense", "attackDamageBoost", "secretVision", 2)
 ]);
 /*
 export const AdditionalCards = Object.freeze([

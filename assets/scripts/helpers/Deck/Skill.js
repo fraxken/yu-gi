@@ -80,8 +80,7 @@ export const PassiveSkills = Object.freeze({
     defenseBoost: new PassiveSkill("defenseBoost", 1),
     elementaryDamage: new PassiveSkill("elementaryDamage", 1),
     speedBoost: new PassiveSkill("speedBoost", 1),
-    healthRegenBoost: new PassiveSkill("healthRegenBoost", 1),
-    attackRangeBoost: new PassiveSkill("attackRangeBoost", 1),
+    healthRegenBoost: new PassiveSkill("healthRegenBoost", 1)
 });
 
 export const ConsumableSkills = Object.freeze({

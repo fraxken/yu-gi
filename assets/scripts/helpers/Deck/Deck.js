@@ -13,23 +13,25 @@ const MAX_NUMBER_OF_CARDS_IN_RECUPERATOR = 5;
 
 export class Deck {
     constructor() {
-        this.discardedCards = [];
-        this.cardDraw = Array.from(StarterCards);
-        this.lockedCard = [];
-        this.recuperator = [];
-        this.slotHUD = [];
-
         this.state = getCurrentState();
-        this.state.setState("deck", {
-            slotHUD: {},
-            discard: [],
-            draw: [],
-            lockedCard: [],
-            recuperator: [],
-        });
 
-        this.shuffleCardDraw();
-        this.initSlotHUD();
+        this.discardedCards = this.state.getState("deck.discard");
+        this.cardDraw = this.state.getState("deck.draw");
+        this.lockedCard = this.state.getState("deck.lockedCard");
+        this.recuperator = this.state.getState("deck.recuperator");
+        this.slotHUD = [];
+        this.slotHUD[SkillIndex.Offensive] = this.state.getState("deck.slotHUD.offensive");
+        this.slotHUD[SkillIndex.Defensive] = this.state.getState("deck.slotHUD.defensive");
+        this.slotHUD[SkillIndex.Passive] = this.state.getState("deck.slotHUD.passive");
+        this.slotHUD[SkillIndex.Consumable] = this.state.getState("deck.slotHUD.consumable");
+
+        // Should correspond to first init
+        if (this.slotHUD[SkillIndex.Offensive] === undefined || this.slotHUD[SkillIndex.Offensive] === null) {
+            console.log("INIT DECK");
+            this.cardDraw = Array.from(StarterCards);
+            this.shuffleCardDraw();
+            this.initSlotHUD();
+        }
 
         this.debugLog();
     }
@@ -44,7 +46,7 @@ export class Deck {
         this.state.setState("deck.lockedCard", this.lockedCard);
         this.state.setState("deck.recuperator", this.recuperator);
 
-        this.slotHUD[SkillIndex.Passive].activatePassive();
+        //this.slotHUD[SkillIndex.Passive].activatePassive();
     }
 
     updateRecuperator() {
@@ -55,6 +57,11 @@ export class Deck {
             const indexToRemove = this.recuperator.findIndex(card => card.stars === minNumberOfStars);
             this.recuperator.splice(indexToRemove, 1);
         }
+
+        this.lockedCard = [];
+
+        this.state.setState("deck.lockedCard", this.lockedCard);
+        this.state.setState("deck.recuperator", this.recuperator);
     }
 
     shuffleCardDraw() {
@@ -66,6 +73,7 @@ export class Deck {
     }
 
     initSlotHUD() {
+        this.slotHUD = [];
         for (let i = 0; i < MAK_NUMBER_OF_CARDS_IN_SLOT_HUD; ++i) {
             this.slotHUD.push(this.pick());
         }
@@ -211,12 +219,18 @@ export class Deck {
         this.state.setState("deck.slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
     }
 
+    addCard(card) {
+        this.cardDraw.unshift(card);
+        this.state.setState("deck.draw", this.cardDraw);
+    }
+
     debugLog() {
         if (true) {
             console.log("DISCARDED CARDS:", this.discardedCards);
             console.log("CARDDRAW:", this.cardDraw);
             console.log("HUD SLOTS:", this.slotHUD);
-            console.log("RECUPERATOR:", this.lockedCard);
+            console.log("LOCKEDCARD:", this.lockedCard);
+            console.log("RECUPERATOR:", this.recuperator);
         }
     }
 }
