@@ -9,7 +9,7 @@ export default class DefaultScene extends Scene {
             const map = new Actor("map");
             const tiledMap = new Components.TiledMap("village", {
                 debug: false,
-                showObjects: true
+                showObjects: false
             });
             tiledMap.on("object", this.build.bind(this));
             tiledMap.init();

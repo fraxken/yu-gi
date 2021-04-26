@@ -18,6 +18,8 @@
         "village": "tilemaps/village.json",
         "room": "tilemaps/room.json",
         "boss_room": "tilemaps/boss.json",
+        "start_room": "tilemaps/start_room.json",
+        "recuperateur_room": "tilemaps/recuperateur_room.json",
         "no_enemy_room": "tilemaps/no_enemy_room.json",
         "adventurer": "sprites/adventurer.json",
         "stele": "sprites/stele.json",

@@ -2,7 +2,7 @@
 
 A top-down Roguelike game where you have to manage a deck of cards with multiple effects to explore, fight and survive. Made in 72h for [Ludum dare 48](https://ldjam.com/) with the theme **deeper and deeper**.
 
-The game is not finished yet.
+WARNING: The game is not finished !!!.
 
 > This game require **WebGL** (it use [Pixi.js](https://www.pixijs.com/) under the hood).
 
@@ -18,7 +18,6 @@ Recently, it has been activated and you have been sent there to make a report, b
 - **W/A/S/D** or **LEFT/RIGHT/UP/DOWN** to move.
 - **E** to interact.
 - **C** for dash.
-- **SPACE** to jump.
 - **M** to open minimap in the dungeon.
 
 Cards:
@@ -41,9 +40,10 @@ Programming by
 - GOREZ Tony
 
 The free assets we use:
-- https://quintino-pixels.itch.io/free-pixel-art-skill-icons-pack
-- https://hyohnoo.itch.io/keyboard-controller-keys
-- https://vgcomposer.itch.io/action-rpg-music-free
+- (Minimap icons) https://quintino-pixels.itch.io/free-pixel-art-skill-icons-pack
+- (UI) https://hyohnoo.itch.io/keyboard-controller-keys
+- (Background Music) https://vgcomposer.itch.io/action-rpg-music-free
+- (TileSet) https://pixel-boy.itch.io/ninja-adventure-asset-pack
 
 ---
 

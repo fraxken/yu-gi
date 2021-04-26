@@ -6,7 +6,7 @@ module.exports = {
     1: {
         1: {
             spawner: {
-                minRooms: 2, maxRooms: 3, specialRooms: 1
+                minRooms: 3, maxRooms: 4
             },
             ia: {
                 defenseMultiplier: 1,

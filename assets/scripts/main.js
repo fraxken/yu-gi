@@ -49,7 +49,7 @@ async function main() {
 
     gameState.reset();
 
-    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
+    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         .init();
 

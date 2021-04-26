@@ -16,7 +16,7 @@ export default class ChestBehavior extends ScriptBehavior {
         this.cards = [];
         const count = ChestBehavior.randomInt(Math.random() < 0.1 ? 3 : 2);
         for (let i = 0; i < count; i++) {
-            const test = new Card("First Card", "sword", "shieldParry", "attackDamageBoost", "healthUp", 1)
+            const test = new Card("First Card", "sword", "shield", "attack", "heal", 1)
 
             this.cards.push(test);
         }
