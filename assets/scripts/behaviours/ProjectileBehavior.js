@@ -1,6 +1,6 @@
 
 import AnimatedSpriteEx from "../ECS/components/animatedsprite.class";
-import { Actor, ScriptBehavior, getActor, boxesIntersect } from "../ECS";
+import { Actor, ScriptBehavior, getActor, boxesIntersect, Vector2 } from "../ECS";
 import { EntityBuilder } from "../helpers";
 
 export default class ProjectileBehavior extends ScriptBehavior {
@@ -50,10 +50,15 @@ export default class ProjectileBehavior extends ScriptBehavior {
         this.sprite = this.actor.addComponent(
             new AnimatedSpriteEx(this.sprites.name, { defaultAnimation: this.sprites.start })
         );
-
-        this.actor.pos = this.startPos;
-        this.tick = 0;
         this.target = getActor("player");
+
+        this.actor.pos = new Vector2(this.startPos.x, this.startPos.y);
+        const angle = Math.abs(Math.abs(Math.atan2(this.actor.pos.y - this.target.pos.y, this.actor.pos.x - this.target.pos.x)) - 1.5);
+
+        this.velocityX = (angle * 1) / 1.5;
+        this.velocityY = 1 - this.velocityX;
+
+        this.tick = 0;
     }
 
     die(cause) {
@@ -82,24 +87,31 @@ export default class ProjectileBehavior extends ScriptBehavior {
     update() {
         this.tick++;
 
+        const actorX = Math.round(this.actor.x);
+        const actorY = Math.round(this.actor.y);
+        const targetX = Math.round(this.targetPos.x);
+        const targetY = Math.round(this.targetPos.y);
+
+        const distanceBetweenActorAndDest = this.actor.pos.distanceTo(this.targetPos);
+
         if (boxesIntersect(this.actor, this.target)) {
             this.hit();
         }
         else if (this.tick >= this.fadeInFrames) {
             this.die("timeout");
         }
-        else if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
-            if (this.actor.x < this.targetPos.x) {
-                this.actor.moveX(1);
-            } else if (this.actor.x > this.targetPos.x) {
-                this.actor.moveX(-1);
+        else if (distanceBetweenActorAndDest > 10) {
+            if (actorX < targetX) {
+                this.actor.moveX(this.velocityX);
+            } else if (actorX > targetX) {
+                this.actor.moveX(-this.velocityX);
             }
 
-            if (this.actor.y < this.targetPos.y) {
-                this.actor.moveY(1);
+            if (actorY < targetY) {
+                this.actor.moveY(this.velocityY);
             }
-            else if (this.actor.y > this.targetPos.y) {
-                this.actor.moveY(-1);
+            else if (actorY > targetY) {
+                this.actor.moveY(-this.velocityY);
             }
 
             this.actor.applyVelocity();
