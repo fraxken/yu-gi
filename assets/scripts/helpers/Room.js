@@ -254,12 +254,16 @@ export default class Room {
         this.parent.playerCurrentRoomId = this.id;
 
         if (this.type === "trap") {
+            for (let ia of this.roomIA) {
+                const script = ia.getScriptedBehavior(ia.behaviors[0].constructor.name);
+                script.sendMessage("focusOn");
+            }
             // TODO: send events to IA of the rooms ?
             window.mediaplayer.play("battle");
             this.setDoorLock("locked");
             this.parent.triggerLockedText();
         }
-        else if (this.type === "boss") {
+        else if (this.type === "boss" || this.type === "end") {
             window.mediaplayer.play("battle");
         }
         else {
@@ -268,6 +272,13 @@ export default class Room {
     }
 
     playerExitRoom() {
+        if (this.type === "trap") {
+            for (let ia of this.roomIA) {
+                const script = ia.getScriptedBehavior(ia.behaviors[0].constructor.name);
+                script.sendMessage("focusOff");
+            }
+        }
+
         if (this.fade !== null) {
             this.fade.out();
         }
@@ -288,6 +299,7 @@ export default class Room {
             actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior", [this.creatureOptions]);
             actor.name = EntityBuilder.increment("enemy");
             this.parent.add(actor);
+            this.roomIA.push(actor);
         }
         else if (this.parent.hasSecretRoom && this.isRecuperateurRoom && actor.name.startsWith("levier")) {
             actor.createScriptedBehavior("SecretLevierBehavior");

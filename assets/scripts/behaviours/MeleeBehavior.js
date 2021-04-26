@@ -20,14 +20,14 @@ export default class MeleeBehavior extends ScriptBehavior {
 
         // Default stats
         this.deplacementAreaRadius = 40;
-        this.deplacementMaxAreaRadius = 280;
-        this.targetingRange = 60;
-        this.attackingRange = 10;
+        this.deplacementMaxAreaRadius = 200;
+        this.targetingRange = 90;
+        this.attackingRange = 40;
         this.damage = 2 * options[0].attackMultiplier;
         this.missratio = options[0].missRatio;
         this.defense = 1 * options[0].defenseMultiplier;
-        this.currentHp = 8 * options[0].hpMultiplier;
-        this.maxHp = 8 * options[0].hpMultiplier;
+        this.currentHp = 10 * options[0].hpMultiplier;
+        this.maxHp = 10 * options[0].hpMultiplier;
         this.currentSpeed = 0.7;
         this.goldReward = 2 * options[0].goldMultiplier;
 
@@ -157,6 +157,12 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     initAttack() {
+        if (this.actor.x < this.target.pos.x) {
+            this.sprite.scale.x = 1;
+        } else {
+            this.sprite.scale.x = -1;
+        }
+
         const isCritical = Math.random() < 0.05;
         const damageToApply = isCritical ? this.damage * 2 : this.damage;
 
@@ -178,9 +184,15 @@ export default class MeleeBehavior extends ScriptBehavior {
         }
 
         if (this.isFocusing) {
-            if (!this.timerForCurrentAttack.isStarted) {
+            if (!this.isMoving && !this.timerForCurrentAttack.isStarted) {
                 this.nextPos.x = this.target.x;
                 this.nextPos.y = this.target.y;
+            }
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= 60) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
             }
 
             this.goTo();
@@ -238,7 +250,6 @@ export default class MeleeBehavior extends ScriptBehavior {
             this.nextPos.x = null;
             this.nextPos.y = null;
 
-            this.sprite.scale.x = 1;
             this.isMoving = false;
             this.delayToMove.reset()
                 .start();

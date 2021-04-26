@@ -28,6 +28,7 @@ async function main() {
     const gameState = new State("gameState", {
         spawnActorName: "spawn",
         playable: true,
+        stoneEnabled: false,
         dungeon: {
             enabled: false,
             progression: "1.1"
@@ -48,7 +49,7 @@ async function main() {
 
     gameState.reset();
 
-    const game = new Engine({ defaultScene: DefaultScene, state: gameState })
+    const game = new Engine({ defaultScene: DungeonScene, state: gameState })
         .loadAssetFromFile(assetsURL)
         .init();
 

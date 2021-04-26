@@ -26,9 +26,12 @@ class ActionKey extends LitElement {
             bottom: 19px;
             left: 2px;
             text-transform: uppercase;
-            font-size: smaller;
+            font-family: Roboto;
+            text-shadow: 2px 2px 5px black;
+            font-weight: bold;
             height: 23px;
             width: 62px;
+            font-size: 15px;
             line-height: 23px;
             text-align: center;
             color: white;

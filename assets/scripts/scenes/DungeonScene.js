@@ -124,7 +124,7 @@ export default class DungeonScene extends Scene {
      */
     exitDungeon(failure = true) {
         const state = getCurrentState();
-        state.setState("spawnActorName", "test");
+        state.setState("spawnActorName", "spawn");
 
         if (!failure) {
             const progression = state.getState("dungeon.progression");

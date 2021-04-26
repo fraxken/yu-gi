@@ -23,11 +23,11 @@ export default class CasterBehavior extends ScriptBehavior {
         this.deplacementAreaRadius = 20;
         this.deplacementMaxAreaRadius = 160;
         this.attackingRange = 220;
-        this.damage = 1 * options[0].attackMultiplier;
+        this.damage = 2 * options[0].attackMultiplier;
         this.missRatio = options[0].missRatio;
         this.defense = 0.5 * options[0].defenseMultiplier;
-        this.currentHp = 3 * options[0].hpMultiplier;
-        this.maxHp = 3 * options[0].hpMultiplier;
+        this.currentHp = 5.5 * options[0].hpMultiplier;
+        this.maxHp = 5.5 * options[0].hpMultiplier;
         this.currentSpeed = 0.5;
         this.goldReward = 5 * options[0].goldMultiplier;
 
@@ -158,6 +158,12 @@ export default class CasterBehavior extends ScriptBehavior {
     }
 
     initShoot() {
+        if (this.actor.x < this.target.pos.x) {
+            this.sprite.scale.x = 1;
+        } else {
+            this.sprite.scale.x = -1;
+        }
+
         game.rootScene.add(EntityBuilder.create("actor:projectile", {
             startPos: { x: Math.round(this.actor.x), y: Math.round(this.actor.y) },
             targetPos: { x: Math.round(this.target.x), y: Math.round(this.target.y) },
@@ -176,6 +182,16 @@ export default class CasterBehavior extends ScriptBehavior {
         }));
     }
 
+    getRandomPos() {
+        const r = (120 / 2) * Math.sqrt(Math.random());
+        const theta = Math.random() * 2 * Math.PI;
+        const x = Math.round(this.target.pos.x + r * Math.cos(theta));
+        const y = Math.round(this.target.pos.y + r * Math.sin(theta));
+
+        this.nextPos.x = x;
+        this.nextPos.y = y;
+    }
+
     computeMovement() {
         if (this.timerForCurrentShoot.isStarted) {
             this.delayToMove.reset();
@@ -185,13 +201,18 @@ export default class CasterBehavior extends ScriptBehavior {
 
         if (this.isFocusing) {
             if (!this.isMoving && !this.timerForCurrentShoot.isStarted) {
-                const r = (60 / 2) * Math.sqrt(Math.random());
-                const theta = Math.random() * 2 * Math.PI;
-                const x = Math.round(this.target.pos.x + r * Math.cos(theta));
-                const y = Math.round(this.target.pos.y + r * Math.sin(theta));
+                this.getRandomPos();
+            }
 
-                this.nextPos.x = x;
-                this.nextPos.y = y;
+            const distanceBetweenTargetAndNextPos = this.target.pos.distanceTo(this.nextPos);
+            if (this.isMoving && distanceBetweenTargetAndNextPos > 120) {
+                this.getRandomPos();
+            }
+
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= 220) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
             }
 
             this.goTo();
@@ -237,7 +258,6 @@ export default class CasterBehavior extends ScriptBehavior {
             this.nextPos.x = null;
             this.nextPos.y = null;
 
-            this.sprite.scale.x = 1;
             this.isMoving = false;
             this.delayToMove.reset()
                 .start();

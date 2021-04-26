@@ -3,7 +3,7 @@
   "editorsettings": {
     "export": {
       "format": "json",
-      "target": "test.json"
+      "target": "village.json"
     }
   },
   "height": 100,
@@ -1452,8 +1452,8 @@
           "type": "",
           "visible": true,
           "width": 31.3333,
-          "x": -144.333,
-          "y": -331.667
+          "x": 326.167,
+          "y": 135.333
         },
         {
           "height": 31.3333,
@@ -1463,8 +1463,8 @@
           "type": "",
           "visible": true,
           "width": 31.3333,
-          "x": 329,
-          "y": 135.667
+          "x": 352.5,
+          "y": -416.833
         },
         {
           "height": 31.3333,
@@ -1474,8 +1474,8 @@
           "type": "",
           "visible": true,
           "width": 31.3333,
-          "x": 396,
-          "y": -406.333
+          "x": -138,
+          "y": -322.333
         },
         {
           "height": 42,
