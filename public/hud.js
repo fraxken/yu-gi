@@ -21,18 +21,6 @@ import "./components/common/index.js";
 function newInputType(newType) {
     console.log("new input usage: ", newType);
 }
-function updateOffensiveCard(card) {
-    console.log("new offensive card:", card);
-}
-function updateDefensiveCard(card) {
-    console.log("new defensive slot:", card);
-}
-function updatePassiveCard(card) {
-    console.log("new update slot:", card);
-}
-function updateConsomableCard(card) {
-    console.log("new consomable slot:", card);
-}
 
 function triggerModal(open, modelName) {
     const modalManager = document.getElementById("modal-manager");
