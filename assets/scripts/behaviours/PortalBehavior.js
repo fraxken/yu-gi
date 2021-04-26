@@ -1,5 +1,5 @@
 // Import dependencies
-import { ScriptBehavior, getActor } from "../ECS";
+import { ScriptBehavior, getActor, boxesIntersect } from "../ECS";
 import { Inputs } from "../keys";
 
 export default class PortalBehavior extends ScriptBehavior {
@@ -24,12 +24,12 @@ export default class PortalBehavior extends ScriptBehavior {
     }
 
     update() {
-        const distance = this.actor.pos.distanceTo(this.target.pos);
-        if (Inputs.use() && !this.open && distance < PortalBehavior.DistanceToOpen) {
+        const intersect = boxesIntersect(this.actor, this.target);
+        if (Inputs.use() && !this.open && intersect) {
             hudevents.emit("picker", true);
             this.open = true;
         }
-        else if (this.open && (distance > PortalBehavior.DistanceToOpen || Inputs.escape())) {
+        else if (this.open && (!intersect || Inputs.escape())) {
             hudevents.emit("picker", false);
             this.open = false;
         }

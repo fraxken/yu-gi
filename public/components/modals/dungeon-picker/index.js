@@ -87,13 +87,12 @@ class DungeonPicker extends LitElement {
         this.niveauId = niveauId;
     }
 
-    roomClicked(event) {
-        const isLocked = event.target.classList.contains("locked");
+    roomClicked(isLocked, dataid) {
         if (isLocked) {
             return;
         }
 
-        const [roomId, niveauId] = progressionParser(event.target.getAttribute("data-id"));
+        const [roomId, niveauId] = progressionParser(dataid);
         const player = game.rootScene.findChild("player", true);
         const script = player.getScriptedBehavior("PlayerBehavior");
 
@@ -111,13 +110,13 @@ class DungeonPicker extends LitElement {
         }
 
         return html`
-            <div class="room ${roomOneLocked ? "lock" : "unlock"}" data-id="1.${niveau}" @click=${this.roomClicked}>
+            <div class="room ${roomOneLocked ? "lock" : "unlock"}" @click=${() => this.roomClicked(roomOneLocked, "1.${niveau}")}>
                 <img src=${roomOneLocked ? closeURL : openURL} />
             </div>
-            <div class="room ${roomTwoLocked ? "lock" : "unlock"}" data-id="2.${niveau}" @click=${this.roomClicked}>
+            <div class="room ${roomTwoLocked ? "lock" : "unlock"}" @click=${() => this.roomClicked(roomTwoLocked, "1.${niveau}")}>
                 <img src=${roomTwoLocked ? closeURL : openURL} />
             </div>
-            <div class="room ${roomThreeLocked ? "lock" : "unlock"}" data-id="3.${niveau}" @click=${this.roomClicked}>
+            <div class="room ${roomThreeLocked ? "lock" : "unlock"}" @click=${() => this.roomClicked(roomThreeLocked, "1.${niveau}")}>
                 <img src=${roomThreeLocked ? closeURL : openURL} />
             </div>
         `;
