@@ -99,11 +99,11 @@ export class Deck {
     }
 
     recover(cardIndex) {
-        const cardToRecover = this.lockedCard.splice(cardIndex, 1);
+        const cardToRecover = this.recuperator.splice(cardIndex, 1);
         if (cardToRecover) {
             this.cardDraw.unshift(cardToRecover);
         }
-        this.state.setState("deck.lockedCard", this.lockedCard);
+        this.state.setState("deck.recuperator", this.recuperator);
         this.state.setState("deck.draw", this.cardDraw);
     }
 
