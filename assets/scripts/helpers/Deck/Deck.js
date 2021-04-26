@@ -1,4 +1,4 @@
-import { State, getCurrentState } from "../../ECS";
+import { getCurrentState } from "../../ECS";
 import { StarterCards } from "./Card";
 
 const SkillIndex = Object.freeze({
@@ -121,6 +121,8 @@ export class Deck {
     }
 
     useDefensiveSkill() {
+        this.slotHUD[SkillIndex.Offensive].defend();
+
         this.discard(this.slotHUD[SkillIndex.Defensive]);
 
         this.slotHUD.splice(SkillIndex.Defensive, 1);
@@ -133,6 +135,8 @@ export class Deck {
 
     useConsumable() {
         if (this.slotHUD[SkillIndex.Consumable]) {
+            this.slotHUD[SkillIndex.Consumable].consume();
+
             this.dump(this.slotHUD[SkillIndex.Consumable])
 
             this.slotHUD.splice(SkillIndex.Consumable, 1);

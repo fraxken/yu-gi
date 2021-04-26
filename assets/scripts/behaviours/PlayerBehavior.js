@@ -20,7 +20,7 @@ const kPlayerStats = {
     maxHp: 20
 }
 
-const DEFAULT_LIFE_REGENERATION = 1;
+const DEFAULT_HEALTH_REGENERATION = 1;
 const DEFAULT_SPEED_BOOST = 0;
 
 export default class PlayerBehavior extends ScriptBehavior {
@@ -43,7 +43,7 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.time = new Timer(60 * 5);
         this.dieScreen = null;
         this.damageContainer = new Set();
-        this.lifeRegeneration = DEFAULT_LIFE_REGENERATION;
+        this.healthRegeneration = DEFAULT_HEALTH_REGENERATION;
         this.speedBoost = DEFAULT_SPEED_BOOST;
 
         this.speed = new ProgressiveNumber(speed, speed * 2, {
@@ -367,7 +367,7 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         // TODO: remove this later
         if (this.time.walk() && this.currentHp < this.maxHp) {
-            this.currentHp += 1;
+            this.addHealth(this.healthRegeneration);
         }
 
         this.computeMovement();
@@ -382,17 +382,47 @@ export default class PlayerBehavior extends ScriptBehavior {
         this.actor.applyVelocity();
     }
 
-    testAction(aMessage) {
-        console.log(aMessage);
+    addHealth(amount) {
+        if ((this.currentHp + amount) <= this.maxHp) {
+            this.currentHp += amount;
+        } else {
+            this.currentHp += (this.maxHp - this.currentHp);
+        }
+    }
+
+    offensiveSkill(aMessage) {
+        console.log("atack", aMessage);
+    }
+
+    defensiveSkill(aMessage) {
+        console.log("defend", aMessage);
+    }
+
+    consumable(name, value) {
+        console.log("consume", name, value);
+        switch (name) {
+            case "healthUp":
+                this.addHealth(value);
+                break;
+
+            default:
+                break;
+        }
     }
 
     activatePassive(passiveName, value) {
         switch (passiveName) {
-            case "lifeRegenBoost":
-                this.lifeRegeneration = value;
+            case "healthRegenBoost":
+                this.healthRegeneration = value;
                 break;
             case "speedBoost":
                 this.speedBoost = value;
+                break;
+            case "attackRangeBoost":
+                break;
+            case "attackDamageBoost":
+                break;
+            case "defenseBoost":
                 break;
             default:
                 break;
@@ -401,11 +431,17 @@ export default class PlayerBehavior extends ScriptBehavior {
 
     deactivatePassive(passiveName) {
         switch (passiveName) {
-            case "lifeRegenBoost":
-                this.lifeRegeneration = DEFAULT_LIFE_REGENERATION;
+            case "healthRegenBoost":
+                this.healthRegeneration = DEFAULT_HEALTH_REGENERATION;
                 break;
             case "speedBoost":
                 this.speedBoost = DEFAULT_SPEED_BOOST;
+                break;
+            case "attackRangeBoost":
+                break;
+            case "attackDamageBoost":
+                break;
+            case "defenseBoost":
                 break;
             default:
                 break;
