@@ -14,7 +14,8 @@ export default class CasterBehavior extends ScriptBehavior {
         defenseMultiplier: 1,
         attackMultiplier: 1,
         hpMultiplier: 1,
-        missRatio: 0.45
+        missRatio: 0.45,
+        goldMultiplier: 1
     }) {
         super();
 
@@ -22,12 +23,13 @@ export default class CasterBehavior extends ScriptBehavior {
         this.deplacementAreaRadius = 20;
         this.deplacementMaxAreaRadius = 160;
         this.attackingRange = 220;
-        this.damage = 1 * options.attackMultiplier;
-        this.missRatio = options.missRatio;
-        this.defense = 0.5 * options.defenseMultiplier;
-        this.currentHp = 3 * options.hpMultiplier;
-        this.maxHp = 3 * options.hpMultiplier;
+        this.damage = 1 * options[0].attackMultiplier;
+        this.missRatio = options[0].missRatio;
+        this.defense = 0.5 * options[0].defenseMultiplier;
+        this.currentHp = 3 * options[0].hpMultiplier;
+        this.maxHp = 3 * options[0].hpMultiplier;
         this.currentSpeed = 0.5;
+        this.goldReward = 5 * options[0].goldMultiplier;
 
         // Deplacements
         this.isMoving = false;
@@ -70,7 +72,7 @@ export default class CasterBehavior extends ScriptBehavior {
         const player = this.state.getState("player");
         this.state.setState("player", {
             currentHp: player.currentHp,
-            gold: player.gold + 10,
+            gold: player.gold + this.goldReward,
             maxHp: player.maxHp
         });
 

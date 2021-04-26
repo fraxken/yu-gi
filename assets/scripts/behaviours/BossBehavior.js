@@ -26,7 +26,8 @@ export default class BossBehavior extends ScriptBehavior {
         defenseMultiplier: 1,
         attackMultiplier: 1,
         hpMultiplier: 1,
-        missRatio: 0.45
+        missRatio: 0.45,
+        goldMultiplier: 1
     }) {
         super();
 
@@ -35,17 +36,18 @@ export default class BossBehavior extends ScriptBehavior {
         this.deplacementMaxAreaRadius = 320;
         this.targetingRangeForMelee = 120;
         this.attackingRangeForMelee = 20;
-        this.meleeDamage = 2 * options.attackMultiplier;
+        this.meleeDamage = 2 * options[0].attackMultiplier;
         this.minRangeForDist = 120;
         this.attackingRangeForDist = 200;
-        this.rangedDamage = 1 * options.attackMultiplier;
+        this.rangedDamage = 1 * options[0].attackMultiplier;
         this.attackingRangeForSpecialAttack = 60;
-        this.specialAttackDamage = 4 * options.attackMultiplier;
-        this.missRatio = 0.5 * options.missRatio;
-        this.defense = 1 * options.defenseMultiplier;
-        this.currentHp = 10 * options.hpMultiplier;
-        this.maxHp = 10 * options.hpMultiplier;
+        this.specialAttackDamage = 4 * options[0].attackMultiplier;
+        this.missRatio = 0.5 * options[0].missRatio;
+        this.defense = 1 * options[0].defenseMultiplier;
+        this.currentHp = 10 * options[0].hpMultiplier;
+        this.maxHp = 10 * options[0].hpMultiplier;
         this.currentSpeed = 0.8;
+        this.goldReward = 35 * options[0].goldMultiplier;
 
         // Deplacements
         this.isMoving = false;
@@ -447,7 +449,7 @@ export default class BossBehavior extends ScriptBehavior {
         const player = this.state.getState("player");
         this.state.setState("player", {
             currentHp: player.currentHp,
-            gold: player.gold + 10,
+            gold: player.gold + this.goldReward,
             maxHp: player.maxHp
         });
 

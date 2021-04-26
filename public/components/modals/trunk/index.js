@@ -1,166 +1,94 @@
 import { css, LitElement, html } from 'lit-element';
+import { Card } from '../../../../assets/scripts/helpers/Deck/Card';
 
 import { buildFakeCards } from '../../../fixtures';
 
 class TrunkModal extends LitElement {
-  static get properties() {
-    return {
-      cards: { type: Array },
-      selectedCardIds: { type: Array },
-      handLimit: { type: Number }
-    }
-  }
-
-  static get styles() {
-     return css`
-      .modal-trunk {
-        padding: 20px;
-        box-shadow: 1px 1px 10px black;
-        background: rgba(20, 40, 20, 0.65);
-        border-radius: 10px;
-      }
-
-      .modal-trunk-deck-card {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px 8px;
-        height: 200px;
-        width: 100%;
-      }
-
-      .card-wrapper {
-        width: 80px;
-        height: 100px;
-        margin-right: 4px;
-        margin-bottom: 4px;
-        font-size: 8px;
-        cursor: pointer;
-      }
-
-      .selected {
-        color: gray
-      }
-      .base-button {
-        margin-top: 10px;
-        font-weight: bold;
-        padding: 10px 10px 10px 10px ;
-        border-radius: 7px;
-        box-shadow: 0 .2em gray;
-        cursor: pointer;
-      }
-      .pick-up-button {
-        background-color: burlywood;
-        width: 80px;
-      }
-      .close-button {
-        background-color: orangered;
-      }
-      .close-button-wrapper {
-        display: flex;
-        justify-content: space-around;
-      }
-    `;
-  }
-
-  constructor() {
-    super();
-
-    this.cards = window.trunkCards || buildFakeCards(3);
-    this.selectedCardIds = [];
-    this.handLimit = 2;
-  }
-
-  get selectedCardCount() {
-    return this.selectedCardIds.length;
-  }
-
-  render() {
-    const remainingCards = this.computeRemainingCards()
-
-    return html`
-        <div class="modal-trunk">
-          <h1>Trunk content</h1>
-          ${this.cards.length > 0
-            ? html`<p>You can pick ${remainingCards} cards in this trunk:</p>`
-            : null
-          }
-          <div class="modal-trunk-deck-card">
-            <!-- 🤮 poor this -->
-            ${this.cards && this.cards.length
-              ? this.cards.map(this.renderCard(this))
-              : html`No cards to revive`
+    static get styles() {
+        return css`
+            .modal-trunk {
+                padding: 60px;
+                background: #474747;
+                background: -moz-linear-gradient(top,  #474747 0%, #1e1812 100%);
+                background: -webkit-linear-gradient(top,  #474747 0%,#1e1812 100%);
+                background: linear-gradient(to bottom,  #474747 0%,#1e1812 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#474747', endColorstr='#1e1812',GradientType=0 );
+                border: 4px solid black;
+                border-radius: 10px;
+                display: flex;
             }
-            <!-- 🤮 -->
-          </div>
-          <div class="close-button-wrapper">
-            <button
-              class="base-button close-button"
-              @click=${this.submitSelection}
-            >
-              Close the trunk and pick ${this.selectedCardCount} cards up.
-            </button>
-          </div>
-        </div>
-    `;
-  }
-
-  submitSelection() {
-    alert(`You picked ${this.selectedCardCount} cards.`)
-    this.selectedCardIds = []
-  }
-
-  computeRemainingCards() {
-    const { handLimit, cards, selectedCardCount } = this;
-
-    if (handLimit > cards.length) {
-      return cards.length - selectedCardCount
+            .modal-trunk .card-slot {
+                display: flex;
+                flex-direction: column;
+            }
+            .modal-trunk .card-slot + .card-slot {
+                margin-left: 80px;
+            }
+            .modal-trunk .card-slot .pick {
+                height: 40px;
+                background: #95a5a5;
+                background: -moz-linear-gradient(top,  #95a5a5 0%, #596a72 100%);
+                background: -webkit-linear-gradient(top,  #95a5a5 0%,#596a72 100%);
+                background: linear-gradient(to bottom,  #95a5a5 0%,#596a72 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#95a5a5', endColorstr='#596a72',GradientType=0 );
+                color: black;
+                box-sizing: border-box;
+                border-radius: 10px;
+                border: 2px solid black;
+                padding: 0 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: Roboto;
+                margin-top: 20px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+            .modal-trunk .card-slot .pick:hover {
+                cursor: pointer;
+                border-color: #FFF;
+                color: #FFF;
+                text-shadow: 2px 2px 2px black;
+            }
+        `;
     }
 
-    return handLimit - selectedCardCount;
-  }
+    constructor() {
+        super();
 
-  removeIdFromSelection(targetId) {
-    this.selectedCardIds = this.selectedCardIds.filter(id => id !== targetId);
-  }
+        /** @type {Card[]} */
+        this.cards = Array.isArray(window.trunkCards) ? window.trunkCards : buildFakeCards(3);
+    }
 
-  addIdToSelection(targetId) {
-    this.selectedCardIds = [...this.selectedCardIds, targetId];
-  }
+    addCardToDeck(event) {
+        const id = event.target.getAttribute("data-id");
+        const [card] = this.cards.splice(id, 1);
+        console.log(card);
+        // TODO: add card to the deck!
 
-  handleSelect(targetId) {
-    return () => {
-      const isSelected = this.selectedCardIds.includes(targetId);
-      if (isSelected) {
-        this.removeIdFromSelection(targetId);
-      } else {
-        const isHandFull = this.selectedCardCount >= this.handLimit;
+        this.update();
+    }
 
-        if (!isHandFull) {
-          this.addIdToSelection(targetId);
-        } else {
-          alert('Your hand is full');
+    *fetchCardsInCurrentChest() {
+        for (let id = 0; id < this.cards.length; id++) {
+            const card = this.cards[id];
+            // Type of the card ?? typeCard
+            console.log(card);
+
+            yield html`
+            <div class="card-slot">
+                <render-slot .card='${card}' typeCard='offensive'></render-slot>
+                <div class="pick" data-id=${id} @click=${this.addCardToDeck}>ADD TO DECK</div>
+            </div>
+            `;
         }
-      }
     }
-  }
 
-  renderCard(self) { // 🤮
-    return (card) => {
-      const isSelected = self.selectedCardIds.includes(card.id);
-
-      return html`
-        <div class="card-wrapper">
-          <action-card .card=${{ typeCard: card.name }}></action-card>
-          <button
-            class="base-button pick-up-button ${isSelected && "selected"}"
-            @click=${self.handleSelect(card.id)}
-          >
-            Pick up
-          </button>
-        </div>
-      `;
+    render() {
+        return html`
+            <div class="modal-trunk">${[...this.fetchCardsInCurrentChest()].concat()}</div>
+        `;
     }
-  }
 }
 
 customElements.define('modal-trunk', TrunkModal);

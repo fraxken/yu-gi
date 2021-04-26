@@ -1,6 +1,6 @@
 // Import Internal Dependencies
 import { EntityBuilder, Key, progressionParser, nextProgression, AnimatedText, Animations } from "../helpers";
-import { Scene, Actor, getCurrentState, Timer } from "../ECS";
+import { Scene, Actor, getCurrentState, Timer, getActor } from "../ECS";
 import Room from "../helpers/Room";
 
 import RoomSpawner from "../helpers/RoomSpawner.class";
@@ -27,7 +27,7 @@ export default class DungeonScene extends Scene {
     constructor(roomsId = 1, niveauId = 1) {
         super({ useLRUCache: true, debug: false });
         Object.assign(this, { roomsId, niveauId }, kRoomConfig);
-        this.config = DungeonConfiguration[roomsId][niveauId];
+        this.config = DungeonConfiguration[niveauId][roomsId];
 
         /** @type {Actor[]} */
         this.connectedToSecret = [];
@@ -130,6 +130,8 @@ export default class DungeonScene extends Scene {
             state.setState("dungeon.progression", `${next[0]}.${next[1]}`);
         }
 
+        getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("recuperator");
+
         game.loadScene("default");
     }
 
@@ -201,7 +203,7 @@ export default class DungeonScene extends Scene {
         }
 
         // Open and close minimap
-        if(game.input.wasKeyJustPressed(Key.M)) {
+        if (game.input.wasKeyJustPressed(Key.M)) {
             hudevents.emit("minimap", true);
         }
         else if (game.input.wasKeyJustReleased(Key.M)) {
