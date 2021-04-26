@@ -27,6 +27,63 @@ class DeckModal extends LitElement {
                 height: 250px;
                 width: 100%;
             }
+            .isSelected {
+                border: 2px solid white;
+                border-radius: 4px;
+            }
+            .isNotSelected:hover {
+                border: 1px solid lightgray;
+                border-radius: 4px;
+            }
+            .slot {
+                height: 175px;
+                width: 135px;
+                margin-left: 20px;
+                -webkit-filter: grayscale(100%); /* Chrome, Safari, Opera */
+                filter: grayscale(100%);
+            }
+            .slot-offensive {
+                background: url("./images/slot/offensif.png") no-repeat;
+            }
+            .slot-defensive {
+                background: url("./images/slot/defensif.png") no-repeat;
+            }
+            .slot-passive {
+                background: url("./images/slot/passif.png") no-repeat;
+            }
+            .slot-consumable {
+                background: url("./images/slot/consommable.png") no-repeat;
+            }
+            .slot-offensive:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+            .slot-defensive:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+            .slot-passive:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+            .slot-consumable:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+
+
+            .selector {
+                display: flex;
+                transform: scale(0.3);
+                position: absolute;
+                right: -218px;
+                top: -63px;
+            }
+            .header {
+                position: relative;
+                display: flex;
+                justify-content: space-between;
+            }
         `;
     }
 
@@ -43,8 +100,11 @@ class DeckModal extends LitElement {
     }
 
     renderWrapper(card, index) {
+
+        const isSelected = index === this.selectedId;
+
         return html`
-        <div @click='${() => this.selectedCard(index)}'>
+        <div @click='${() => this.selectedCard(index)}' class="${isSelected ? 'isSelected' : 'isNotSelected'}">
             <render-card .card="${card}"></render-card>
         </div>
         `
@@ -58,19 +118,33 @@ class DeckModal extends LitElement {
         `
     }
 
+    handleSelectSlot(selectedId, selectedSlot) {
+        console.log({ selectedId, selectedSlot });
+        window.hudevents.emit('selectedCard', selectedId, selectedSlot);
+    }
+
     renderSlotSelector() {
-        return html`
-            <div >
-               Selector
-            </div>
-        `;
+        if (this.selectedId !== -1) {
+            return html`
+                <div class="selector">
+                    <div class="slot slot-offensive" @click='${() => this.handleSelectSlot(this.selectedId, 'offensive')}'></div>
+                    <div class="slot slot-defensive" @click='${() => this.handleSelectSlot(this.selectedId, 'defensive')}'></div>
+                    <div class="slot slot-passive" @click='${() => this.handleSelectSlot(this.selectedId, 'passive')}'></div>
+                    <div class="slot slot-consumable" @click='${() => this.handleSelectSlot(this.selectedId, 'consumable')}'></div>
+                </div>
+            `;
+        }
+
     }
 
     render() {
         return html`
             <div class="modal-deck">
-                <h1>Deck</h1>
-                ${this.selectedId === -1 ? this.renderList() : this.renderSlotSelector()}
+                <div class="header">
+                    <h1>Deck</h1>
+                    ${this.renderSlotSelector()}
+                </div>
+                ${this.renderList()}
             </div>
         `;
     }

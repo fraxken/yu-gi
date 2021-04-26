@@ -10,6 +10,7 @@ import "./components/action-keys/action-keys.js";
 import "./components/action-keys/move-keys.js";
 import "./components/action-keys/action-key.js";
 import "./components/common/slot/index";
+import "./components/common/card/index";
 
 // MODALS
 import "./components/modals/manager.js";
