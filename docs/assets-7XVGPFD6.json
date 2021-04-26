@@ -1,0 +1,34 @@
+{
+    "tilesets": [
+        "TilesetElement",
+        "TilesetFloor",
+        "TilesetHouse",
+        "TilesetNature",
+        "TilesetDungeon",
+        "TilesetFloorDetail",
+        "TilesetHole",
+        "TilesetInterior",
+        "TilesetInteriorFloor",
+        "TilesetLogic",
+        "TilesetRelief",
+        "TilesetReliefDetail",
+        "TilesetWater"
+    ],
+    "assets": {
+        "map1": "tilemaps/test.json",
+        "room": "tilemaps/room.json",
+        "boss_room": "tilemaps/boss.json",
+        "no_enemy_room": "tilemaps/no_enemy_room.json",
+        "adventurer": "sprites/adventurer.json",
+        "town0": "sounds/town0.wav",
+        "town1": "sounds/town1.wav",
+        "donjon1": "sounds/donjon1.wav",
+        "donjon2": "sounds/donjon2.wav",
+        "donjon3": "sounds/donjon3.wav",
+        "house": "sounds/house.wav",
+        "battle": "sounds/battle.wav",
+        "gameover": "sounds/gameover.wav",
+        "win": "sounds/win.wav",
+        "death": "sounds/death.wav"
+    }
+}

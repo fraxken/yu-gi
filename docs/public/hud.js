@@ -7,6 +7,7 @@
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, {enumerable: true, configurable: true, writable: true, value}) : obj[key] = value;
   var __markAsModule = (target) => __defProp(target, "__esModule", {value: true});
+  var __esm = (fn, res) => () => (fn && (res = fn(fn = 0)), res);
   var __commonJS = (cb, mod) => () => (mod || cb((mod = {exports: {}}).exports, mod), mod.exports);
   var __export = (target, all) => {
     for (var name in all)
@@ -27,6 +28,1753 @@
     __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
     return value;
   };
+
+  // node_modules/lit-html/lib/dom.js
+  var isCEPolyfill, reparentNodes, removeNodes;
+  var init_dom = __esm(() => {
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    isCEPolyfill = typeof window !== "undefined" && window.customElements != null && window.customElements.polyfillWrapFlushCallback !== void 0;
+    reparentNodes = (container, start, end = null, before = null) => {
+      while (start !== end) {
+        const n2 = start.nextSibling;
+        container.insertBefore(start, before);
+        start = n2;
+      }
+    };
+    removeNodes = (container, start, end = null) => {
+      while (start !== end) {
+        const n2 = start.nextSibling;
+        container.removeChild(start);
+        start = n2;
+      }
+    };
+  });
+
+  // node_modules/lit-html/lib/template.js
+  var marker, nodeMarker, markerRegex, boundAttributeSuffix, Template, endsWith, isTemplatePartActive, createMarker, lastAttributeNameRegex;
+  var init_template = __esm(() => {
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    marker = `{{lit-${String(Math.random()).slice(2)}}}`;
+    nodeMarker = `<!--${marker}-->`;
+    markerRegex = new RegExp(`${marker}|${nodeMarker}`);
+    boundAttributeSuffix = "$lit$";
+    Template = class {
+      constructor(result, element) {
+        this.parts = [];
+        this.element = element;
+        const nodesToRemove = [];
+        const stack = [];
+        const walker = document.createTreeWalker(element.content, 133, null, false);
+        let lastPartIndex = 0;
+        let index = -1;
+        let partIndex = 0;
+        const {strings, values: {length}} = result;
+        while (partIndex < length) {
+          const node = walker.nextNode();
+          if (node === null) {
+            walker.currentNode = stack.pop();
+            continue;
+          }
+          index++;
+          if (node.nodeType === 1) {
+            if (node.hasAttributes()) {
+              const attributes = node.attributes;
+              const {length: length2} = attributes;
+              let count = 0;
+              for (let i2 = 0; i2 < length2; i2++) {
+                if (endsWith(attributes[i2].name, boundAttributeSuffix)) {
+                  count++;
+                }
+              }
+              while (count-- > 0) {
+                const stringForPart = strings[partIndex];
+                const name = lastAttributeNameRegex.exec(stringForPart)[2];
+                const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
+                const attributeValue = node.getAttribute(attributeLookupName);
+                node.removeAttribute(attributeLookupName);
+                const statics = attributeValue.split(markerRegex);
+                this.parts.push({type: "attribute", index, name, strings: statics});
+                partIndex += statics.length - 1;
+              }
+            }
+            if (node.tagName === "TEMPLATE") {
+              stack.push(node);
+              walker.currentNode = node.content;
+            }
+          } else if (node.nodeType === 3) {
+            const data = node.data;
+            if (data.indexOf(marker) >= 0) {
+              const parent = node.parentNode;
+              const strings2 = data.split(markerRegex);
+              const lastIndex = strings2.length - 1;
+              for (let i2 = 0; i2 < lastIndex; i2++) {
+                let insert;
+                let s3 = strings2[i2];
+                if (s3 === "") {
+                  insert = createMarker();
+                } else {
+                  const match = lastAttributeNameRegex.exec(s3);
+                  if (match !== null && endsWith(match[2], boundAttributeSuffix)) {
+                    s3 = s3.slice(0, match.index) + match[1] + match[2].slice(0, -boundAttributeSuffix.length) + match[3];
+                  }
+                  insert = document.createTextNode(s3);
+                }
+                parent.insertBefore(insert, node);
+                this.parts.push({type: "node", index: ++index});
+              }
+              if (strings2[lastIndex] === "") {
+                parent.insertBefore(createMarker(), node);
+                nodesToRemove.push(node);
+              } else {
+                node.data = strings2[lastIndex];
+              }
+              partIndex += lastIndex;
+            }
+          } else if (node.nodeType === 8) {
+            if (node.data === marker) {
+              const parent = node.parentNode;
+              if (node.previousSibling === null || index === lastPartIndex) {
+                index++;
+                parent.insertBefore(createMarker(), node);
+              }
+              lastPartIndex = index;
+              this.parts.push({type: "node", index});
+              if (node.nextSibling === null) {
+                node.data = "";
+              } else {
+                nodesToRemove.push(node);
+                index--;
+              }
+              partIndex++;
+            } else {
+              let i2 = -1;
+              while ((i2 = node.data.indexOf(marker, i2 + 1)) !== -1) {
+                this.parts.push({type: "node", index: -1});
+                partIndex++;
+              }
+            }
+          }
+        }
+        for (const n2 of nodesToRemove) {
+          n2.parentNode.removeChild(n2);
+        }
+      }
+    };
+    endsWith = (str, suffix) => {
+      const index = str.length - suffix.length;
+      return index >= 0 && str.slice(index) === suffix;
+    };
+    isTemplatePartActive = (part) => part.index !== -1;
+    createMarker = () => document.createComment("");
+    lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
+  });
+
+  // node_modules/lit-html/lib/modify-template.js
+  function removeNodesFromTemplate(template, nodesToRemove) {
+    const {element: {content}, parts: parts2} = template;
+    const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
+    let partIndex = nextActiveIndexInTemplateParts(parts2);
+    let part = parts2[partIndex];
+    let nodeIndex = -1;
+    let removeCount = 0;
+    const nodesToRemoveInTemplate = [];
+    let currentRemovingNode = null;
+    while (walker.nextNode()) {
+      nodeIndex++;
+      const node = walker.currentNode;
+      if (node.previousSibling === currentRemovingNode) {
+        currentRemovingNode = null;
+      }
+      if (nodesToRemove.has(node)) {
+        nodesToRemoveInTemplate.push(node);
+        if (currentRemovingNode === null) {
+          currentRemovingNode = node;
+        }
+      }
+      if (currentRemovingNode !== null) {
+        removeCount++;
+      }
+      while (part !== void 0 && part.index === nodeIndex) {
+        part.index = currentRemovingNode !== null ? -1 : part.index - removeCount;
+        partIndex = nextActiveIndexInTemplateParts(parts2, partIndex);
+        part = parts2[partIndex];
+      }
+    }
+    nodesToRemoveInTemplate.forEach((n2) => n2.parentNode.removeChild(n2));
+  }
+  function insertNodeIntoTemplate(template, node, refNode = null) {
+    const {element: {content}, parts: parts2} = template;
+    if (refNode === null || refNode === void 0) {
+      content.appendChild(node);
+      return;
+    }
+    const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
+    let partIndex = nextActiveIndexInTemplateParts(parts2);
+    let insertCount = 0;
+    let walkerIndex = -1;
+    while (walker.nextNode()) {
+      walkerIndex++;
+      const walkerNode = walker.currentNode;
+      if (walkerNode === refNode) {
+        insertCount = countNodes(node);
+        refNode.parentNode.insertBefore(node, refNode);
+      }
+      while (partIndex !== -1 && parts2[partIndex].index === walkerIndex) {
+        if (insertCount > 0) {
+          while (partIndex !== -1) {
+            parts2[partIndex].index += insertCount;
+            partIndex = nextActiveIndexInTemplateParts(parts2, partIndex);
+          }
+          return;
+        }
+        partIndex = nextActiveIndexInTemplateParts(parts2, partIndex);
+      }
+    }
+  }
+  var walkerNodeFilter, countNodes, nextActiveIndexInTemplateParts;
+  var init_modify_template = __esm(() => {
+    init_template();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    walkerNodeFilter = 133;
+    countNodes = (node) => {
+      let count = node.nodeType === 11 ? 0 : 1;
+      const walker = document.createTreeWalker(node, walkerNodeFilter, null, false);
+      while (walker.nextNode()) {
+        count++;
+      }
+      return count;
+    };
+    nextActiveIndexInTemplateParts = (parts2, startIndex = -1) => {
+      for (let i2 = startIndex + 1; i2 < parts2.length; i2++) {
+        const part = parts2[i2];
+        if (isTemplatePartActive(part)) {
+          return i2;
+        }
+      }
+      return -1;
+    };
+  });
+
+  // node_modules/lit-html/lib/directive.js
+  var directives, directive, isDirective;
+  var init_directive = __esm(() => {
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    directives = new WeakMap();
+    directive = (f2) => (...args) => {
+      const d2 = f2(...args);
+      directives.set(d2, true);
+      return d2;
+    };
+    isDirective = (o2) => {
+      return typeof o2 === "function" && directives.has(o2);
+    };
+  });
+
+  // node_modules/lit-html/lib/part.js
+  var noChange, nothing;
+  var init_part = __esm(() => {
+    /**
+     * @license
+     * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    noChange = {};
+    nothing = {};
+  });
+
+  // node_modules/lit-html/lib/template-instance.js
+  var TemplateInstance;
+  var init_template_instance = __esm(() => {
+    init_dom();
+    init_template();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    TemplateInstance = class {
+      constructor(template, processor, options) {
+        this.__parts = [];
+        this.template = template;
+        this.processor = processor;
+        this.options = options;
+      }
+      update(values) {
+        let i2 = 0;
+        for (const part of this.__parts) {
+          if (part !== void 0) {
+            part.setValue(values[i2]);
+          }
+          i2++;
+        }
+        for (const part of this.__parts) {
+          if (part !== void 0) {
+            part.commit();
+          }
+        }
+      }
+      _clone() {
+        const fragment = isCEPolyfill ? this.template.element.content.cloneNode(true) : document.importNode(this.template.element.content, true);
+        const stack = [];
+        const parts2 = this.template.parts;
+        const walker = document.createTreeWalker(fragment, 133, null, false);
+        let partIndex = 0;
+        let nodeIndex = 0;
+        let part;
+        let node = walker.nextNode();
+        while (partIndex < parts2.length) {
+          part = parts2[partIndex];
+          if (!isTemplatePartActive(part)) {
+            this.__parts.push(void 0);
+            partIndex++;
+            continue;
+          }
+          while (nodeIndex < part.index) {
+            nodeIndex++;
+            if (node.nodeName === "TEMPLATE") {
+              stack.push(node);
+              walker.currentNode = node.content;
+            }
+            if ((node = walker.nextNode()) === null) {
+              walker.currentNode = stack.pop();
+              node = walker.nextNode();
+            }
+          }
+          if (part.type === "node") {
+            const part2 = this.processor.handleTextExpression(this.options);
+            part2.insertAfterNode(node.previousSibling);
+            this.__parts.push(part2);
+          } else {
+            this.__parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
+          }
+          partIndex++;
+        }
+        if (isCEPolyfill) {
+          document.adoptNode(fragment);
+          customElements.upgrade(fragment);
+        }
+        return fragment;
+      }
+    };
+  });
+
+  // node_modules/lit-html/lib/template-result.js
+  var policy, commentMarker, TemplateResult, SVGTemplateResult;
+  var init_template_result = __esm(() => {
+    init_dom();
+    init_template();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    policy = window.trustedTypes && trustedTypes.createPolicy("lit-html", {createHTML: (s3) => s3});
+    commentMarker = ` ${marker} `;
+    TemplateResult = class {
+      constructor(strings, values, type2, processor) {
+        this.strings = strings;
+        this.values = values;
+        this.type = type2;
+        this.processor = processor;
+      }
+      getHTML() {
+        const l2 = this.strings.length - 1;
+        let html8 = "";
+        let isCommentBinding = false;
+        for (let i2 = 0; i2 < l2; i2++) {
+          const s3 = this.strings[i2];
+          const commentOpen = s3.lastIndexOf("<!--");
+          isCommentBinding = (commentOpen > -1 || isCommentBinding) && s3.indexOf("-->", commentOpen + 1) === -1;
+          const attributeMatch = lastAttributeNameRegex.exec(s3);
+          if (attributeMatch === null) {
+            html8 += s3 + (isCommentBinding ? commentMarker : nodeMarker);
+          } else {
+            html8 += s3.substr(0, attributeMatch.index) + attributeMatch[1] + attributeMatch[2] + boundAttributeSuffix + attributeMatch[3] + marker;
+          }
+        }
+        html8 += this.strings[l2];
+        return html8;
+      }
+      getTemplateElement() {
+        const template = document.createElement("template");
+        let value = this.getHTML();
+        if (policy !== void 0) {
+          value = policy.createHTML(value);
+        }
+        template.innerHTML = value;
+        return template;
+      }
+    };
+    SVGTemplateResult = class extends TemplateResult {
+      getHTML() {
+        return `<svg>${super.getHTML()}</svg>`;
+      }
+      getTemplateElement() {
+        const template = super.getTemplateElement();
+        const content = template.content;
+        const svgElement = content.firstChild;
+        content.removeChild(svgElement);
+        reparentNodes(content, svgElement.firstChild);
+        return template;
+      }
+    };
+  });
+
+  // node_modules/lit-html/lib/parts.js
+  var isPrimitive, isIterable, AttributeCommitter, AttributePart, NodePart, BooleanAttributePart, PropertyCommitter, PropertyPart, eventOptionsSupported, EventPart, getOptions;
+  var init_parts = __esm(() => {
+    init_directive();
+    init_dom();
+    init_part();
+    init_template_instance();
+    init_template_result();
+    init_template();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    isPrimitive = (value) => {
+      return value === null || !(typeof value === "object" || typeof value === "function");
+    };
+    isIterable = (value) => {
+      return Array.isArray(value) || !!(value && value[Symbol.iterator]);
+    };
+    AttributeCommitter = class {
+      constructor(element, name, strings) {
+        this.dirty = true;
+        this.element = element;
+        this.name = name;
+        this.strings = strings;
+        this.parts = [];
+        for (let i2 = 0; i2 < strings.length - 1; i2++) {
+          this.parts[i2] = this._createPart();
+        }
+      }
+      _createPart() {
+        return new AttributePart(this);
+      }
+      _getValue() {
+        const strings = this.strings;
+        const l2 = strings.length - 1;
+        const parts2 = this.parts;
+        if (l2 === 1 && strings[0] === "" && strings[1] === "") {
+          const v2 = parts2[0].value;
+          if (typeof v2 === "symbol") {
+            return String(v2);
+          }
+          if (typeof v2 === "string" || !isIterable(v2)) {
+            return v2;
+          }
+        }
+        let text = "";
+        for (let i2 = 0; i2 < l2; i2++) {
+          text += strings[i2];
+          const part = parts2[i2];
+          if (part !== void 0) {
+            const v2 = part.value;
+            if (isPrimitive(v2) || !isIterable(v2)) {
+              text += typeof v2 === "string" ? v2 : String(v2);
+            } else {
+              for (const t2 of v2) {
+                text += typeof t2 === "string" ? t2 : String(t2);
+              }
+            }
+          }
+        }
+        text += strings[l2];
+        return text;
+      }
+      commit() {
+        if (this.dirty) {
+          this.dirty = false;
+          this.element.setAttribute(this.name, this._getValue());
+        }
+      }
+    };
+    AttributePart = class {
+      constructor(committer) {
+        this.value = void 0;
+        this.committer = committer;
+      }
+      setValue(value) {
+        if (value !== noChange && (!isPrimitive(value) || value !== this.value)) {
+          this.value = value;
+          if (!isDirective(value)) {
+            this.committer.dirty = true;
+          }
+        }
+      }
+      commit() {
+        while (isDirective(this.value)) {
+          const directive2 = this.value;
+          this.value = noChange;
+          directive2(this);
+        }
+        if (this.value === noChange) {
+          return;
+        }
+        this.committer.commit();
+      }
+    };
+    NodePart = class {
+      constructor(options) {
+        this.value = void 0;
+        this.__pendingValue = void 0;
+        this.options = options;
+      }
+      appendInto(container) {
+        this.startNode = container.appendChild(createMarker());
+        this.endNode = container.appendChild(createMarker());
+      }
+      insertAfterNode(ref) {
+        this.startNode = ref;
+        this.endNode = ref.nextSibling;
+      }
+      appendIntoPart(part) {
+        part.__insert(this.startNode = createMarker());
+        part.__insert(this.endNode = createMarker());
+      }
+      insertAfterPart(ref) {
+        ref.__insert(this.startNode = createMarker());
+        this.endNode = ref.endNode;
+        ref.endNode = this.startNode;
+      }
+      setValue(value) {
+        this.__pendingValue = value;
+      }
+      commit() {
+        if (this.startNode.parentNode === null) {
+          return;
+        }
+        while (isDirective(this.__pendingValue)) {
+          const directive2 = this.__pendingValue;
+          this.__pendingValue = noChange;
+          directive2(this);
+        }
+        const value = this.__pendingValue;
+        if (value === noChange) {
+          return;
+        }
+        if (isPrimitive(value)) {
+          if (value !== this.value) {
+            this.__commitText(value);
+          }
+        } else if (value instanceof TemplateResult) {
+          this.__commitTemplateResult(value);
+        } else if (value instanceof Node) {
+          this.__commitNode(value);
+        } else if (isIterable(value)) {
+          this.__commitIterable(value);
+        } else if (value === nothing) {
+          this.value = nothing;
+          this.clear();
+        } else {
+          this.__commitText(value);
+        }
+      }
+      __insert(node) {
+        this.endNode.parentNode.insertBefore(node, this.endNode);
+      }
+      __commitNode(value) {
+        if (this.value === value) {
+          return;
+        }
+        this.clear();
+        this.__insert(value);
+        this.value = value;
+      }
+      __commitText(value) {
+        const node = this.startNode.nextSibling;
+        value = value == null ? "" : value;
+        const valueAsString = typeof value === "string" ? value : String(value);
+        if (node === this.endNode.previousSibling && node.nodeType === 3) {
+          node.data = valueAsString;
+        } else {
+          this.__commitNode(document.createTextNode(valueAsString));
+        }
+        this.value = value;
+      }
+      __commitTemplateResult(value) {
+        const template = this.options.templateFactory(value);
+        if (this.value instanceof TemplateInstance && this.value.template === template) {
+          this.value.update(value.values);
+        } else {
+          const instance = new TemplateInstance(template, value.processor, this.options);
+          const fragment = instance._clone();
+          instance.update(value.values);
+          this.__commitNode(fragment);
+          this.value = instance;
+        }
+      }
+      __commitIterable(value) {
+        if (!Array.isArray(this.value)) {
+          this.value = [];
+          this.clear();
+        }
+        const itemParts = this.value;
+        let partIndex = 0;
+        let itemPart;
+        for (const item of value) {
+          itemPart = itemParts[partIndex];
+          if (itemPart === void 0) {
+            itemPart = new NodePart(this.options);
+            itemParts.push(itemPart);
+            if (partIndex === 0) {
+              itemPart.appendIntoPart(this);
+            } else {
+              itemPart.insertAfterPart(itemParts[partIndex - 1]);
+            }
+          }
+          itemPart.setValue(item);
+          itemPart.commit();
+          partIndex++;
+        }
+        if (partIndex < itemParts.length) {
+          itemParts.length = partIndex;
+          this.clear(itemPart && itemPart.endNode);
+        }
+      }
+      clear(startNode = this.startNode) {
+        removeNodes(this.startNode.parentNode, startNode.nextSibling, this.endNode);
+      }
+    };
+    BooleanAttributePart = class {
+      constructor(element, name, strings) {
+        this.value = void 0;
+        this.__pendingValue = void 0;
+        if (strings.length !== 2 || strings[0] !== "" || strings[1] !== "") {
+          throw new Error("Boolean attributes can only contain a single expression");
+        }
+        this.element = element;
+        this.name = name;
+        this.strings = strings;
+      }
+      setValue(value) {
+        this.__pendingValue = value;
+      }
+      commit() {
+        while (isDirective(this.__pendingValue)) {
+          const directive2 = this.__pendingValue;
+          this.__pendingValue = noChange;
+          directive2(this);
+        }
+        if (this.__pendingValue === noChange) {
+          return;
+        }
+        const value = !!this.__pendingValue;
+        if (this.value !== value) {
+          if (value) {
+            this.element.setAttribute(this.name, "");
+          } else {
+            this.element.removeAttribute(this.name);
+          }
+          this.value = value;
+        }
+        this.__pendingValue = noChange;
+      }
+    };
+    PropertyCommitter = class extends AttributeCommitter {
+      constructor(element, name, strings) {
+        super(element, name, strings);
+        this.single = strings.length === 2 && strings[0] === "" && strings[1] === "";
+      }
+      _createPart() {
+        return new PropertyPart(this);
+      }
+      _getValue() {
+        if (this.single) {
+          return this.parts[0].value;
+        }
+        return super._getValue();
+      }
+      commit() {
+        if (this.dirty) {
+          this.dirty = false;
+          this.element[this.name] = this._getValue();
+        }
+      }
+    };
+    PropertyPart = class extends AttributePart {
+    };
+    eventOptionsSupported = false;
+    (() => {
+      try {
+        const options = {
+          get capture() {
+            eventOptionsSupported = true;
+            return false;
+          }
+        };
+        window.addEventListener("test", options, options);
+        window.removeEventListener("test", options, options);
+      } catch (_e) {
+      }
+    })();
+    EventPart = class {
+      constructor(element, eventName, eventContext) {
+        this.value = void 0;
+        this.__pendingValue = void 0;
+        this.element = element;
+        this.eventName = eventName;
+        this.eventContext = eventContext;
+        this.__boundHandleEvent = (e2) => this.handleEvent(e2);
+      }
+      setValue(value) {
+        this.__pendingValue = value;
+      }
+      commit() {
+        while (isDirective(this.__pendingValue)) {
+          const directive2 = this.__pendingValue;
+          this.__pendingValue = noChange;
+          directive2(this);
+        }
+        if (this.__pendingValue === noChange) {
+          return;
+        }
+        const newListener = this.__pendingValue;
+        const oldListener = this.value;
+        const shouldRemoveListener = newListener == null || oldListener != null && (newListener.capture !== oldListener.capture || newListener.once !== oldListener.once || newListener.passive !== oldListener.passive);
+        const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
+        if (shouldRemoveListener) {
+          this.element.removeEventListener(this.eventName, this.__boundHandleEvent, this.__options);
+        }
+        if (shouldAddListener) {
+          this.__options = getOptions(newListener);
+          this.element.addEventListener(this.eventName, this.__boundHandleEvent, this.__options);
+        }
+        this.value = newListener;
+        this.__pendingValue = noChange;
+      }
+      handleEvent(event) {
+        if (typeof this.value === "function") {
+          this.value.call(this.eventContext || this.element, event);
+        } else {
+          this.value.handleEvent(event);
+        }
+      }
+    };
+    getOptions = (o2) => o2 && (eventOptionsSupported ? {capture: o2.capture, passive: o2.passive, once: o2.once} : o2.capture);
+  });
+
+  // node_modules/lit-html/lib/template-factory.js
+  function templateFactory(result) {
+    let templateCache = templateCaches.get(result.type);
+    if (templateCache === void 0) {
+      templateCache = {
+        stringsArray: new WeakMap(),
+        keyString: new Map()
+      };
+      templateCaches.set(result.type, templateCache);
+    }
+    let template = templateCache.stringsArray.get(result.strings);
+    if (template !== void 0) {
+      return template;
+    }
+    const key = result.strings.join(marker);
+    template = templateCache.keyString.get(key);
+    if (template === void 0) {
+      template = new Template(result, result.getTemplateElement());
+      templateCache.keyString.set(key, template);
+    }
+    templateCache.stringsArray.set(result.strings, template);
+    return template;
+  }
+  var templateCaches;
+  var init_template_factory = __esm(() => {
+    init_template();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    templateCaches = new Map();
+  });
+
+  // node_modules/lit-html/lib/render.js
+  var parts, render;
+  var init_render = __esm(() => {
+    init_dom();
+    init_parts();
+    init_template_factory();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    parts = new WeakMap();
+    render = (result, container, options) => {
+      let part = parts.get(container);
+      if (part === void 0) {
+        removeNodes(container, container.firstChild);
+        parts.set(container, part = new NodePart(Object.assign({templateFactory}, options)));
+        part.appendInto(container);
+      }
+      part.setValue(result);
+      part.commit();
+    };
+  });
+
+  // node_modules/lit-html/lib/default-template-processor.js
+  var DefaultTemplateProcessor, defaultTemplateProcessor;
+  var init_default_template_processor = __esm(() => {
+    init_parts();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    DefaultTemplateProcessor = class {
+      handleAttributeExpressions(element, name, strings, options) {
+        const prefix = name[0];
+        if (prefix === ".") {
+          const committer2 = new PropertyCommitter(element, name.slice(1), strings);
+          return committer2.parts;
+        }
+        if (prefix === "@") {
+          return [new EventPart(element, name.slice(1), options.eventContext)];
+        }
+        if (prefix === "?") {
+          return [new BooleanAttributePart(element, name.slice(1), strings)];
+        }
+        const committer = new AttributeCommitter(element, name, strings);
+        return committer.parts;
+      }
+      handleTextExpression(options) {
+        return new NodePart(options);
+      }
+    };
+    defaultTemplateProcessor = new DefaultTemplateProcessor();
+  });
+
+  // node_modules/lit-html/lit-html.js
+  var html, svg;
+  var init_lit_html = __esm(() => {
+    init_default_template_processor();
+    init_template_result();
+    init_default_template_processor();
+    init_directive();
+    init_dom();
+    init_part();
+    init_parts();
+    init_render();
+    init_template_factory();
+    init_template_instance();
+    init_template_result();
+    init_template();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    if (typeof window !== "undefined") {
+      (window["litHtmlVersions"] || (window["litHtmlVersions"] = [])).push("1.3.0");
+    }
+    html = (strings, ...values) => new TemplateResult(strings, values, "html", defaultTemplateProcessor);
+    svg = (strings, ...values) => new SVGTemplateResult(strings, values, "svg", defaultTemplateProcessor);
+  });
+
+  // node_modules/lit-html/lib/shady-render.js
+  var getTemplateCacheKey, compatibleShadyCSSVersion, shadyTemplateFactory, TEMPLATE_TYPES, removeStylesFromLitTemplates, shadyRenderSet, prepareTemplateStyles, render2;
+  var init_shady_render = __esm(() => {
+    init_dom();
+    init_modify_template();
+    init_render();
+    init_template_factory();
+    init_template_instance();
+    init_template();
+    init_lit_html();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    getTemplateCacheKey = (type2, scopeName) => `${type2}--${scopeName}`;
+    compatibleShadyCSSVersion = true;
+    if (typeof window.ShadyCSS === "undefined") {
+      compatibleShadyCSSVersion = false;
+    } else if (typeof window.ShadyCSS.prepareTemplateDom === "undefined") {
+      console.warn(`Incompatible ShadyCSS version detected. Please update to at least @webcomponents/webcomponentsjs@2.0.2 and @webcomponents/shadycss@1.3.1.`);
+      compatibleShadyCSSVersion = false;
+    }
+    shadyTemplateFactory = (scopeName) => (result) => {
+      const cacheKey = getTemplateCacheKey(result.type, scopeName);
+      let templateCache = templateCaches.get(cacheKey);
+      if (templateCache === void 0) {
+        templateCache = {
+          stringsArray: new WeakMap(),
+          keyString: new Map()
+        };
+        templateCaches.set(cacheKey, templateCache);
+      }
+      let template = templateCache.stringsArray.get(result.strings);
+      if (template !== void 0) {
+        return template;
+      }
+      const key = result.strings.join(marker);
+      template = templateCache.keyString.get(key);
+      if (template === void 0) {
+        const element = result.getTemplateElement();
+        if (compatibleShadyCSSVersion) {
+          window.ShadyCSS.prepareTemplateDom(element, scopeName);
+        }
+        template = new Template(result, element);
+        templateCache.keyString.set(key, template);
+      }
+      templateCache.stringsArray.set(result.strings, template);
+      return template;
+    };
+    TEMPLATE_TYPES = ["html", "svg"];
+    removeStylesFromLitTemplates = (scopeName) => {
+      TEMPLATE_TYPES.forEach((type2) => {
+        const templates = templateCaches.get(getTemplateCacheKey(type2, scopeName));
+        if (templates !== void 0) {
+          templates.keyString.forEach((template) => {
+            const {element: {content}} = template;
+            const styles = new Set();
+            Array.from(content.querySelectorAll("style")).forEach((s3) => {
+              styles.add(s3);
+            });
+            removeNodesFromTemplate(template, styles);
+          });
+        }
+      });
+    };
+    shadyRenderSet = new Set();
+    prepareTemplateStyles = (scopeName, renderedDOM, template) => {
+      shadyRenderSet.add(scopeName);
+      const templateElement = !!template ? template.element : document.createElement("template");
+      const styles = renderedDOM.querySelectorAll("style");
+      const {length} = styles;
+      if (length === 0) {
+        window.ShadyCSS.prepareTemplateStyles(templateElement, scopeName);
+        return;
+      }
+      const condensedStyle = document.createElement("style");
+      for (let i2 = 0; i2 < length; i2++) {
+        const style2 = styles[i2];
+        style2.parentNode.removeChild(style2);
+        condensedStyle.textContent += style2.textContent;
+      }
+      removeStylesFromLitTemplates(scopeName);
+      const content = templateElement.content;
+      if (!!template) {
+        insertNodeIntoTemplate(template, condensedStyle, content.firstChild);
+      } else {
+        content.insertBefore(condensedStyle, content.firstChild);
+      }
+      window.ShadyCSS.prepareTemplateStyles(templateElement, scopeName);
+      const style = content.querySelector("style");
+      if (window.ShadyCSS.nativeShadow && style !== null) {
+        renderedDOM.insertBefore(style.cloneNode(true), renderedDOM.firstChild);
+      } else if (!!template) {
+        content.insertBefore(condensedStyle, content.firstChild);
+        const removes = new Set();
+        removes.add(condensedStyle);
+        removeNodesFromTemplate(template, removes);
+      }
+    };
+    render2 = (result, container, options) => {
+      if (!options || typeof options !== "object" || !options.scopeName) {
+        throw new Error("The `scopeName` option is required.");
+      }
+      const scopeName = options.scopeName;
+      const hasRendered = parts.has(container);
+      const needsScoping = compatibleShadyCSSVersion && container.nodeType === 11 && !!container.host;
+      const firstScopeRender = needsScoping && !shadyRenderSet.has(scopeName);
+      const renderContainer = firstScopeRender ? document.createDocumentFragment() : container;
+      render(result, renderContainer, Object.assign({templateFactory: shadyTemplateFactory(scopeName)}, options));
+      if (firstScopeRender) {
+        const part = parts.get(renderContainer);
+        parts.delete(renderContainer);
+        const template = part.value instanceof TemplateInstance ? part.value.template : void 0;
+        prepareTemplateStyles(scopeName, renderContainer, template);
+        removeNodes(container, container.firstChild);
+        container.appendChild(renderContainer);
+        parts.set(container, part);
+      }
+      if (!hasRendered && needsScoping) {
+        window.ShadyCSS.styleElement(container.host);
+      }
+    };
+  });
+
+  // node_modules/lit-element/lib/updating-element.js
+  var _a, defaultConverter, notEqual, defaultPropertyDeclaration, STATE_HAS_UPDATED, STATE_UPDATE_REQUESTED, STATE_IS_REFLECTING_TO_ATTRIBUTE, STATE_IS_REFLECTING_TO_PROPERTY, finalized, UpdatingElement;
+  var init_updating_element = __esm(() => {
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    window.JSCompiler_renameProperty = (prop, _obj) => prop;
+    defaultConverter = {
+      toAttribute(value, type2) {
+        switch (type2) {
+          case Boolean:
+            return value ? "" : null;
+          case Object:
+          case Array:
+            return value == null ? value : JSON.stringify(value);
+        }
+        return value;
+      },
+      fromAttribute(value, type2) {
+        switch (type2) {
+          case Boolean:
+            return value !== null;
+          case Number:
+            return value === null ? null : Number(value);
+          case Object:
+          case Array:
+            return JSON.parse(value);
+        }
+        return value;
+      }
+    };
+    notEqual = (value, old) => {
+      return old !== value && (old === old || value === value);
+    };
+    defaultPropertyDeclaration = {
+      attribute: true,
+      type: String,
+      converter: defaultConverter,
+      reflect: false,
+      hasChanged: notEqual
+    };
+    STATE_HAS_UPDATED = 1;
+    STATE_UPDATE_REQUESTED = 1 << 2;
+    STATE_IS_REFLECTING_TO_ATTRIBUTE = 1 << 3;
+    STATE_IS_REFLECTING_TO_PROPERTY = 1 << 4;
+    finalized = "finalized";
+    UpdatingElement = class extends HTMLElement {
+      constructor() {
+        super();
+        this.initialize();
+      }
+      static get observedAttributes() {
+        this.finalize();
+        const attributes = [];
+        this._classProperties.forEach((v2, p2) => {
+          const attr = this._attributeNameForProperty(p2, v2);
+          if (attr !== void 0) {
+            this._attributeToPropertyMap.set(attr, p2);
+            attributes.push(attr);
+          }
+        });
+        return attributes;
+      }
+      static _ensureClassProperties() {
+        if (!this.hasOwnProperty(JSCompiler_renameProperty("_classProperties", this))) {
+          this._classProperties = new Map();
+          const superProperties = Object.getPrototypeOf(this)._classProperties;
+          if (superProperties !== void 0) {
+            superProperties.forEach((v2, k2) => this._classProperties.set(k2, v2));
+          }
+        }
+      }
+      static createProperty(name, options = defaultPropertyDeclaration) {
+        this._ensureClassProperties();
+        this._classProperties.set(name, options);
+        if (options.noAccessor || this.prototype.hasOwnProperty(name)) {
+          return;
+        }
+        const key = typeof name === "symbol" ? Symbol() : `__${name}`;
+        const descriptor = this.getPropertyDescriptor(name, key, options);
+        if (descriptor !== void 0) {
+          Object.defineProperty(this.prototype, name, descriptor);
+        }
+      }
+      static getPropertyDescriptor(name, key, options) {
+        return {
+          get() {
+            return this[key];
+          },
+          set(value) {
+            const oldValue = this[name];
+            this[key] = value;
+            this.requestUpdateInternal(name, oldValue, options);
+          },
+          configurable: true,
+          enumerable: true
+        };
+      }
+      static getPropertyOptions(name) {
+        return this._classProperties && this._classProperties.get(name) || defaultPropertyDeclaration;
+      }
+      static finalize() {
+        const superCtor = Object.getPrototypeOf(this);
+        if (!superCtor.hasOwnProperty(finalized)) {
+          superCtor.finalize();
+        }
+        this[finalized] = true;
+        this._ensureClassProperties();
+        this._attributeToPropertyMap = new Map();
+        if (this.hasOwnProperty(JSCompiler_renameProperty("properties", this))) {
+          const props = this.properties;
+          const propKeys = [
+            ...Object.getOwnPropertyNames(props),
+            ...typeof Object.getOwnPropertySymbols === "function" ? Object.getOwnPropertySymbols(props) : []
+          ];
+          for (const p2 of propKeys) {
+            this.createProperty(p2, props[p2]);
+          }
+        }
+      }
+      static _attributeNameForProperty(name, options) {
+        const attribute = options.attribute;
+        return attribute === false ? void 0 : typeof attribute === "string" ? attribute : typeof name === "string" ? name.toLowerCase() : void 0;
+      }
+      static _valueHasChanged(value, old, hasChanged = notEqual) {
+        return hasChanged(value, old);
+      }
+      static _propertyValueFromAttribute(value, options) {
+        const type2 = options.type;
+        const converter = options.converter || defaultConverter;
+        const fromAttribute = typeof converter === "function" ? converter : converter.fromAttribute;
+        return fromAttribute ? fromAttribute(value, type2) : value;
+      }
+      static _propertyValueToAttribute(value, options) {
+        if (options.reflect === void 0) {
+          return;
+        }
+        const type2 = options.type;
+        const converter = options.converter;
+        const toAttribute = converter && converter.toAttribute || defaultConverter.toAttribute;
+        return toAttribute(value, type2);
+      }
+      initialize() {
+        this._updateState = 0;
+        this._updatePromise = new Promise((res) => this._enableUpdatingResolver = res);
+        this._changedProperties = new Map();
+        this._saveInstanceProperties();
+        this.requestUpdateInternal();
+      }
+      _saveInstanceProperties() {
+        this.constructor._classProperties.forEach((_v, p2) => {
+          if (this.hasOwnProperty(p2)) {
+            const value = this[p2];
+            delete this[p2];
+            if (!this._instanceProperties) {
+              this._instanceProperties = new Map();
+            }
+            this._instanceProperties.set(p2, value);
+          }
+        });
+      }
+      _applyInstanceProperties() {
+        this._instanceProperties.forEach((v2, p2) => this[p2] = v2);
+        this._instanceProperties = void 0;
+      }
+      connectedCallback() {
+        this.enableUpdating();
+      }
+      enableUpdating() {
+        if (this._enableUpdatingResolver !== void 0) {
+          this._enableUpdatingResolver();
+          this._enableUpdatingResolver = void 0;
+        }
+      }
+      disconnectedCallback() {
+      }
+      attributeChangedCallback(name, old, value) {
+        if (old !== value) {
+          this._attributeToProperty(name, value);
+        }
+      }
+      _propertyToAttribute(name, value, options = defaultPropertyDeclaration) {
+        const ctor = this.constructor;
+        const attr = ctor._attributeNameForProperty(name, options);
+        if (attr !== void 0) {
+          const attrValue = ctor._propertyValueToAttribute(value, options);
+          if (attrValue === void 0) {
+            return;
+          }
+          this._updateState = this._updateState | STATE_IS_REFLECTING_TO_ATTRIBUTE;
+          if (attrValue == null) {
+            this.removeAttribute(attr);
+          } else {
+            this.setAttribute(attr, attrValue);
+          }
+          this._updateState = this._updateState & ~STATE_IS_REFLECTING_TO_ATTRIBUTE;
+        }
+      }
+      _attributeToProperty(name, value) {
+        if (this._updateState & STATE_IS_REFLECTING_TO_ATTRIBUTE) {
+          return;
+        }
+        const ctor = this.constructor;
+        const propName = ctor._attributeToPropertyMap.get(name);
+        if (propName !== void 0) {
+          const options = ctor.getPropertyOptions(propName);
+          this._updateState = this._updateState | STATE_IS_REFLECTING_TO_PROPERTY;
+          this[propName] = ctor._propertyValueFromAttribute(value, options);
+          this._updateState = this._updateState & ~STATE_IS_REFLECTING_TO_PROPERTY;
+        }
+      }
+      requestUpdateInternal(name, oldValue, options) {
+        let shouldRequestUpdate = true;
+        if (name !== void 0) {
+          const ctor = this.constructor;
+          options = options || ctor.getPropertyOptions(name);
+          if (ctor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
+            if (!this._changedProperties.has(name)) {
+              this._changedProperties.set(name, oldValue);
+            }
+            if (options.reflect === true && !(this._updateState & STATE_IS_REFLECTING_TO_PROPERTY)) {
+              if (this._reflectingProperties === void 0) {
+                this._reflectingProperties = new Map();
+              }
+              this._reflectingProperties.set(name, options);
+            }
+          } else {
+            shouldRequestUpdate = false;
+          }
+        }
+        if (!this._hasRequestedUpdate && shouldRequestUpdate) {
+          this._updatePromise = this._enqueueUpdate();
+        }
+      }
+      requestUpdate(name, oldValue) {
+        this.requestUpdateInternal(name, oldValue);
+        return this.updateComplete;
+      }
+      async _enqueueUpdate() {
+        this._updateState = this._updateState | STATE_UPDATE_REQUESTED;
+        try {
+          await this._updatePromise;
+        } catch (e2) {
+        }
+        const result = this.performUpdate();
+        if (result != null) {
+          await result;
+        }
+        return !this._hasRequestedUpdate;
+      }
+      get _hasRequestedUpdate() {
+        return this._updateState & STATE_UPDATE_REQUESTED;
+      }
+      get hasUpdated() {
+        return this._updateState & STATE_HAS_UPDATED;
+      }
+      performUpdate() {
+        if (!this._hasRequestedUpdate) {
+          return;
+        }
+        if (this._instanceProperties) {
+          this._applyInstanceProperties();
+        }
+        let shouldUpdate = false;
+        const changedProperties = this._changedProperties;
+        try {
+          shouldUpdate = this.shouldUpdate(changedProperties);
+          if (shouldUpdate) {
+            this.update(changedProperties);
+          } else {
+            this._markUpdated();
+          }
+        } catch (e2) {
+          shouldUpdate = false;
+          this._markUpdated();
+          throw e2;
+        }
+        if (shouldUpdate) {
+          if (!(this._updateState & STATE_HAS_UPDATED)) {
+            this._updateState = this._updateState | STATE_HAS_UPDATED;
+            this.firstUpdated(changedProperties);
+          }
+          this.updated(changedProperties);
+        }
+      }
+      _markUpdated() {
+        this._changedProperties = new Map();
+        this._updateState = this._updateState & ~STATE_UPDATE_REQUESTED;
+      }
+      get updateComplete() {
+        return this._getUpdateComplete();
+      }
+      _getUpdateComplete() {
+        return this._updatePromise;
+      }
+      shouldUpdate(_changedProperties) {
+        return true;
+      }
+      update(_changedProperties) {
+        if (this._reflectingProperties !== void 0 && this._reflectingProperties.size > 0) {
+          this._reflectingProperties.forEach((v2, k2) => this._propertyToAttribute(k2, this[k2], v2));
+          this._reflectingProperties = void 0;
+        }
+        this._markUpdated();
+      }
+      updated(_changedProperties) {
+      }
+      firstUpdated(_changedProperties) {
+      }
+    };
+    _a = finalized;
+    UpdatingElement[_a] = true;
+  });
+
+  // node_modules/lit-element/lib/decorators.js
+  function property(options) {
+    return (protoOrDescriptor, name) => name !== void 0 ? legacyProperty(options, protoOrDescriptor, name) : standardProperty(options, protoOrDescriptor);
+  }
+  function internalProperty(options) {
+    return property({attribute: false, hasChanged: options === null || options === void 0 ? void 0 : options.hasChanged});
+  }
+  function query(selector, cache2) {
+    return (protoOrDescriptor, name) => {
+      const descriptor = {
+        get() {
+          return this.renderRoot.querySelector(selector);
+        },
+        enumerable: true,
+        configurable: true
+      };
+      if (cache2) {
+        const key = typeof name === "symbol" ? Symbol() : `__${name}`;
+        descriptor.get = function() {
+          if (this[key] === void 0) {
+            this[key] = this.renderRoot.querySelector(selector);
+          }
+          return this[key];
+        };
+      }
+      return name !== void 0 ? legacyQuery(descriptor, protoOrDescriptor, name) : standardQuery(descriptor, protoOrDescriptor);
+    };
+  }
+  function queryAsync(selector) {
+    return (protoOrDescriptor, name) => {
+      const descriptor = {
+        async get() {
+          await this.updateComplete;
+          return this.renderRoot.querySelector(selector);
+        },
+        enumerable: true,
+        configurable: true
+      };
+      return name !== void 0 ? legacyQuery(descriptor, protoOrDescriptor, name) : standardQuery(descriptor, protoOrDescriptor);
+    };
+  }
+  function queryAll(selector) {
+    return (protoOrDescriptor, name) => {
+      const descriptor = {
+        get() {
+          return this.renderRoot.querySelectorAll(selector);
+        },
+        enumerable: true,
+        configurable: true
+      };
+      return name !== void 0 ? legacyQuery(descriptor, protoOrDescriptor, name) : standardQuery(descriptor, protoOrDescriptor);
+    };
+  }
+  function eventOptions(options) {
+    return (protoOrDescriptor, name) => name !== void 0 ? legacyEventOptions(options, protoOrDescriptor, name) : standardEventOptions(options, protoOrDescriptor);
+  }
+  function queryAssignedNodes(slotName = "", flatten = false, selector = "") {
+    return (protoOrDescriptor, name) => {
+      const descriptor = {
+        get() {
+          const slotSelector = `slot${slotName ? `[name=${slotName}]` : ":not([name])"}`;
+          const slot = this.renderRoot.querySelector(slotSelector);
+          let nodes = slot && slot.assignedNodes({flatten});
+          if (nodes && selector) {
+            nodes = nodes.filter((node) => node.nodeType === Node.ELEMENT_NODE && node.matches ? node.matches(selector) : legacyMatches.call(node, selector));
+          }
+          return nodes;
+        },
+        enumerable: true,
+        configurable: true
+      };
+      return name !== void 0 ? legacyQuery(descriptor, protoOrDescriptor, name) : standardQuery(descriptor, protoOrDescriptor);
+    };
+  }
+  var legacyCustomElement, standardCustomElement, customElement, standardProperty, legacyProperty, legacyQuery, standardQuery, standardEventOptions, legacyEventOptions, ElementProto, legacyMatches;
+  var init_decorators = __esm(() => {
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    legacyCustomElement = (tagName, clazz) => {
+      window.customElements.define(tagName, clazz);
+      return clazz;
+    };
+    standardCustomElement = (tagName, descriptor) => {
+      const {kind, elements} = descriptor;
+      return {
+        kind,
+        elements,
+        finisher(clazz) {
+          window.customElements.define(tagName, clazz);
+        }
+      };
+    };
+    customElement = (tagName) => (classOrDescriptor) => typeof classOrDescriptor === "function" ? legacyCustomElement(tagName, classOrDescriptor) : standardCustomElement(tagName, classOrDescriptor);
+    standardProperty = (options, element) => {
+      if (element.kind === "method" && element.descriptor && !("value" in element.descriptor)) {
+        return Object.assign(Object.assign({}, element), {finisher(clazz) {
+          clazz.createProperty(element.key, options);
+        }});
+      } else {
+        return {
+          kind: "field",
+          key: Symbol(),
+          placement: "own",
+          descriptor: {},
+          initializer() {
+            if (typeof element.initializer === "function") {
+              this[element.key] = element.initializer.call(this);
+            }
+          },
+          finisher(clazz) {
+            clazz.createProperty(element.key, options);
+          }
+        };
+      }
+    };
+    legacyProperty = (options, proto, name) => {
+      proto.constructor.createProperty(name, options);
+    };
+    legacyQuery = (descriptor, proto, name) => {
+      Object.defineProperty(proto, name, descriptor);
+    };
+    standardQuery = (descriptor, element) => ({
+      kind: "method",
+      placement: "prototype",
+      key: element.key,
+      descriptor
+    });
+    standardEventOptions = (options, element) => {
+      return Object.assign(Object.assign({}, element), {finisher(clazz) {
+        Object.assign(clazz.prototype[element.key], options);
+      }});
+    };
+    legacyEventOptions = (options, proto, name) => {
+      Object.assign(proto[name], options);
+    };
+    ElementProto = Element.prototype;
+    legacyMatches = ElementProto.msMatchesSelector || ElementProto.webkitMatchesSelector;
+  });
+
+  // node_modules/lit-element/lib/css-tag.js
+  var supportsAdoptingStyleSheets, constructionToken, CSSResult, unsafeCSS, textFromCSSResult, css;
+  var init_css_tag = __esm(() => {
+    /**
+    @license
+    Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at
+    http://polymer.github.io/LICENSE.txt The complete set of authors may be found at
+    http://polymer.github.io/AUTHORS.txt The complete set of contributors may be
+    found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
+    part of the polymer project is also subject to an additional IP rights grant
+    found at http://polymer.github.io/PATENTS.txt
+    */
+    supportsAdoptingStyleSheets = window.ShadowRoot && (window.ShadyCSS === void 0 || window.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
+    constructionToken = Symbol();
+    CSSResult = class {
+      constructor(cssText, safeToken) {
+        if (safeToken !== constructionToken) {
+          throw new Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+        }
+        this.cssText = cssText;
+      }
+      get styleSheet() {
+        if (this._styleSheet === void 0) {
+          if (supportsAdoptingStyleSheets) {
+            this._styleSheet = new CSSStyleSheet();
+            this._styleSheet.replaceSync(this.cssText);
+          } else {
+            this._styleSheet = null;
+          }
+        }
+        return this._styleSheet;
+      }
+      toString() {
+        return this.cssText;
+      }
+    };
+    unsafeCSS = (value) => {
+      return new CSSResult(String(value), constructionToken);
+    };
+    textFromCSSResult = (value) => {
+      if (value instanceof CSSResult) {
+        return value.cssText;
+      } else if (typeof value === "number") {
+        return value;
+      } else {
+        throw new Error(`Value passed to 'css' function must be a 'css' function result: ${value}. Use 'unsafeCSS' to pass non-literal values, but
+            take care to ensure page security.`);
+      }
+    };
+    css = (strings, ...values) => {
+      const cssText = values.reduce((acc, v2, idx) => acc + textFromCSSResult(v2) + strings[idx + 1], strings[0]);
+      return new CSSResult(cssText, constructionToken);
+    };
+  });
+
+  // node_modules/lit-element/lit-element.js
+  var lit_element_exports = {};
+  __export(lit_element_exports, {
+    CSSResult: () => CSSResult,
+    LitElement: () => LitElement,
+    SVGTemplateResult: () => SVGTemplateResult,
+    TemplateResult: () => TemplateResult,
+    UpdatingElement: () => UpdatingElement,
+    css: () => css,
+    customElement: () => customElement,
+    defaultConverter: () => defaultConverter,
+    eventOptions: () => eventOptions,
+    html: () => html,
+    internalProperty: () => internalProperty,
+    notEqual: () => notEqual,
+    property: () => property,
+    query: () => query,
+    queryAll: () => queryAll,
+    queryAssignedNodes: () => queryAssignedNodes,
+    queryAsync: () => queryAsync,
+    supportsAdoptingStyleSheets: () => supportsAdoptingStyleSheets,
+    svg: () => svg,
+    unsafeCSS: () => unsafeCSS
+  });
+  var renderNotImplemented, LitElement;
+  var init_lit_element = __esm(() => {
+    init_shady_render();
+    init_updating_element();
+    init_updating_element();
+    init_decorators();
+    init_lit_html();
+    init_css_tag();
+    init_css_tag();
+    /**
+     * @license
+     * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
+     * This code may only be used under the BSD style license found at
+     * http://polymer.github.io/LICENSE.txt
+     * The complete set of authors may be found at
+     * http://polymer.github.io/AUTHORS.txt
+     * The complete set of contributors may be found at
+     * http://polymer.github.io/CONTRIBUTORS.txt
+     * Code distributed by Google as part of the polymer project is also
+     * subject to an additional IP rights grant found at
+     * http://polymer.github.io/PATENTS.txt
+     */
+    (window["litElementVersions"] || (window["litElementVersions"] = [])).push("2.4.0");
+    renderNotImplemented = {};
+    LitElement = class extends UpdatingElement {
+      static getStyles() {
+        return this.styles;
+      }
+      static _getUniqueStyles() {
+        if (this.hasOwnProperty(JSCompiler_renameProperty("_styles", this))) {
+          return;
+        }
+        const userStyles = this.getStyles();
+        if (Array.isArray(userStyles)) {
+          const addStyles = (styles2, set3) => styles2.reduceRight((set4, s3) => Array.isArray(s3) ? addStyles(s3, set4) : (set4.add(s3), set4), set3);
+          const set2 = addStyles(userStyles, new Set());
+          const styles = [];
+          set2.forEach((v2) => styles.unshift(v2));
+          this._styles = styles;
+        } else {
+          this._styles = userStyles === void 0 ? [] : [userStyles];
+        }
+        this._styles = this._styles.map((s3) => {
+          if (s3 instanceof CSSStyleSheet && !supportsAdoptingStyleSheets) {
+            const cssText = Array.prototype.slice.call(s3.cssRules).reduce((css8, rule) => css8 + rule.cssText, "");
+            return unsafeCSS(cssText);
+          }
+          return s3;
+        });
+      }
+      initialize() {
+        super.initialize();
+        this.constructor._getUniqueStyles();
+        this.renderRoot = this.createRenderRoot();
+        if (window.ShadowRoot && this.renderRoot instanceof window.ShadowRoot) {
+          this.adoptStyles();
+        }
+      }
+      createRenderRoot() {
+        return this.attachShadow({mode: "open"});
+      }
+      adoptStyles() {
+        const styles = this.constructor._styles;
+        if (styles.length === 0) {
+          return;
+        }
+        if (window.ShadyCSS !== void 0 && !window.ShadyCSS.nativeShadow) {
+          window.ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map((s3) => s3.cssText), this.localName);
+        } else if (supportsAdoptingStyleSheets) {
+          this.renderRoot.adoptedStyleSheets = styles.map((s3) => s3 instanceof CSSStyleSheet ? s3 : s3.styleSheet);
+        } else {
+          this._needsShimAdoptedStyleSheets = true;
+        }
+      }
+      connectedCallback() {
+        super.connectedCallback();
+        if (this.hasUpdated && window.ShadyCSS !== void 0) {
+          window.ShadyCSS.styleElement(this);
+        }
+      }
+      update(changedProperties) {
+        const templateResult = this.render();
+        super.update(changedProperties);
+        if (templateResult !== renderNotImplemented) {
+          this.constructor.render(templateResult, this.renderRoot, {scopeName: this.localName, eventContext: this});
+        }
+        if (this._needsShimAdoptedStyleSheets) {
+          this._needsShimAdoptedStyleSheets = false;
+          this.constructor._styles.forEach((s3) => {
+            const style = document.createElement("style");
+            style.textContent = s3.cssText;
+            this.renderRoot.appendChild(style);
+          });
+        }
+      }
+      render() {
+        return renderNotImplemented;
+      }
+    };
+    LitElement["finalized"] = true;
+    LitElement.render = render2;
+  });
 
   // node_modules/promise-polyfill/lib/index.js
   var require_lib = __commonJS((exports, module) => {
@@ -1866,7 +3614,7 @@
         auth = auth.replace(/%3A/i, ":");
         auth += "@";
       }
-      var protocol = this.protocol || "", pathname = this.pathname || "", hash = this.hash || "", host = false, query = "";
+      var protocol = this.protocol || "", pathname = this.pathname || "", hash = this.hash || "", host = false, query2 = "";
       if (this.host) {
         host = auth + this.host;
       } else if (this.hostname) {
@@ -1876,9 +3624,9 @@
         }
       }
       if (this.query && util.isObject(this.query) && Object.keys(this.query).length) {
-        query = querystring.stringify(this.query);
+        query2 = querystring.stringify(this.query);
       }
-      var search = this.search || query && "?" + query || "";
+      var search = this.search || query2 && "?" + query2 || "";
       if (protocol && protocol.substr(-1) !== ":")
         protocol += ":";
       if (this.slashes || (!protocol || slashedProtocol[protocol]) && host !== false) {
@@ -4022,7 +5770,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var settings2 = require_settings();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     settings2.settings.SORTABLE_CHILDREN = false;
     var Bounds = function() {
       function Bounds2() {
@@ -4650,7 +6398,7 @@
         configurable: true
       });
       return DisplayObject2;
-    }(utils6.EventEmitter);
+    }(utils7.EventEmitter);
     var TemporaryDisplayObject = function(_super) {
       __extends(TemporaryDisplayObject2, _super);
       function TemporaryDisplayObject2() {
@@ -4667,18 +6415,18 @@
       }
       return a2.zIndex - b2.zIndex;
     }
-    var Container7 = function(_super) {
-      __extends(Container8, _super);
-      function Container8() {
+    var Container9 = function(_super) {
+      __extends(Container10, _super);
+      function Container10() {
         var _this = _super.call(this) || this;
         _this.children = [];
         _this.sortableChildren = settings2.settings.SORTABLE_CHILDREN;
         _this.sortDirty = false;
         return _this;
       }
-      Container8.prototype.onChildrenChange = function(_length) {
+      Container10.prototype.onChildrenChange = function(_length) {
       };
-      Container8.prototype.addChild = function() {
+      Container10.prototype.addChild = function() {
         var arguments$1 = arguments;
         var children = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -4704,7 +6452,7 @@
         }
         return children[0];
       };
-      Container8.prototype.addChildAt = function(child, index) {
+      Container10.prototype.addChildAt = function(child, index) {
         if (index < 0 || index > this.children.length) {
           throw new Error(child + "addChildAt: The index " + index + " supplied is out of bounds " + this.children.length);
         }
@@ -4721,7 +6469,7 @@
         this.emit("childAdded", child, this, index);
         return child;
       };
-      Container8.prototype.swapChildren = function(child, child2) {
+      Container10.prototype.swapChildren = function(child, child2) {
         if (child === child2) {
           return;
         }
@@ -4731,29 +6479,29 @@
         this.children[index2] = child;
         this.onChildrenChange(index1 < index2 ? index1 : index2);
       };
-      Container8.prototype.getChildIndex = function(child) {
+      Container10.prototype.getChildIndex = function(child) {
         var index = this.children.indexOf(child);
         if (index === -1) {
           throw new Error("The supplied DisplayObject must be a child of the caller");
         }
         return index;
       };
-      Container8.prototype.setChildIndex = function(child, index) {
+      Container10.prototype.setChildIndex = function(child, index) {
         if (index < 0 || index >= this.children.length) {
           throw new Error("The index " + index + " supplied is out of bounds " + this.children.length);
         }
         var currentIndex = this.getChildIndex(child);
-        utils6.removeItems(this.children, currentIndex, 1);
+        utils7.removeItems(this.children, currentIndex, 1);
         this.children.splice(index, 0, child);
         this.onChildrenChange(index);
       };
-      Container8.prototype.getChildAt = function(index) {
+      Container10.prototype.getChildAt = function(index) {
         if (index < 0 || index >= this.children.length) {
           throw new Error("getChildAt: Index (" + index + ") does not exist.");
         }
         return this.children[index];
       };
-      Container8.prototype.removeChild = function() {
+      Container10.prototype.removeChild = function() {
         var arguments$1 = arguments;
         var children = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -4771,7 +6519,7 @@
           }
           child.parent = null;
           child.transform._parentID = -1;
-          utils6.removeItems(this.children, index, 1);
+          utils7.removeItems(this.children, index, 1);
           this._boundsID++;
           this.onChildrenChange(index);
           child.emit("removed", this);
@@ -4779,18 +6527,18 @@
         }
         return children[0];
       };
-      Container8.prototype.removeChildAt = function(index) {
+      Container10.prototype.removeChildAt = function(index) {
         var child = this.getChildAt(index);
         child.parent = null;
         child.transform._parentID = -1;
-        utils6.removeItems(this.children, index, 1);
+        utils7.removeItems(this.children, index, 1);
         this._boundsID++;
         this.onChildrenChange(index);
         child.emit("removed", this);
         this.emit("childRemoved", child, this, index);
         return child;
       };
-      Container8.prototype.removeChildren = function(beginIndex, endIndex) {
+      Container10.prototype.removeChildren = function(beginIndex, endIndex) {
         if (beginIndex === void 0) {
           beginIndex = 0;
         }
@@ -4821,7 +6569,7 @@
         }
         throw new RangeError("removeChildren: numeric values are outside the acceptable range.");
       };
-      Container8.prototype.sortChildren = function() {
+      Container10.prototype.sortChildren = function() {
         var sortRequired = false;
         for (var i2 = 0, j2 = this.children.length; i2 < j2; ++i2) {
           var child = this.children[i2];
@@ -4835,7 +6583,7 @@
         }
         this.sortDirty = false;
       };
-      Container8.prototype.updateTransform = function() {
+      Container10.prototype.updateTransform = function() {
         if (this.sortableChildren && this.sortDirty) {
           this.sortChildren();
         }
@@ -4849,7 +6597,7 @@
           }
         }
       };
-      Container8.prototype.calculateBounds = function() {
+      Container10.prototype.calculateBounds = function() {
         this._bounds.clear();
         this._calculateBounds();
         for (var i2 = 0; i2 < this.children.length; i2++) {
@@ -4870,7 +6618,7 @@
         }
         this._bounds.updateID = this._boundsID;
       };
-      Container8.prototype.getLocalBounds = function(rect, skipChildrenUpdate) {
+      Container10.prototype.getLocalBounds = function(rect, skipChildrenUpdate) {
         if (skipChildrenUpdate === void 0) {
           skipChildrenUpdate = false;
         }
@@ -4885,9 +6633,9 @@
         }
         return result;
       };
-      Container8.prototype._calculateBounds = function() {
+      Container10.prototype._calculateBounds = function() {
       };
-      Container8.prototype.render = function(renderer) {
+      Container10.prototype.render = function(renderer) {
         if (!this.visible || this.worldAlpha <= 0 || !this.renderable) {
           return;
         }
@@ -4900,7 +6648,7 @@
           }
         }
       };
-      Container8.prototype.renderAdvanced = function(renderer) {
+      Container10.prototype.renderAdvanced = function(renderer) {
         renderer.batch.flush();
         var filters = this.filters;
         var mask = this._mask;
@@ -4933,9 +6681,9 @@
           renderer.filter.pop();
         }
       };
-      Container8.prototype._render = function(_renderer) {
+      Container10.prototype._render = function(_renderer) {
       };
-      Container8.prototype.destroy = function(options) {
+      Container10.prototype.destroy = function(options) {
         _super.prototype.destroy.call(this);
         this.sortDirty = false;
         var destroyChildren = typeof options === "boolean" ? options : options && options.children;
@@ -4946,7 +6694,7 @@
           }
         }
       };
-      Object.defineProperty(Container8.prototype, "width", {
+      Object.defineProperty(Container10.prototype, "width", {
         get: function() {
           return this.scale.x * this.getLocalBounds().width;
         },
@@ -4962,7 +6710,7 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Container8.prototype, "height", {
+      Object.defineProperty(Container10.prototype, "height", {
         get: function() {
           return this.scale.y * this.getLocalBounds().height;
         },
@@ -4978,11 +6726,11 @@
         enumerable: false,
         configurable: true
       });
-      return Container8;
+      return Container10;
     }(DisplayObject);
-    Container7.prototype.containerUpdateTransform = Container7.prototype.updateTransform;
+    Container9.prototype.containerUpdateTransform = Container9.prototype.updateTransform;
     exports.Bounds = Bounds;
-    exports.Container = Container7;
+    exports.Container = Container9;
     exports.DisplayObject = DisplayObject;
     exports.TemporaryDisplayObject = TemporaryDisplayObject;
   });
@@ -4999,7 +6747,7 @@
     "use strict";
     Object.defineProperty(exports, "__esModule", {value: true});
     var display = require_display();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var accessibleTarget = {
       accessible: false,
       accessibleTitle: null,
@@ -5033,7 +6781,7 @@
         this.androidUpdateCount = 0;
         this.androidUpdateFrequency = 500;
         this._hookDiv = null;
-        if (utils6.isMobile.tablet || utils6.isMobile.phone) {
+        if (utils7.isMobile.tablet || utils7.isMobile.phone) {
           this.createTouchHook();
         }
         var div = document.createElement("div");
@@ -5128,7 +6876,7 @@
       };
       AccessibilityManager2.prototype.update = function() {
         var now = performance.now();
-        if (utils6.isMobile.android.device && now < this.androidUpdateCount) {
+        if (utils7.isMobile.android.device && now < this.androidUpdateCount) {
           return;
         }
         this.androidUpdateCount = now + this.androidUpdateFrequency;
@@ -5151,7 +6899,7 @@
           var child = this.children[i2];
           if (child.renderId !== this.renderId) {
             child._accessibleActive = false;
-            utils6.removeItems(this.children, i2, 1);
+            utils7.removeItems(this.children, i2, 1);
             this.div.removeChild(child._accessibleDiv);
             this.pool.push(child._accessibleDiv);
             child._accessibleDiv = null;
@@ -5686,7 +7434,7 @@
     var math = require_math();
     var ticker = require_ticker();
     var display = require_display();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var InteractionData = function() {
       function InteractionData2() {
         this.pressure = 0;
@@ -6658,7 +8406,7 @@
         this.search = null;
       };
       return InteractionManager2;
-    }(utils6.EventEmitter);
+    }(utils7.EventEmitter);
     exports.InteractionData = InteractionData;
     exports.InteractionEvent = InteractionEvent;
     exports.InteractionManager = InteractionManager;
@@ -6768,11 +8516,11 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var settings2 = require_settings();
     var constants = require_constants();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var runner = require_runner();
     var ticker = require_ticker();
     var math = require_math();
-    settings2.settings.PREFER_ENV = utils6.isMobile.any ? constants.ENV.WEBGL : constants.ENV.WEBGL2;
+    settings2.settings.PREFER_ENV = utils7.isMobile.any ? constants.ENV.WEBGL : constants.ENV.WEBGL2;
     settings2.settings.STRICT_TEXTURE_CACHE = false;
     var INSTALLED = [];
     function autoDetectResource(source, options) {
@@ -6980,7 +8728,7 @@
         _this.type = type2 || constants.TYPES.UNSIGNED_BYTE;
         _this.target = target || constants.TARGETS.TEXTURE_2D;
         _this.alphaMode = alphaMode !== void 0 ? alphaMode : constants.ALPHA_MODES.UNPACK;
-        _this.uid = utils6.uid();
+        _this.uid = utils7.uid();
         _this.touched = 0;
         _this.isPowerOfTwo = false;
         _this._refreshPOT();
@@ -7044,7 +8792,7 @@
         return this;
       };
       BaseTexture2.prototype._refreshPOT = function() {
-        this.isPowerOfTwo = utils6.isPow2(this.realWidth) && utils6.isPow2(this.realHeight);
+        this.isPowerOfTwo = utils7.isPow2(this.realWidth) && utils7.isPow2(this.realHeight);
       };
       BaseTexture2.prototype.setResolution = function(resolution) {
         var oldResolution = this.resolution;
@@ -7096,8 +8844,8 @@
           this.resource = null;
         }
         if (this.cacheId) {
-          delete utils6.BaseTextureCache[this.cacheId];
-          delete utils6.TextureCache[this.cacheId];
+          delete utils7.BaseTextureCache[this.cacheId];
+          delete utils7.TextureCache[this.cacheId];
           this.cacheId = null;
         }
         this.dispose();
@@ -7122,11 +8870,11 @@
         } else {
           if (!source._pixiId) {
             var prefix = options && options.pixiIdPrefix || "pixiid";
-            source._pixiId = prefix + "_" + utils6.uid();
+            source._pixiId = prefix + "_" + utils7.uid();
           }
           cacheId = source._pixiId;
         }
-        var baseTexture = utils6.BaseTextureCache[cacheId];
+        var baseTexture = utils7.BaseTextureCache[cacheId];
         if (isFrame && strict && !baseTexture) {
           throw new Error('The cacheId "' + cacheId + '" does not exist in BaseTextureCache.');
         }
@@ -7148,26 +8896,26 @@
           if (baseTexture.textureCacheIds.indexOf(id) === -1) {
             baseTexture.textureCacheIds.push(id);
           }
-          if (utils6.BaseTextureCache[id]) {
+          if (utils7.BaseTextureCache[id]) {
             console.warn("BaseTexture added to the cache with an id [" + id + "] that already had an entry");
           }
-          utils6.BaseTextureCache[id] = baseTexture;
+          utils7.BaseTextureCache[id] = baseTexture;
         }
       };
       BaseTexture2.removeFromCache = function(baseTexture) {
         if (typeof baseTexture === "string") {
-          var baseTextureFromCache = utils6.BaseTextureCache[baseTexture];
+          var baseTextureFromCache = utils7.BaseTextureCache[baseTexture];
           if (baseTextureFromCache) {
             var index = baseTextureFromCache.textureCacheIds.indexOf(baseTexture);
             if (index > -1) {
               baseTextureFromCache.textureCacheIds.splice(index, 1);
             }
-            delete utils6.BaseTextureCache[baseTexture];
+            delete utils7.BaseTextureCache[baseTexture];
             return baseTextureFromCache;
           }
         } else if (baseTexture && baseTexture.textureCacheIds) {
           for (var i2 = 0; i2 < baseTexture.textureCacheIds.length; ++i2) {
-            delete utils6.BaseTextureCache[baseTexture.textureCacheIds[i2]];
+            delete utils7.BaseTextureCache[baseTexture.textureCacheIds[i2]];
           }
           baseTexture.textureCacheIds.length = 0;
           return baseTexture;
@@ -7176,7 +8924,7 @@
       };
       BaseTexture2._globalBatch = 0;
       return BaseTexture2;
-    }(utils6.EventEmitter);
+    }(utils7.EventEmitter);
     var AbstractMultiResource = function(_super) {
       __extends(AbstractMultiResource2, _super);
       function AbstractMultiResource2(length, options) {
@@ -7330,7 +9078,7 @@
       }
       BaseImageResource2.crossOrigin = function(element, url, crossorigin) {
         if (crossorigin === void 0 && url.indexOf("data:") !== 0) {
-          element.crossOrigin = utils6.determineCrossOrigin(url);
+          element.crossOrigin = utils7.determineCrossOrigin(url);
         } else if (crossorigin !== false) {
           element.crossOrigin = typeof crossorigin === "string" ? crossorigin : "anonymous";
         }
@@ -7658,7 +9406,7 @@
           var canvas = _this.source;
           canvas.width = width;
           canvas.height = height;
-          canvas._pixiId = "canvas_" + utils6.uid();
+          canvas._pixiId = "canvas_" + utils7.uid();
           canvas.getContext("2d").drawImage(tempImage, 0, 0, svgWidth, svgHeight, 0, 0, width, height);
           _this._resolve();
           _this._resolve = null;
@@ -8178,7 +9926,7 @@
         if (this.baseTexture) {
           if (destroyBase) {
             var resource = this.baseTexture.resource;
-            if (resource && resource.url && utils6.TextureCache[resource.url]) {
+            if (resource && resource.url && utils7.TextureCache[resource.url]) {
               Texture3.removeFromCache(resource.url);
             }
             this.baseTexture.destroy();
@@ -8225,17 +9973,17 @@
         } else {
           if (!source._pixiId) {
             var prefix = options && options.pixiIdPrefix || "pixiid";
-            source._pixiId = prefix + "_" + utils6.uid();
+            source._pixiId = prefix + "_" + utils7.uid();
           }
           cacheId = source._pixiId;
         }
-        var texture = utils6.TextureCache[cacheId];
+        var texture = utils7.TextureCache[cacheId];
         if (isFrame && strict && !texture) {
           throw new Error('The cacheId "' + cacheId + '" does not exist in TextureCache.');
         }
         if (!texture) {
           if (!options.resolution) {
-            options.resolution = utils6.getResolutionOfUrl(source);
+            options.resolution = utils7.getResolutionOfUrl(source);
           }
           texture = new Texture3(new BaseTexture(source, options));
           texture.baseTexture.cacheId = cacheId;
@@ -8261,7 +10009,7 @@
       Texture3.fromLoader = function(source, imageUrl, name2, options) {
         var baseTexture = new BaseTexture(source, Object.assign({
           scaleMode: settings2.settings.SCALE_MODE,
-          resolution: utils6.getResolutionOfUrl(imageUrl)
+          resolution: utils7.getResolutionOfUrl(imageUrl)
         }, options));
         var resource = baseTexture.resource;
         if (resource instanceof ImageResource) {
@@ -8291,27 +10039,27 @@
           if (texture.textureCacheIds.indexOf(id) === -1) {
             texture.textureCacheIds.push(id);
           }
-          if (utils6.TextureCache[id]) {
+          if (utils7.TextureCache[id]) {
             console.warn("Texture added to the cache with an id [" + id + "] that already had an entry");
           }
-          utils6.TextureCache[id] = texture;
+          utils7.TextureCache[id] = texture;
         }
       };
       Texture3.removeFromCache = function(texture) {
         if (typeof texture === "string") {
-          var textureFromCache = utils6.TextureCache[texture];
+          var textureFromCache = utils7.TextureCache[texture];
           if (textureFromCache) {
             var index = textureFromCache.textureCacheIds.indexOf(texture);
             if (index > -1) {
               textureFromCache.textureCacheIds.splice(index, 1);
             }
-            delete utils6.TextureCache[texture];
+            delete utils7.TextureCache[texture];
             return textureFromCache;
           }
         } else if (texture && texture.textureCacheIds) {
           for (var i2 = 0; i2 < texture.textureCacheIds.length; ++i2) {
-            if (utils6.TextureCache[texture.textureCacheIds[i2]] === texture) {
-              delete utils6.TextureCache[texture.textureCacheIds[i2]];
+            if (utils7.TextureCache[texture.textureCacheIds[i2]] === texture) {
+              delete utils7.TextureCache[texture.textureCacheIds[i2]];
             }
           }
           texture.textureCacheIds.length = 0;
@@ -8384,7 +10132,7 @@
         return this.baseTexture;
       };
       return Texture3;
-    }(utils6.EventEmitter);
+    }(utils7.EventEmitter);
     function createWhiteTexture() {
       var canvas = document.createElement("canvas");
       canvas.width = 16;
@@ -8456,7 +10204,7 @@
           rest[_i - 1] = arguments$1[_i];
         }
         if (typeof options === "number") {
-          utils6.deprecation("6.0.0", "Arguments (width, height, scaleMode, resolution) have been deprecated.");
+          utils7.deprecation("6.0.0", "Arguments (width, height, scaleMode, resolution) have been deprecated.");
           options = {
             width: options,
             height: rest[0],
@@ -8492,8 +10240,8 @@
         minWidth *= resolution;
         minHeight *= resolution;
         if (!this.enableFullScreen || minWidth !== this._pixelsWidth || minHeight !== this._pixelsHeight) {
-          minWidth = utils6.nextPow2(minWidth);
-          minHeight = utils6.nextPow2(minHeight);
+          minWidth = utils7.nextPow2(minWidth);
+          minHeight = utils7.nextPow2(minHeight);
           key = (minWidth & 65535) << 16 | minHeight & 65535;
         }
         if (!this.texturePool[key]) {
@@ -10623,9 +12371,9 @@
       });
       Program2.from = function(vertexSrc, fragmentSrc, name2) {
         var key = vertexSrc + fragmentSrc;
-        var program = utils6.ProgramCache[key];
+        var program = utils7.ProgramCache[key];
         if (!program) {
-          utils6.ProgramCache[key] = program = new Program2(vertexSrc, fragmentSrc, name2);
+          utils7.ProgramCache[key] = program = new Program2(vertexSrc, fragmentSrc, name2);
         }
         return program;
       };
@@ -11865,7 +13613,7 @@
           if (!skipRemove) {
             var i2 = this.managedTextures.indexOf(texture);
             if (i2 !== -1) {
-              utils6.removeItems(this.managedTextures, i2, 1);
+              utils7.removeItems(this.managedTextures, i2, 1);
             }
           }
         }
@@ -11954,7 +13702,7 @@
         _this.backgroundColor = options.backgroundColor || _this._backgroundColor;
         _this.backgroundAlpha = options.backgroundAlpha;
         if (options.transparent !== void 0) {
-          utils6.deprecation("6.0.0", "Option transparent is deprecated, please use backgroundAlpha instead.");
+          utils7.deprecation("6.0.0", "Option transparent is deprecated, please use backgroundAlpha instead.");
           _this.useContextAlpha = options.transparent;
           _this.backgroundAlpha = options.transparent ? 0 : 1;
         }
@@ -12041,8 +13789,8 @@
         },
         set: function(value) {
           this._backgroundColor = value;
-          this._backgroundColorString = utils6.hex2string(value);
-          utils6.hex2rgb(value, this._backgroundColorRgba);
+          this._backgroundColorString = utils7.hex2string(value);
+          utils7.hex2rgb(value, this._backgroundColorRgba);
         },
         enumerable: false,
         configurable: true
@@ -12058,7 +13806,7 @@
         configurable: true
       });
       return AbstractRenderer2;
-    }(utils6.EventEmitter);
+    }(utils7.EventEmitter);
     var Renderer = function(_super) {
       __extends(Renderer2, _super);
       function Renderer2(options) {
@@ -12093,12 +13841,12 @@
           });
         }
         _this.renderingToScreen = true;
-        utils6.sayHello(_this.context.webGLVersion === 2 ? "WebGL 2" : "WebGL 1");
+        utils7.sayHello(_this.context.webGLVersion === 2 ? "WebGL 2" : "WebGL 1");
         _this.resize(_this.options.width, _this.options.height);
         return _this;
       }
       Renderer2.create = function(options) {
-        if (utils6.isWebGLSupported()) {
+        if (utils7.isWebGLSupported()) {
           return new Renderer2(options);
         }
         throw new Error('WebGL unsupported in this browser, use "pixi.js-legacy" for fallback canvas2d support.');
@@ -12124,7 +13872,7 @@
         var skipUpdateTransform;
         if (options) {
           if (options instanceof RenderTexture) {
-            utils6.deprecation("6.0.0", "Renderer#render arguments changed, use options instead.");
+            utils7.deprecation("6.0.0", "Renderer#render arguments changed, use options instead.");
             renderTexture = options;
             clear = arguments[2];
             transform = arguments[3];
@@ -12187,7 +13935,7 @@
       };
       Object.defineProperty(Renderer2.prototype, "extract", {
         get: function() {
-          utils6.deprecation("6.0.0", "Renderer#extract has been deprecated, please use Renderer#plugins.extract instead.");
+          utils7.deprecation("6.0.0", "Renderer#extract has been deprecated, please use Renderer#plugins.extract instead.");
           return this.plugins.extract;
         },
         enumerable: false,
@@ -12449,7 +14197,7 @@
         for (var i2 = start; i2 < finish; ++i2) {
           var sprite = elements[i2];
           var tex = sprite._texture.baseTexture;
-          var spriteBlendMode = utils6.premultiplyBlendMode[tex.alphaMode ? 1 : 0][sprite.blendMode];
+          var spriteBlendMode = utils7.premultiplyBlendMode[tex.alphaMode ? 1 : 0][sprite.blendMode];
           elements[i2] = null;
           if (start < i2 && drawCall.blend !== spriteBlendMode) {
             drawCall.size = iIndex - drawCall.start;
@@ -12558,8 +14306,8 @@
         _super.prototype.destroy.call(this);
       };
       AbstractBatchRenderer2.prototype.getAttributeBuffer = function(size) {
-        var roundedP2 = utils6.nextPow2(Math.ceil(size / 8));
-        var roundedSizeIndex = utils6.log2(roundedP2);
+        var roundedP2 = utils7.nextPow2(Math.ceil(size / 8));
+        var roundedSizeIndex = utils7.log2(roundedP2);
         var roundedSize = roundedP2 * 8;
         if (this._aBuffers.length <= roundedSizeIndex) {
           this._iBuffers.length = roundedSizeIndex + 1;
@@ -12571,8 +14319,8 @@
         return buffer;
       };
       AbstractBatchRenderer2.prototype.getIndexBuffer = function(size) {
-        var roundedP2 = utils6.nextPow2(Math.ceil(size / 12));
-        var roundedSizeIndex = utils6.log2(roundedP2);
+        var roundedP2 = utils7.nextPow2(Math.ceil(size / 12));
+        var roundedSizeIndex = utils7.log2(roundedP2);
         var roundedSize = roundedP2 * 12;
         if (this._iBuffers.length <= roundedSizeIndex) {
           this._iBuffers.length = roundedSizeIndex + 1;
@@ -12591,7 +14339,7 @@
         var vertexData = element.vertexData;
         var textureId = element._texture.baseTexture._batchLocation;
         var alpha = Math.min(element.worldAlpha, 1);
-        var argb = alpha < 1 && element._texture.baseTexture.alphaMode ? utils6.premultiplyTint(element._tintRGB, alpha) : element._tintRGB + (alpha * 255 << 24);
+        var argb = alpha < 1 && element._texture.baseTexture.alphaMode ? utils7.premultiplyTint(element._tintRGB, alpha) : element._tintRGB + (alpha * 255 << 24);
         for (var i2 = 0; i2 < vertexData.length; i2 += 2) {
           float32View[aIndex++] = vertexData[i2];
           float32View[aIndex++] = vertexData[i2 + 1];
@@ -12720,7 +14468,7 @@
     var _loop_1 = function(name2) {
       Object.defineProperty(resources, name2, {
         get: function() {
-          utils6.deprecation("6.0.0", "PIXI.systems." + name2 + " has moved to PIXI." + name2);
+          utils7.deprecation("6.0.0", "PIXI.systems." + name2 + " has moved to PIXI." + name2);
           return _resources[name2];
         }
       });
@@ -12732,7 +14480,7 @@
     var _loop_2 = function(name2) {
       Object.defineProperty(systems, name2, {
         get: function() {
-          utils6.deprecation("6.0.0", "PIXI.resources." + name2 + " has moved to PIXI." + name2);
+          utils7.deprecation("6.0.0", "PIXI.resources." + name2 + " has moved to PIXI." + name2);
           return _systems[name2];
         }
       });
@@ -12952,7 +14700,7 @@
      */
     "use strict";
     Object.defineProperty(exports, "__esModule", {value: true});
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var math = require_math();
     var core = require_core();
     var TEMP_RECT = new math.Rectangle();
@@ -12999,7 +14747,7 @@
         }
         var width = Math.floor(frame.width * resolution + 1e-4);
         var height = Math.floor(frame.height * resolution + 1e-4);
-        var canvasBuffer = new utils6.CanvasRenderTarget(width, height, 1);
+        var canvasBuffer = new utils7.CanvasRenderTarget(width, height, 1);
         var webglPixels = new Uint8Array(BYTES_PER_PIXEL * width * height);
         var gl = renderer.gl;
         gl.readPixels(frame.x * resolution, frame.y * resolution, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webglPixels);
@@ -13007,7 +14755,7 @@
         Extract2.arrayPostDivide(webglPixels, canvasData.data);
         canvasBuffer.context.putImageData(canvasData, 0, 0);
         if (flipY) {
-          var target_1 = new utils6.CanvasRenderTarget(canvasBuffer.width, canvasBuffer.height, 1);
+          var target_1 = new utils7.CanvasRenderTarget(canvasBuffer.width, canvasBuffer.height, 1);
           target_1.context.scale(1, -1);
           target_1.context.drawImage(canvasBuffer.canvas, 0, -height);
           canvasBuffer.destroy();
@@ -13453,15 +15201,15 @@
       eachSeries,
       queue
     };
-    var cache = {};
+    var cache2 = {};
     function caching(resource, next) {
       var _this = this;
-      if (cache[resource.url]) {
-        resource.data = cache[resource.url];
+      if (cache2[resource.url]) {
+        resource.data = cache2[resource.url];
         resource.complete();
       } else {
         resource.onComplete.once(function() {
-          return cache[_this.url] = _this.data;
+          return cache2[_this.url] = _this.data;
         });
       }
       next();
@@ -15668,7 +17416,7 @@
         auth = auth.replace(/%3A/i, ":");
         auth += "@";
       }
-      var protocol = this.protocol || "", pathname = this.pathname || "", hash = this.hash || "", host = false, query = "";
+      var protocol = this.protocol || "", pathname = this.pathname || "", hash = this.hash || "", host = false, query2 = "";
       if (this.host) {
         host = auth + this.host;
       } else if (this.hostname) {
@@ -15678,9 +17426,9 @@
         }
       }
       if (this.query && util.isObject(this.query) && Object.keys(this.query).length) {
-        query = querystring.stringify(this.query);
+        query2 = querystring.stringify(this.query);
       }
-      var search = this.search || query && "?" + query || "";
+      var search = this.search || query2 && "?" + query2 || "";
       if (protocol && protocol.substr(-1) !== ":") {
         protocol += ":";
       }
@@ -16543,7 +18291,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var constants = require_constants();
     var display = require_display();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var core = require_core();
     var math = require_math();
     /*! *****************************************************************************
@@ -16631,7 +18379,7 @@
         },
         set: function(value) {
           this._tint = value;
-          utils6.hex2rgb(value, this.tintRgb);
+          utils7.hex2rgb(value, this.tintRgb);
         },
         enumerable: false,
         configurable: true
@@ -16684,18 +18432,18 @@
         this.dynamicProperties = [];
         this.staticProperties = [];
         for (var i2 = 0; i2 < properties.length; ++i2) {
-          var property = properties[i2];
-          property = {
-            attributeName: property.attributeName,
-            size: property.size,
-            uploadFunction: property.uploadFunction,
-            type: property.type || constants.TYPES.FLOAT,
-            offset: property.offset
+          var property2 = properties[i2];
+          property2 = {
+            attributeName: property2.attributeName,
+            size: property2.size,
+            uploadFunction: property2.uploadFunction,
+            type: property2.type || constants.TYPES.FLOAT,
+            offset: property2.offset
           };
           if (dynamicPropertyFlags[i2]) {
-            this.dynamicProperties.push(property);
+            this.dynamicProperties.push(property2);
           } else {
-            this.staticProperties.push(property);
+            this.staticProperties.push(property2);
           }
         }
         this.staticStride = 0;
@@ -16712,14 +18460,14 @@
       ParticleBuffer2.prototype.initBuffers = function() {
         var geometry = this.geometry;
         var dynamicOffset = 0;
-        this.indexBuffer = new core.Buffer(utils6.createIndicesForQuads(this.size), true, true);
+        this.indexBuffer = new core.Buffer(utils7.createIndicesForQuads(this.size), true, true);
         geometry.addIndex(this.indexBuffer);
         this.dynamicStride = 0;
         for (var i2 = 0; i2 < this.dynamicProperties.length; ++i2) {
-          var property = this.dynamicProperties[i2];
-          property.offset = dynamicOffset;
-          dynamicOffset += property.size;
-          this.dynamicStride += property.size;
+          var property2 = this.dynamicProperties[i2];
+          property2.offset = dynamicOffset;
+          dynamicOffset += property2.size;
+          this.dynamicStride += property2.size;
         }
         var dynBuffer = new ArrayBuffer(this.size * this.dynamicStride * 4 * 4);
         this.dynamicData = new Float32Array(dynBuffer);
@@ -16728,35 +18476,35 @@
         var staticOffset = 0;
         this.staticStride = 0;
         for (var i2 = 0; i2 < this.staticProperties.length; ++i2) {
-          var property = this.staticProperties[i2];
-          property.offset = staticOffset;
-          staticOffset += property.size;
-          this.staticStride += property.size;
+          var property2 = this.staticProperties[i2];
+          property2.offset = staticOffset;
+          staticOffset += property2.size;
+          this.staticStride += property2.size;
         }
         var statBuffer = new ArrayBuffer(this.size * this.staticStride * 4 * 4);
         this.staticData = new Float32Array(statBuffer);
         this.staticDataUint32 = new Uint32Array(statBuffer);
         this.staticBuffer = new core.Buffer(this.staticData, true, false);
         for (var i2 = 0; i2 < this.dynamicProperties.length; ++i2) {
-          var property = this.dynamicProperties[i2];
-          geometry.addAttribute(property.attributeName, this.dynamicBuffer, 0, property.type === constants.TYPES.UNSIGNED_BYTE, property.type, this.dynamicStride * 4, property.offset * 4);
+          var property2 = this.dynamicProperties[i2];
+          geometry.addAttribute(property2.attributeName, this.dynamicBuffer, 0, property2.type === constants.TYPES.UNSIGNED_BYTE, property2.type, this.dynamicStride * 4, property2.offset * 4);
         }
         for (var i2 = 0; i2 < this.staticProperties.length; ++i2) {
-          var property = this.staticProperties[i2];
-          geometry.addAttribute(property.attributeName, this.staticBuffer, 0, property.type === constants.TYPES.UNSIGNED_BYTE, property.type, this.staticStride * 4, property.offset * 4);
+          var property2 = this.staticProperties[i2];
+          geometry.addAttribute(property2.attributeName, this.staticBuffer, 0, property2.type === constants.TYPES.UNSIGNED_BYTE, property2.type, this.staticStride * 4, property2.offset * 4);
         }
       };
       ParticleBuffer2.prototype.uploadDynamic = function(children, startIndex, amount) {
         for (var i2 = 0; i2 < this.dynamicProperties.length; i2++) {
-          var property = this.dynamicProperties[i2];
-          property.uploadFunction(children, startIndex, amount, property.type === constants.TYPES.UNSIGNED_BYTE ? this.dynamicDataUint32 : this.dynamicData, this.dynamicStride, property.offset);
+          var property2 = this.dynamicProperties[i2];
+          property2.uploadFunction(children, startIndex, amount, property2.type === constants.TYPES.UNSIGNED_BYTE ? this.dynamicDataUint32 : this.dynamicData, this.dynamicStride, property2.offset);
         }
         this.dynamicBuffer._updateID++;
       };
       ParticleBuffer2.prototype.uploadStatic = function(children, startIndex, amount) {
         for (var i2 = 0; i2 < this.staticProperties.length; i2++) {
-          var property = this.staticProperties[i2];
-          property.uploadFunction(children, startIndex, amount, property.type === constants.TYPES.UNSIGNED_BYTE ? this.staticDataUint32 : this.staticData, this.staticStride, property.offset);
+          var property2 = this.staticProperties[i2];
+          property2.uploadFunction(children, startIndex, amount, property2.type === constants.TYPES.UNSIGNED_BYTE ? this.staticDataUint32 : this.staticData, this.staticStride, property2.offset);
         }
         this.staticBuffer._updateID++;
       };
@@ -16836,13 +18584,13 @@
           buffers = container._buffers = this.generateBuffers(container);
         }
         var baseTexture = children[0]._texture.baseTexture;
-        this.state.blendMode = utils6.correctBlendMode(container.blendMode, baseTexture.alphaMode);
+        this.state.blendMode = utils7.correctBlendMode(container.blendMode, baseTexture.alphaMode);
         renderer.state.set(this.state);
         var gl = renderer.gl;
         var m2 = container.worldTransform.copyTo(this.tempMatrix);
         m2.prepend(renderer.globalUniforms.uniforms.projectionMatrix);
         this.shader.uniforms.translationMatrix = m2.toArray(true);
-        this.shader.uniforms.uColor = utils6.premultiplyRgba(container.tintRgb, container.worldAlpha, this.shader.uniforms.uColor, baseTexture.alphaMode);
+        this.shader.uniforms.uColor = utils7.premultiplyRgba(container.tintRgb, container.worldAlpha, this.shader.uniforms.uColor, baseTexture.alphaMode);
         this.shader.uniforms.uSampler = baseTexture;
         this.renderer.shader.bind(this.shader);
         var updateStatic = false;
@@ -16970,7 +18718,7 @@
           var sprite = children[startIndex + i2];
           var premultiplied = sprite._texture.baseTexture.alphaMode > 0;
           var alpha = sprite.alpha;
-          var argb = alpha < 1 && premultiplied ? utils6.premultiplyTint(sprite._tintRGB, alpha) : sprite._tintRGB + (alpha * 255 << 24);
+          var argb = alpha < 1 && premultiplied ? utils7.premultiplyTint(sprite._tintRGB, alpha) : sprite._tintRGB + (alpha * 255 << 24);
           array[offset] = argb;
           array[offset + stride] = argb;
           array[offset + stride * 2] = argb;
@@ -17005,7 +18753,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var core = require_core();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var constants = require_constants();
     var display = require_display();
     (function(LINE_JOIN) {
@@ -17120,7 +18868,7 @@
             holeArray.push(points.length / 2);
             points = points.concat(hole.points);
           }
-          var triangles = utils6.earcut(points, holeArray, 2);
+          var triangles = utils7.earcut(points, holeArray, 2);
           if (!triangles) {
             return;
           }
@@ -17252,7 +19000,7 @@
         var verts = graphicsGeometry.points;
         var indices = graphicsGeometry.indices;
         var vecPos = verts.length / 2;
-        var triangles = utils6.earcut(points, null, 2);
+        var triangles = utils7.earcut(points, null, 2);
         for (var i2 = 0, j2 = triangles.length; i2 < j2; i2 += 3) {
           indices.push(triangles[i2] + vecPos);
           indices.push(triangles[i2 + 1] + vecPos);
@@ -18227,7 +19975,7 @@
       };
       GraphicsGeometry2.prototype.addColors = function(colors, color, alpha, size) {
         var rgb = (color >> 16) + (color & 65280) + ((color & 255) << 16);
-        var rgba = utils6.premultiplyTint(rgb, alpha);
+        var rgba = utils7.premultiplyTint(rgb, alpha);
         while (size-- > 0) {
           colors.push(rgba);
         }
@@ -18323,9 +20071,9 @@
     }(FillStyle);
     var temp = new Float32Array(3);
     var DEFAULT_SHADERS = {};
-    var Graphics3 = function(_super) {
-      __extends(Graphics4, _super);
-      function Graphics4(geometry) {
+    var Graphics5 = function(_super) {
+      __extends(Graphics6, _super);
+      function Graphics6(geometry) {
         if (geometry === void 0) {
           geometry = null;
         }
@@ -18349,18 +20097,18 @@
         _this.blendMode = constants.BLEND_MODES.NORMAL;
         return _this;
       }
-      Object.defineProperty(Graphics4.prototype, "geometry", {
+      Object.defineProperty(Graphics6.prototype, "geometry", {
         get: function() {
           return this._geometry;
         },
         enumerable: false,
         configurable: true
       });
-      Graphics4.prototype.clone = function() {
+      Graphics6.prototype.clone = function() {
         this.finishPoly();
-        return new Graphics4(this._geometry);
+        return new Graphics6(this._geometry);
       };
-      Object.defineProperty(Graphics4.prototype, "blendMode", {
+      Object.defineProperty(Graphics6.prototype, "blendMode", {
         get: function() {
           return this.state.blendMode;
         },
@@ -18370,7 +20118,7 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Graphics4.prototype, "tint", {
+      Object.defineProperty(Graphics6.prototype, "tint", {
         get: function() {
           return this._tint;
         },
@@ -18380,21 +20128,21 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Graphics4.prototype, "fill", {
+      Object.defineProperty(Graphics6.prototype, "fill", {
         get: function() {
           return this._fillStyle;
         },
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Graphics4.prototype, "line", {
+      Object.defineProperty(Graphics6.prototype, "line", {
         get: function() {
           return this._lineStyle;
         },
         enumerable: false,
         configurable: true
       });
-      Graphics4.prototype.lineStyle = function(options, color, alpha, alignment, native) {
+      Graphics6.prototype.lineStyle = function(options, color, alpha, alignment, native) {
         if (options === void 0) {
           options = null;
         }
@@ -18415,7 +20163,7 @@
         }
         return this.lineTextureStyle(options);
       };
-      Graphics4.prototype.lineTextureStyle = function(options) {
+      Graphics6.prototype.lineTextureStyle = function(options) {
         options = Object.assign({
           width: 0,
           texture: core.Texture.WHITE,
@@ -18443,7 +20191,7 @@
         }
         return this;
       };
-      Graphics4.prototype.startPoly = function() {
+      Graphics6.prototype.startPoly = function() {
         if (this.currentPath) {
           var points = this.currentPath.points;
           var len = this.currentPath.points.length;
@@ -18458,7 +20206,7 @@
           this.currentPath.closeStroke = false;
         }
       };
-      Graphics4.prototype.finishPoly = function() {
+      Graphics6.prototype.finishPoly = function() {
         if (this.currentPath) {
           if (this.currentPath.points.length > 2) {
             this.drawShape(this.currentPath);
@@ -18468,13 +20216,13 @@
           }
         }
       };
-      Graphics4.prototype.moveTo = function(x2, y2) {
+      Graphics6.prototype.moveTo = function(x2, y2) {
         this.startPoly();
         this.currentPath.points[0] = x2;
         this.currentPath.points[1] = y2;
         return this;
       };
-      Graphics4.prototype.lineTo = function(x2, y2) {
+      Graphics6.prototype.lineTo = function(x2, y2) {
         if (!this.currentPath) {
           this.moveTo(0, 0);
         }
@@ -18486,7 +20234,7 @@
         }
         return this;
       };
-      Graphics4.prototype._initCurve = function(x2, y2) {
+      Graphics6.prototype._initCurve = function(x2, y2) {
         if (x2 === void 0) {
           x2 = 0;
         }
@@ -18501,7 +20249,7 @@
           this.moveTo(x2, y2);
         }
       };
-      Graphics4.prototype.quadraticCurveTo = function(cpX, cpY, toX, toY) {
+      Graphics6.prototype.quadraticCurveTo = function(cpX, cpY, toX, toY) {
         this._initCurve();
         var points = this.currentPath.points;
         if (points.length === 0) {
@@ -18510,12 +20258,12 @@
         QuadraticUtils.curveTo(cpX, cpY, toX, toY, points);
         return this;
       };
-      Graphics4.prototype.bezierCurveTo = function(cpX, cpY, cpX2, cpY2, toX, toY) {
+      Graphics6.prototype.bezierCurveTo = function(cpX, cpY, cpX2, cpY2, toX, toY) {
         this._initCurve();
         BezierUtils.curveTo(cpX, cpY, cpX2, cpY2, toX, toY, this.currentPath.points);
         return this;
       };
-      Graphics4.prototype.arcTo = function(x1, y1, x2, y2, radius) {
+      Graphics6.prototype.arcTo = function(x1, y1, x2, y2, radius) {
         this._initCurve(x1, y1);
         var points = this.currentPath.points;
         var result = ArcUtils.curveTo(x1, y1, x2, y2, radius, points);
@@ -18525,7 +20273,7 @@
         }
         return this;
       };
-      Graphics4.prototype.arc = function(cx, cy, radius, startAngle, endAngle, anticlockwise) {
+      Graphics6.prototype.arc = function(cx, cy, radius, startAngle, endAngle, anticlockwise) {
         if (anticlockwise === void 0) {
           anticlockwise = false;
         }
@@ -18560,7 +20308,7 @@
         ArcUtils.arc(startX, startY, cx, cy, radius, startAngle, endAngle, anticlockwise, points);
         return this;
       };
-      Graphics4.prototype.beginFill = function(color, alpha) {
+      Graphics6.prototype.beginFill = function(color, alpha) {
         if (color === void 0) {
           color = 0;
         }
@@ -18569,7 +20317,7 @@
         }
         return this.beginTextureFill({texture: core.Texture.WHITE, color, alpha});
       };
-      Graphics4.prototype.beginTextureFill = function(options) {
+      Graphics6.prototype.beginTextureFill = function(options) {
         options = Object.assign({
           texture: core.Texture.WHITE,
           color: 16777215,
@@ -18591,24 +20339,24 @@
         }
         return this;
       };
-      Graphics4.prototype.endFill = function() {
+      Graphics6.prototype.endFill = function() {
         this.finishPoly();
         this._fillStyle.reset();
         return this;
       };
-      Graphics4.prototype.drawRect = function(x2, y2, width, height) {
+      Graphics6.prototype.drawRect = function(x2, y2, width, height) {
         return this.drawShape(new math.Rectangle(x2, y2, width, height));
       };
-      Graphics4.prototype.drawRoundedRect = function(x2, y2, width, height, radius) {
+      Graphics6.prototype.drawRoundedRect = function(x2, y2, width, height, radius) {
         return this.drawShape(new math.RoundedRectangle(x2, y2, width, height, radius));
       };
-      Graphics4.prototype.drawCircle = function(x2, y2, radius) {
+      Graphics6.prototype.drawCircle = function(x2, y2, radius) {
         return this.drawShape(new math.Circle(x2, y2, radius));
       };
-      Graphics4.prototype.drawEllipse = function(x2, y2, width, height) {
+      Graphics6.prototype.drawEllipse = function(x2, y2, width, height) {
         return this.drawShape(new math.Ellipse(x2, y2, width, height));
       };
-      Graphics4.prototype.drawPolygon = function() {
+      Graphics6.prototype.drawPolygon = function() {
         var arguments$1 = arguments;
         var path = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -18630,7 +20378,7 @@
         this.drawShape(shape);
         return this;
       };
-      Graphics4.prototype.drawShape = function(shape) {
+      Graphics6.prototype.drawShape = function(shape) {
         if (!this._holeMode) {
           this._geometry.drawShape(shape, this._fillStyle.clone(), this._lineStyle.clone(), this._matrix);
         } else {
@@ -18638,7 +20386,7 @@
         }
         return this;
       };
-      Graphics4.prototype.clear = function() {
+      Graphics6.prototype.clear = function() {
         this._geometry.clear();
         this._lineStyle.reset();
         this._fillStyle.reset();
@@ -18648,11 +20396,11 @@
         this.currentPath = null;
         return this;
       };
-      Graphics4.prototype.isFastRect = function() {
+      Graphics6.prototype.isFastRect = function() {
         var data = this._geometry.graphicsData;
         return data.length === 1 && data[0].shape.type === math.SHAPES.RECT && !(data[0].lineStyle.visible && data[0].lineStyle.width);
       };
-      Graphics4.prototype._render = function(renderer) {
+      Graphics6.prototype._render = function(renderer) {
         this.finishPoly();
         var geometry = this._geometry;
         var hasuint32 = renderer.context.supports.uint32Indices;
@@ -18667,7 +20415,7 @@
           this._renderDirect(renderer);
         }
       };
-      Graphics4.prototype._populateBatches = function() {
+      Graphics6.prototype._populateBatches = function() {
         var geometry = this._geometry;
         var blendMode = this.blendMode;
         var len = geometry.batches.length;
@@ -18687,7 +20435,7 @@
             blendMode,
             indices,
             uvs,
-            _batchRGB: utils6.hex2rgb(color),
+            _batchRGB: utils7.hex2rgb(color),
             _tintRGB: color,
             _texture: gI.style.texture,
             alpha: gI.style.alpha,
@@ -18696,7 +20444,7 @@
           this.batches[i2] = batch;
         }
       };
-      Graphics4.prototype._renderBatched = function(renderer) {
+      Graphics6.prototype._renderBatched = function(renderer) {
         if (!this.batches.length) {
           return;
         }
@@ -18709,7 +20457,7 @@
           renderer.plugins[this.pluginName].render(batch);
         }
       };
-      Graphics4.prototype._renderDirect = function(renderer) {
+      Graphics6.prototype._renderDirect = function(renderer) {
         var shader = this._resolveDirectShader(renderer);
         var geometry = this._geometry;
         var tint = this.tint;
@@ -18728,7 +20476,7 @@
           this._renderDrawCallDirect(renderer, geometry.drawCalls[i2]);
         }
       };
-      Graphics4.prototype._renderDrawCallDirect = function(renderer, drawCall) {
+      Graphics6.prototype._renderDrawCallDirect = function(renderer, drawCall) {
         var texArray = drawCall.texArray, type2 = drawCall.type, size = drawCall.size, start = drawCall.start;
         var groupTextureCount = texArray.count;
         for (var j2 = 0; j2 < groupTextureCount; j2++) {
@@ -18736,7 +20484,7 @@
         }
         renderer.geometry.draw(type2, size, start);
       };
-      Graphics4.prototype._resolveDirectShader = function(renderer) {
+      Graphics6.prototype._resolveDirectShader = function(renderer) {
         var shader = this.shader;
         var pluginName = this.pluginName;
         if (!shader) {
@@ -18758,7 +20506,7 @@
         }
         return shader;
       };
-      Graphics4.prototype._calculateBounds = function() {
+      Graphics6.prototype._calculateBounds = function() {
         this.finishPoly();
         var geometry = this._geometry;
         if (!geometry.graphicsData.length) {
@@ -18767,14 +20515,14 @@
         var _a3 = geometry.bounds, minX = _a3.minX, minY = _a3.minY, maxX = _a3.maxX, maxY = _a3.maxY;
         this._bounds.addFrame(this.transform, minX, minY, maxX, maxY);
       };
-      Graphics4.prototype.containsPoint = function(point) {
-        this.worldTransform.applyInverse(point, Graphics4._TEMP_POINT);
-        return this._geometry.containsPoint(Graphics4._TEMP_POINT);
+      Graphics6.prototype.containsPoint = function(point) {
+        this.worldTransform.applyInverse(point, Graphics6._TEMP_POINT);
+        return this._geometry.containsPoint(Graphics6._TEMP_POINT);
       };
-      Graphics4.prototype.calculateTints = function() {
+      Graphics6.prototype.calculateTints = function() {
         if (this.batchTint !== this.tint) {
           this.batchTint = this.tint;
-          var tintRGB = utils6.hex2rgb(this.tint, temp);
+          var tintRGB = utils7.hex2rgb(this.tint, temp);
           for (var i2 = 0; i2 < this.batches.length; i2++) {
             var batch = this.batches[i2];
             var batchTint = batch._batchRGB;
@@ -18786,7 +20534,7 @@
           }
         }
       };
-      Graphics4.prototype.calculateVertices = function() {
+      Graphics6.prototype.calculateVertices = function() {
         var wtID = this.transform._worldID;
         if (this._transformID === wtID) {
           return;
@@ -18809,28 +20557,28 @@
           vertexData[count++] = d2 * y2 + b2 * x2 + ty;
         }
       };
-      Graphics4.prototype.closePath = function() {
+      Graphics6.prototype.closePath = function() {
         var currentPath = this.currentPath;
         if (currentPath) {
           currentPath.closeStroke = true;
         }
         return this;
       };
-      Graphics4.prototype.setMatrix = function(matrix) {
+      Graphics6.prototype.setMatrix = function(matrix) {
         this._matrix = matrix;
         return this;
       };
-      Graphics4.prototype.beginHole = function() {
+      Graphics6.prototype.beginHole = function() {
         this.finishPoly();
         this._holeMode = true;
         return this;
       };
-      Graphics4.prototype.endHole = function() {
+      Graphics6.prototype.endHole = function() {
         this.finishPoly();
         this._holeMode = false;
         return this;
       };
-      Graphics4.prototype.destroy = function(options) {
+      Graphics6.prototype.destroy = function(options) {
         this._geometry.refCount--;
         if (this._geometry.refCount === 0) {
           this._geometry.dispose();
@@ -18848,8 +20596,8 @@
         this.batches = null;
         _super.prototype.destroy.call(this, options);
       };
-      Graphics4._TEMP_POINT = new math.Point();
-      return Graphics4;
+      Graphics6._TEMP_POINT = new math.Point();
+      return Graphics6;
     }(display.Container);
     var graphicsUtils = {
       buildPoly,
@@ -18867,7 +20615,7 @@
     };
     exports.FillStyle = FillStyle;
     exports.GRAPHICS_CURVES = GRAPHICS_CURVES;
-    exports.Graphics = Graphics3;
+    exports.Graphics = Graphics5;
     exports.GraphicsData = GraphicsData;
     exports.GraphicsGeometry = GraphicsGeometry;
     exports.LineStyle = LineStyle;
@@ -18890,7 +20638,7 @@
     var display = require_display();
     var math = require_math();
     var settings2 = require_settings();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -18958,10 +20706,10 @@
         this._textureTrimmedID = -1;
         this._cachedTint = 16777215;
         if (this._width) {
-          this.scale.x = utils6.sign(this.scale.x) * this._width / this._texture.orig.width;
+          this.scale.x = utils7.sign(this.scale.x) * this._width / this._texture.orig.width;
         }
         if (this._height) {
-          this.scale.y = utils6.sign(this.scale.y) * this._height / this._texture.orig.height;
+          this.scale.y = utils7.sign(this.scale.y) * this._height / this._texture.orig.height;
         }
       };
       Sprite4.prototype._onAnchorUpdate = function() {
@@ -19130,7 +20878,7 @@
           return Math.abs(this.scale.x) * this._texture.orig.width;
         },
         set: function(value) {
-          var s3 = utils6.sign(this.scale.x) || 1;
+          var s3 = utils7.sign(this.scale.x) || 1;
           this.scale.x = s3 * value / this._texture.orig.width;
           this._width = value;
         },
@@ -19142,7 +20890,7 @@
           return Math.abs(this.scale.y) * this._texture.orig.height;
         },
         set: function(value) {
-          var s3 = utils6.sign(this.scale.y) || 1;
+          var s3 = utils7.sign(this.scale.y) || 1;
           this.scale.y = s3 * value / this._texture.orig.height;
           this._height = value;
         },
@@ -19216,7 +20964,7 @@
     var core = require_core();
     var settings2 = require_settings();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -19706,7 +21454,7 @@
     }();
     function getSingleColor(color) {
       if (typeof color === "number") {
-        return utils6.hex2string(color);
+        return utils7.hex2string(color);
       } else if (typeof color === "string") {
         if (color.indexOf("0x") === 0) {
           color = color.replace("0x", "#");
@@ -19800,7 +21548,7 @@
         var width = 0;
         var line = "";
         var lines = "";
-        var cache = Object.create(null);
+        var cache2 = Object.create(null);
         var letterSpacing = style.letterSpacing, whiteSpace = style.whiteSpace;
         var collapseSpaces = TextMetrics2.collapseSpaces(whiteSpace);
         var collapseNewlines = TextMetrics2.collapseNewlines(whiteSpace);
@@ -19826,7 +21574,7 @@
               continue;
             }
           }
-          var tokenWidth = TextMetrics2.getFromCache(token, letterSpacing, cache, context);
+          var tokenWidth = TextMetrics2.getFromCache(token, letterSpacing, cache2, context);
           if (tokenWidth > wordWrapWidth) {
             if (line !== "") {
               lines += TextMetrics2.addLine(line);
@@ -19849,7 +21597,7 @@
                   k2++;
                 }
                 j2 += char.length - 1;
-                var characterWidth = TextMetrics2.getFromCache(char, letterSpacing, cache, context);
+                var characterWidth = TextMetrics2.getFromCache(char, letterSpacing, cache2, context);
                 if (characterWidth + width > wordWrapWidth) {
                   lines += TextMetrics2.addLine(line);
                   canPrependSpaces = false;
@@ -19895,12 +21643,12 @@
         line = newLine ? line + "\n" : line;
         return line;
       };
-      TextMetrics2.getFromCache = function(key, letterSpacing, cache, context) {
-        var width = cache[key];
+      TextMetrics2.getFromCache = function(key, letterSpacing, cache2, context) {
+        var width = cache2[key];
         if (typeof width !== "number") {
           var spacing = key.length * letterSpacing;
           width = context.measureText(key).width + spacing;
-          cache[key] = width;
+          cache2[key] = width;
         }
         return width;
       };
@@ -20090,9 +21838,9 @@
       children: false,
       baseTexture: true
     };
-    var Text3 = function(_super) {
-      __extends(Text4, _super);
-      function Text4(text, style, canvas2) {
+    var Text5 = function(_super) {
+      __extends(Text6, _super);
+      function Text6(text, style, canvas2) {
         var _this = this;
         var ownCanvas = false;
         if (!canvas2) {
@@ -20119,7 +21867,7 @@
         _this.localStyleID = -1;
         return _this;
       }
-      Text4.prototype.updateText = function(respectDirty) {
+      Text6.prototype.updateText = function(respectDirty) {
         var style = this._style;
         if (this.localStyleID !== style.styleID) {
           this.dirty = true;
@@ -20158,7 +21906,7 @@
             context.fillStyle = "black";
             context.strokeStyle = "black";
             var dropShadowColor = style.dropShadowColor;
-            var rgb = utils6.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils6.string2hex(dropShadowColor));
+            var rgb = utils7.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils7.string2hex(dropShadowColor));
             context.shadowColor = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + style.dropShadowAlpha + ")";
             context.shadowBlur = style.dropShadowBlur;
             context.shadowOffsetX = Math.cos(style.dropShadowAngle) * style.dropShadowDistance;
@@ -20189,7 +21937,7 @@
         }
         this.updateTexture();
       };
-      Text4.prototype.drawLetterSpacing = function(text, x2, y2, isStroke) {
+      Text6.prototype.drawLetterSpacing = function(text, x2, y2, isStroke) {
         if (isStroke === void 0) {
           isStroke = false;
         }
@@ -20219,10 +21967,10 @@
           previousWidth = currentWidth;
         }
       };
-      Text4.prototype.updateTexture = function() {
+      Text6.prototype.updateTexture = function() {
         var canvas2 = this.canvas;
         if (this._style.trim) {
-          var trimmed = utils6.trimCanvas(canvas2);
+          var trimmed = utils7.trimCanvas(canvas2);
           if (trimmed.data) {
             canvas2.width = trimmed.width;
             canvas2.height = trimmed.height;
@@ -20244,7 +21992,7 @@
         this._recursivePostUpdateTransform();
         this.dirty = false;
       };
-      Text4.prototype._render = function(renderer) {
+      Text6.prototype._render = function(renderer) {
         if (this._autoResolution && this._resolution !== renderer.resolution) {
           this._resolution = renderer.resolution;
           this.dirty = true;
@@ -20252,16 +22000,16 @@
         this.updateText(true);
         _super.prototype._render.call(this, renderer);
       };
-      Text4.prototype.getLocalBounds = function(rect) {
+      Text6.prototype.getLocalBounds = function(rect) {
         this.updateText(true);
         return _super.prototype.getLocalBounds.call(this, rect);
       };
-      Text4.prototype._calculateBounds = function() {
+      Text6.prototype._calculateBounds = function() {
         this.updateText(true);
         this.calculateVertices();
         this._bounds.addQuad(this.vertexData);
       };
-      Text4.prototype._generateFillStyle = function(style, lines, metrics) {
+      Text6.prototype._generateFillStyle = function(style, lines, metrics) {
         var fillStyle = style.fill;
         if (!Array.isArray(fillStyle)) {
           return fillStyle;
@@ -20320,7 +22068,7 @@
         }
         return gradient;
       };
-      Text4.prototype.destroy = function(options) {
+      Text6.prototype.destroy = function(options) {
         if (typeof options === "boolean") {
           options = {children: options};
         }
@@ -20333,35 +22081,35 @@
         this.canvas = null;
         this._style = null;
       };
-      Object.defineProperty(Text4.prototype, "width", {
+      Object.defineProperty(Text6.prototype, "width", {
         get: function() {
           this.updateText(true);
           return Math.abs(this.scale.x) * this._texture.orig.width;
         },
         set: function(value) {
           this.updateText(true);
-          var s3 = utils6.sign(this.scale.x) || 1;
+          var s3 = utils7.sign(this.scale.x) || 1;
           this.scale.x = s3 * value / this._texture.orig.width;
           this._width = value;
         },
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Text4.prototype, "height", {
+      Object.defineProperty(Text6.prototype, "height", {
         get: function() {
           this.updateText(true);
           return Math.abs(this.scale.y) * this._texture.orig.height;
         },
         set: function(value) {
           this.updateText(true);
-          var s3 = utils6.sign(this.scale.y) || 1;
+          var s3 = utils7.sign(this.scale.y) || 1;
           this.scale.y = s3 * value / this._texture.orig.height;
           this._height = value;
         },
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Text4.prototype, "style", {
+      Object.defineProperty(Text6.prototype, "style", {
         get: function() {
           return this._style;
         },
@@ -20378,7 +22126,7 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Text4.prototype, "text", {
+      Object.defineProperty(Text6.prototype, "text", {
         get: function() {
           return this._text;
         },
@@ -20393,7 +22141,7 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Text4.prototype, "resolution", {
+      Object.defineProperty(Text6.prototype, "resolution", {
         get: function() {
           return this._resolution;
         },
@@ -20408,9 +22156,9 @@
         enumerable: false,
         configurable: true
       });
-      return Text4;
+      return Text6;
     }(sprite.Sprite);
-    exports.Text = Text3;
+    exports.Text = Text5;
     exports.TextMetrics = TextMetrics;
     exports.TextStyle = TextStyle;
   });
@@ -20750,7 +22498,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var math = require_math();
     var core = require_core();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var loaders = require_loaders();
     var Spritesheet = function() {
       function Spritesheet2(texture, data, resolutionFilename) {
@@ -20774,7 +22522,7 @@
           resolutionFilename = null;
         }
         var scale = this.data.meta.scale;
-        var resolution = utils6.getResolutionOfUrl(resolutionFilename, null);
+        var resolution = utils7.getResolutionOfUrl(resolutionFilename, null);
         if (resolution === null) {
           resolution = scale !== void 0 ? parseFloat(scale) : 1;
         }
@@ -20889,9 +22637,9 @@
               return "continue";
             }
             var itemName = item2.replace(".json", "");
-            var itemUrl = utils6.url.resolve(resource.url.replace(loader.baseUrl, ""), item2);
+            var itemUrl = utils7.url.resolve(resource.url.replace(loader.baseUrl, ""), item2);
             if (loader.resources[itemName] || Object.values(loader.resources).some(function(r2) {
-              return utils6.url.format(utils6.url.parse(r2.url)) === itemUrl;
+              return utils7.url.format(utils7.url.parse(r2.url)) === itemUrl;
             })) {
               return "continue";
             }
@@ -20931,7 +22679,7 @@
         if (resource.isDataUrl) {
           return resource.data.meta.image;
         }
-        return utils6.url.resolve(resource.url.replace(baseUrl, ""), resource.data.meta.image);
+        return utils7.url.resolve(resource.url.replace(baseUrl, ""), resource.data.meta.image);
       };
       return SpritesheetLoader2;
     }();
@@ -20954,7 +22702,7 @@
     var math = require_math();
     var sprite = require_sprite();
     var constants = require_constants();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -21180,12 +22928,12 @@
           shader.uniforms.uClampOffset = uv.uClampOffset;
         }
         shader.uniforms.uTransform = tempMat.toArray(true);
-        shader.uniforms.uColor = utils6.premultiplyTintToRgba(ts.tint, ts.worldAlpha, shader.uniforms.uColor, baseTex.alphaMode);
+        shader.uniforms.uColor = utils7.premultiplyTintToRgba(ts.tint, ts.worldAlpha, shader.uniforms.uColor, baseTex.alphaMode);
         shader.uniforms.translationMatrix = ts.transform.worldTransform.toArray(true);
         shader.uniforms.uSampler = tex;
         renderer.shader.bind(shader);
         renderer.geometry.bind(quad);
-        this.state.blendMode = utils6.correctBlendMode(ts.blendMode, baseTex.alphaMode);
+        this.state.blendMode = utils7.correctBlendMode(ts.blendMode, baseTex.alphaMode);
         renderer.state.set(this.state);
         renderer.geometry.draw(this.renderer.gl.TRIANGLES, 6, 0);
       };
@@ -21211,7 +22959,7 @@
     var constants = require_constants();
     var display = require_display();
     var settings2 = require_settings();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -21570,7 +23318,7 @@
         if (this._colorDirty) {
           this._colorDirty = false;
           var baseTexture = this.texture.baseTexture;
-          utils6.premultiplyTintToRgba(this._tint, this._alpha, this.uniforms.uColor, baseTexture.alphaMode);
+          utils7.premultiplyTintToRgba(this._tint, this._alpha, this.uniforms.uColor, baseTexture.alphaMode);
         }
         if (this.uvMatrix.update()) {
           this.uniforms.uTextureMatrix = this.uvMatrix.mapCoord;
@@ -21618,7 +23366,7 @@
     var math = require_math();
     var settings2 = require_settings();
     var mesh = require_mesh();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var core = require_core();
     var text = require_text();
     var display = require_display();
@@ -21907,7 +23655,7 @@
       context.fillStyle = generateFillStyle(canvas, context, style, resolution, [char], metrics);
       context.strokeStyle = style.stroke;
       var dropShadowColor = style.dropShadowColor;
-      var rgb = utils6.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils6.string2hex(dropShadowColor));
+      var rgb = utils7.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils7.string2hex(dropShadowColor));
       if (style.dropShadow) {
         context.shadowColor = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + style.dropShadowAlpha + ")";
         context.shadowBlur = style.dropShadowBlur;
@@ -21961,7 +23709,7 @@
         var info = data.info[0];
         var common = data.common[0];
         var page = data.page[0];
-        var res = utils6.getResolutionOfUrl(page.file);
+        var res = utils7.getResolutionOfUrl(page.file);
         var pageTextures = {};
         this._ownsTextures = ownsTextures;
         this.font = info.face;
@@ -22259,7 +24007,7 @@
           prevCharCode = charCode;
           if (lastBreakPos !== -1 && maxWidth > 0 && pos.x > maxWidth) {
             ++spacesRemoved;
-            utils6.removeItems(chars, 1 + lastBreakPos - spacesRemoved, 1 + i2 - lastBreakPos);
+            utils7.removeItems(chars, 1 + lastBreakPos - spacesRemoved, 1 + i2 - lastBreakPos);
             i2 = lastBreakPos;
             lastBreakPos = -1;
             lineWidths.push(lastBreakWidth);
@@ -24273,7 +26021,7 @@ void main() {
     var sprite = require_sprite();
     var display = require_display();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var settings2 = require_settings();
     var _tempMatrix = new math.Matrix();
     display.DisplayObject.prototype._cacheAsBitmap = false;
@@ -24387,7 +26135,7 @@ void main() {
         height: bounds.height,
         resolution: this.cacheAsBitmapResolution || renderer.resolution
       });
-      var textureCacheId = "cacheAsBitmap_" + utils6.uid();
+      var textureCacheId = "cacheAsBitmap_" + utils7.uid();
       this._cacheData.textureCacheId = textureCacheId;
       core.BaseTexture.addToCache(renderTexture.baseTexture, textureCacheId);
       core.Texture.addToCache(renderTexture, textureCacheId);
@@ -24438,7 +26186,7 @@ void main() {
       var cachedProjectionTransform = renderer._projTransform;
       bounds.ceil(settings2.settings.RESOLUTION);
       var renderTexture = core.RenderTexture.create({width: bounds.width, height: bounds.height});
-      var textureCacheId = "cacheAsBitmap_" + utils6.uid();
+      var textureCacheId = "cacheAsBitmap_" + utils7.uid();
       this._cacheData.textureCacheId = textureCacheId;
       core.BaseTexture.addToCache(renderTexture.baseTexture, textureCacheId);
       core.Texture.addToCache(renderTexture, textureCacheId);
@@ -25326,7 +27074,7 @@ void main() {
     "use strict";
     Object.defineProperty(exports, "__esModule", {value: true});
     require_polyfill();
-    var utils6 = require_utils();
+    var utils7 = require_utils();
     var accessibility = require_accessibility();
     var interaction = require_interaction();
     var app = require_app();
@@ -25600,7 +27348,7 @@ void main() {
           }
         });
     });
-    exports.utils = utils6;
+    exports.utils = utils7;
     exports.VERSION = VERSION2;
     exports.filters = filters;
   });
@@ -26533,16 +28281,16 @@ void main() {
       return this.__data__.has(key);
     }
     function stackSet(key, value) {
-      var cache = this.__data__;
-      if (cache instanceof ListCache) {
-        var pairs = cache.__data__;
+      var cache2 = this.__data__;
+      if (cache2 instanceof ListCache) {
+        var pairs = cache2.__data__;
         if (!Map2 || pairs.length < LARGE_ARRAY_SIZE - 1) {
           pairs.push([key, value]);
           return this;
         }
-        cache = this.__data__ = new MapCache(pairs);
+        cache2 = this.__data__ = new MapCache(pairs);
       }
-      cache.set(key, value);
+      cache2.set(key, value);
       return this;
     }
     Stack.prototype.clear = stackClear;
@@ -27129,12 +28877,12 @@ void main() {
         throw new TypeError(FUNC_ERROR_TEXT);
       }
       var memoized = function() {
-        var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache = memoized.cache;
-        if (cache.has(key)) {
-          return cache.get(key);
+        var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache2 = memoized.cache;
+        if (cache2.has(key)) {
+          return cache2.get(key);
         }
         var result = func.apply(this, args);
-        memoized.cache = cache.set(key, result);
+        memoized.cache = cache2.set(key, result);
         return result;
       };
       memoized.cache = new (memoize.Cache || MapCache)();
@@ -27454,12 +29202,12 @@ void main() {
         throw new TypeError(FUNC_ERROR_TEXT);
       }
       var memoized = function() {
-        var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache = memoized.cache;
-        if (cache.has(key)) {
-          return cache.get(key);
+        var args = arguments, key = resolver ? resolver.apply(this, args) : args[0], cache2 = memoized.cache;
+        if (cache2.has(key)) {
+          return cache2.get(key);
         }
         var result = func.apply(this, args);
-        memoized.cache = cache.set(key, result);
+        memoized.cache = cache2.set(key, result);
         return result;
       };
       memoized.cache = new (memoize.Cache || MapCache)();
@@ -27493,1481 +29241,8 @@ void main() {
     module.exports = set2;
   });
 
-  // node_modules/lit-html/lib/dom.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var isCEPolyfill = typeof window !== "undefined" && window.customElements != null && window.customElements.polyfillWrapFlushCallback !== void 0;
-  var removeNodes = (container, start, end = null) => {
-    while (start !== end) {
-      const n2 = start.nextSibling;
-      container.removeChild(start);
-      start = n2;
-    }
-  };
-
-  // node_modules/lit-html/lib/template.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var marker = `{{lit-${String(Math.random()).slice(2)}}}`;
-  var nodeMarker = `<!--${marker}-->`;
-  var markerRegex = new RegExp(`${marker}|${nodeMarker}`);
-  var boundAttributeSuffix = "$lit$";
-  var Template = class {
-    constructor(result, element) {
-      this.parts = [];
-      this.element = element;
-      const nodesToRemove = [];
-      const stack = [];
-      const walker = document.createTreeWalker(element.content, 133, null, false);
-      let lastPartIndex = 0;
-      let index = -1;
-      let partIndex = 0;
-      const {strings, values: {length}} = result;
-      while (partIndex < length) {
-        const node = walker.nextNode();
-        if (node === null) {
-          walker.currentNode = stack.pop();
-          continue;
-        }
-        index++;
-        if (node.nodeType === 1) {
-          if (node.hasAttributes()) {
-            const attributes = node.attributes;
-            const {length: length2} = attributes;
-            let count = 0;
-            for (let i2 = 0; i2 < length2; i2++) {
-              if (endsWith(attributes[i2].name, boundAttributeSuffix)) {
-                count++;
-              }
-            }
-            while (count-- > 0) {
-              const stringForPart = strings[partIndex];
-              const name = lastAttributeNameRegex.exec(stringForPart)[2];
-              const attributeLookupName = name.toLowerCase() + boundAttributeSuffix;
-              const attributeValue = node.getAttribute(attributeLookupName);
-              node.removeAttribute(attributeLookupName);
-              const statics = attributeValue.split(markerRegex);
-              this.parts.push({type: "attribute", index, name, strings: statics});
-              partIndex += statics.length - 1;
-            }
-          }
-          if (node.tagName === "TEMPLATE") {
-            stack.push(node);
-            walker.currentNode = node.content;
-          }
-        } else if (node.nodeType === 3) {
-          const data = node.data;
-          if (data.indexOf(marker) >= 0) {
-            const parent = node.parentNode;
-            const strings2 = data.split(markerRegex);
-            const lastIndex = strings2.length - 1;
-            for (let i2 = 0; i2 < lastIndex; i2++) {
-              let insert;
-              let s3 = strings2[i2];
-              if (s3 === "") {
-                insert = createMarker();
-              } else {
-                const match = lastAttributeNameRegex.exec(s3);
-                if (match !== null && endsWith(match[2], boundAttributeSuffix)) {
-                  s3 = s3.slice(0, match.index) + match[1] + match[2].slice(0, -boundAttributeSuffix.length) + match[3];
-                }
-                insert = document.createTextNode(s3);
-              }
-              parent.insertBefore(insert, node);
-              this.parts.push({type: "node", index: ++index});
-            }
-            if (strings2[lastIndex] === "") {
-              parent.insertBefore(createMarker(), node);
-              nodesToRemove.push(node);
-            } else {
-              node.data = strings2[lastIndex];
-            }
-            partIndex += lastIndex;
-          }
-        } else if (node.nodeType === 8) {
-          if (node.data === marker) {
-            const parent = node.parentNode;
-            if (node.previousSibling === null || index === lastPartIndex) {
-              index++;
-              parent.insertBefore(createMarker(), node);
-            }
-            lastPartIndex = index;
-            this.parts.push({type: "node", index});
-            if (node.nextSibling === null) {
-              node.data = "";
-            } else {
-              nodesToRemove.push(node);
-              index--;
-            }
-            partIndex++;
-          } else {
-            let i2 = -1;
-            while ((i2 = node.data.indexOf(marker, i2 + 1)) !== -1) {
-              this.parts.push({type: "node", index: -1});
-              partIndex++;
-            }
-          }
-        }
-      }
-      for (const n2 of nodesToRemove) {
-        n2.parentNode.removeChild(n2);
-      }
-    }
-  };
-  var endsWith = (str, suffix) => {
-    const index = str.length - suffix.length;
-    return index >= 0 && str.slice(index) === suffix;
-  };
-  var isTemplatePartActive = (part) => part.index !== -1;
-  var createMarker = () => document.createComment("");
-  var lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F "'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-
-  // node_modules/lit-html/lib/modify-template.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var walkerNodeFilter = 133;
-  function removeNodesFromTemplate(template, nodesToRemove) {
-    const {element: {content}, parts: parts2} = template;
-    const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
-    let partIndex = nextActiveIndexInTemplateParts(parts2);
-    let part = parts2[partIndex];
-    let nodeIndex = -1;
-    let removeCount = 0;
-    const nodesToRemoveInTemplate = [];
-    let currentRemovingNode = null;
-    while (walker.nextNode()) {
-      nodeIndex++;
-      const node = walker.currentNode;
-      if (node.previousSibling === currentRemovingNode) {
-        currentRemovingNode = null;
-      }
-      if (nodesToRemove.has(node)) {
-        nodesToRemoveInTemplate.push(node);
-        if (currentRemovingNode === null) {
-          currentRemovingNode = node;
-        }
-      }
-      if (currentRemovingNode !== null) {
-        removeCount++;
-      }
-      while (part !== void 0 && part.index === nodeIndex) {
-        part.index = currentRemovingNode !== null ? -1 : part.index - removeCount;
-        partIndex = nextActiveIndexInTemplateParts(parts2, partIndex);
-        part = parts2[partIndex];
-      }
-    }
-    nodesToRemoveInTemplate.forEach((n2) => n2.parentNode.removeChild(n2));
-  }
-  var countNodes = (node) => {
-    let count = node.nodeType === 11 ? 0 : 1;
-    const walker = document.createTreeWalker(node, walkerNodeFilter, null, false);
-    while (walker.nextNode()) {
-      count++;
-    }
-    return count;
-  };
-  var nextActiveIndexInTemplateParts = (parts2, startIndex = -1) => {
-    for (let i2 = startIndex + 1; i2 < parts2.length; i2++) {
-      const part = parts2[i2];
-      if (isTemplatePartActive(part)) {
-        return i2;
-      }
-    }
-    return -1;
-  };
-  function insertNodeIntoTemplate(template, node, refNode = null) {
-    const {element: {content}, parts: parts2} = template;
-    if (refNode === null || refNode === void 0) {
-      content.appendChild(node);
-      return;
-    }
-    const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
-    let partIndex = nextActiveIndexInTemplateParts(parts2);
-    let insertCount = 0;
-    let walkerIndex = -1;
-    while (walker.nextNode()) {
-      walkerIndex++;
-      const walkerNode = walker.currentNode;
-      if (walkerNode === refNode) {
-        insertCount = countNodes(node);
-        refNode.parentNode.insertBefore(node, refNode);
-      }
-      while (partIndex !== -1 && parts2[partIndex].index === walkerIndex) {
-        if (insertCount > 0) {
-          while (partIndex !== -1) {
-            parts2[partIndex].index += insertCount;
-            partIndex = nextActiveIndexInTemplateParts(parts2, partIndex);
-          }
-          return;
-        }
-        partIndex = nextActiveIndexInTemplateParts(parts2, partIndex);
-      }
-    }
-  }
-
-  // node_modules/lit-html/lib/directive.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var directives = new WeakMap();
-  var isDirective = (o2) => {
-    return typeof o2 === "function" && directives.has(o2);
-  };
-
-  // node_modules/lit-html/lib/part.js
-  /**
-   * @license
-   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var noChange = {};
-  var nothing = {};
-
-  // node_modules/lit-html/lib/template-instance.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var TemplateInstance = class {
-    constructor(template, processor, options) {
-      this.__parts = [];
-      this.template = template;
-      this.processor = processor;
-      this.options = options;
-    }
-    update(values) {
-      let i2 = 0;
-      for (const part of this.__parts) {
-        if (part !== void 0) {
-          part.setValue(values[i2]);
-        }
-        i2++;
-      }
-      for (const part of this.__parts) {
-        if (part !== void 0) {
-          part.commit();
-        }
-      }
-    }
-    _clone() {
-      const fragment = isCEPolyfill ? this.template.element.content.cloneNode(true) : document.importNode(this.template.element.content, true);
-      const stack = [];
-      const parts2 = this.template.parts;
-      const walker = document.createTreeWalker(fragment, 133, null, false);
-      let partIndex = 0;
-      let nodeIndex = 0;
-      let part;
-      let node = walker.nextNode();
-      while (partIndex < parts2.length) {
-        part = parts2[partIndex];
-        if (!isTemplatePartActive(part)) {
-          this.__parts.push(void 0);
-          partIndex++;
-          continue;
-        }
-        while (nodeIndex < part.index) {
-          nodeIndex++;
-          if (node.nodeName === "TEMPLATE") {
-            stack.push(node);
-            walker.currentNode = node.content;
-          }
-          if ((node = walker.nextNode()) === null) {
-            walker.currentNode = stack.pop();
-            node = walker.nextNode();
-          }
-        }
-        if (part.type === "node") {
-          const part2 = this.processor.handleTextExpression(this.options);
-          part2.insertAfterNode(node.previousSibling);
-          this.__parts.push(part2);
-        } else {
-          this.__parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
-        }
-        partIndex++;
-      }
-      if (isCEPolyfill) {
-        document.adoptNode(fragment);
-        customElements.upgrade(fragment);
-      }
-      return fragment;
-    }
-  };
-
-  // node_modules/lit-html/lib/template-result.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var policy = window.trustedTypes && trustedTypes.createPolicy("lit-html", {createHTML: (s3) => s3});
-  var commentMarker = ` ${marker} `;
-  var TemplateResult = class {
-    constructor(strings, values, type2, processor) {
-      this.strings = strings;
-      this.values = values;
-      this.type = type2;
-      this.processor = processor;
-    }
-    getHTML() {
-      const l2 = this.strings.length - 1;
-      let html2 = "";
-      let isCommentBinding = false;
-      for (let i2 = 0; i2 < l2; i2++) {
-        const s3 = this.strings[i2];
-        const commentOpen = s3.lastIndexOf("<!--");
-        isCommentBinding = (commentOpen > -1 || isCommentBinding) && s3.indexOf("-->", commentOpen + 1) === -1;
-        const attributeMatch = lastAttributeNameRegex.exec(s3);
-        if (attributeMatch === null) {
-          html2 += s3 + (isCommentBinding ? commentMarker : nodeMarker);
-        } else {
-          html2 += s3.substr(0, attributeMatch.index) + attributeMatch[1] + attributeMatch[2] + boundAttributeSuffix + attributeMatch[3] + marker;
-        }
-      }
-      html2 += this.strings[l2];
-      return html2;
-    }
-    getTemplateElement() {
-      const template = document.createElement("template");
-      let value = this.getHTML();
-      if (policy !== void 0) {
-        value = policy.createHTML(value);
-      }
-      template.innerHTML = value;
-      return template;
-    }
-  };
-
-  // node_modules/lit-html/lib/parts.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var isPrimitive = (value) => {
-    return value === null || !(typeof value === "object" || typeof value === "function");
-  };
-  var isIterable = (value) => {
-    return Array.isArray(value) || !!(value && value[Symbol.iterator]);
-  };
-  var AttributeCommitter = class {
-    constructor(element, name, strings) {
-      this.dirty = true;
-      this.element = element;
-      this.name = name;
-      this.strings = strings;
-      this.parts = [];
-      for (let i2 = 0; i2 < strings.length - 1; i2++) {
-        this.parts[i2] = this._createPart();
-      }
-    }
-    _createPart() {
-      return new AttributePart(this);
-    }
-    _getValue() {
-      const strings = this.strings;
-      const l2 = strings.length - 1;
-      const parts2 = this.parts;
-      if (l2 === 1 && strings[0] === "" && strings[1] === "") {
-        const v2 = parts2[0].value;
-        if (typeof v2 === "symbol") {
-          return String(v2);
-        }
-        if (typeof v2 === "string" || !isIterable(v2)) {
-          return v2;
-        }
-      }
-      let text = "";
-      for (let i2 = 0; i2 < l2; i2++) {
-        text += strings[i2];
-        const part = parts2[i2];
-        if (part !== void 0) {
-          const v2 = part.value;
-          if (isPrimitive(v2) || !isIterable(v2)) {
-            text += typeof v2 === "string" ? v2 : String(v2);
-          } else {
-            for (const t2 of v2) {
-              text += typeof t2 === "string" ? t2 : String(t2);
-            }
-          }
-        }
-      }
-      text += strings[l2];
-      return text;
-    }
-    commit() {
-      if (this.dirty) {
-        this.dirty = false;
-        this.element.setAttribute(this.name, this._getValue());
-      }
-    }
-  };
-  var AttributePart = class {
-    constructor(committer) {
-      this.value = void 0;
-      this.committer = committer;
-    }
-    setValue(value) {
-      if (value !== noChange && (!isPrimitive(value) || value !== this.value)) {
-        this.value = value;
-        if (!isDirective(value)) {
-          this.committer.dirty = true;
-        }
-      }
-    }
-    commit() {
-      while (isDirective(this.value)) {
-        const directive2 = this.value;
-        this.value = noChange;
-        directive2(this);
-      }
-      if (this.value === noChange) {
-        return;
-      }
-      this.committer.commit();
-    }
-  };
-  var NodePart = class {
-    constructor(options) {
-      this.value = void 0;
-      this.__pendingValue = void 0;
-      this.options = options;
-    }
-    appendInto(container) {
-      this.startNode = container.appendChild(createMarker());
-      this.endNode = container.appendChild(createMarker());
-    }
-    insertAfterNode(ref) {
-      this.startNode = ref;
-      this.endNode = ref.nextSibling;
-    }
-    appendIntoPart(part) {
-      part.__insert(this.startNode = createMarker());
-      part.__insert(this.endNode = createMarker());
-    }
-    insertAfterPart(ref) {
-      ref.__insert(this.startNode = createMarker());
-      this.endNode = ref.endNode;
-      ref.endNode = this.startNode;
-    }
-    setValue(value) {
-      this.__pendingValue = value;
-    }
-    commit() {
-      if (this.startNode.parentNode === null) {
-        return;
-      }
-      while (isDirective(this.__pendingValue)) {
-        const directive2 = this.__pendingValue;
-        this.__pendingValue = noChange;
-        directive2(this);
-      }
-      const value = this.__pendingValue;
-      if (value === noChange) {
-        return;
-      }
-      if (isPrimitive(value)) {
-        if (value !== this.value) {
-          this.__commitText(value);
-        }
-      } else if (value instanceof TemplateResult) {
-        this.__commitTemplateResult(value);
-      } else if (value instanceof Node) {
-        this.__commitNode(value);
-      } else if (isIterable(value)) {
-        this.__commitIterable(value);
-      } else if (value === nothing) {
-        this.value = nothing;
-        this.clear();
-      } else {
-        this.__commitText(value);
-      }
-    }
-    __insert(node) {
-      this.endNode.parentNode.insertBefore(node, this.endNode);
-    }
-    __commitNode(value) {
-      if (this.value === value) {
-        return;
-      }
-      this.clear();
-      this.__insert(value);
-      this.value = value;
-    }
-    __commitText(value) {
-      const node = this.startNode.nextSibling;
-      value = value == null ? "" : value;
-      const valueAsString = typeof value === "string" ? value : String(value);
-      if (node === this.endNode.previousSibling && node.nodeType === 3) {
-        node.data = valueAsString;
-      } else {
-        this.__commitNode(document.createTextNode(valueAsString));
-      }
-      this.value = value;
-    }
-    __commitTemplateResult(value) {
-      const template = this.options.templateFactory(value);
-      if (this.value instanceof TemplateInstance && this.value.template === template) {
-        this.value.update(value.values);
-      } else {
-        const instance = new TemplateInstance(template, value.processor, this.options);
-        const fragment = instance._clone();
-        instance.update(value.values);
-        this.__commitNode(fragment);
-        this.value = instance;
-      }
-    }
-    __commitIterable(value) {
-      if (!Array.isArray(this.value)) {
-        this.value = [];
-        this.clear();
-      }
-      const itemParts = this.value;
-      let partIndex = 0;
-      let itemPart;
-      for (const item of value) {
-        itemPart = itemParts[partIndex];
-        if (itemPart === void 0) {
-          itemPart = new NodePart(this.options);
-          itemParts.push(itemPart);
-          if (partIndex === 0) {
-            itemPart.appendIntoPart(this);
-          } else {
-            itemPart.insertAfterPart(itemParts[partIndex - 1]);
-          }
-        }
-        itemPart.setValue(item);
-        itemPart.commit();
-        partIndex++;
-      }
-      if (partIndex < itemParts.length) {
-        itemParts.length = partIndex;
-        this.clear(itemPart && itemPart.endNode);
-      }
-    }
-    clear(startNode = this.startNode) {
-      removeNodes(this.startNode.parentNode, startNode.nextSibling, this.endNode);
-    }
-  };
-  var BooleanAttributePart = class {
-    constructor(element, name, strings) {
-      this.value = void 0;
-      this.__pendingValue = void 0;
-      if (strings.length !== 2 || strings[0] !== "" || strings[1] !== "") {
-        throw new Error("Boolean attributes can only contain a single expression");
-      }
-      this.element = element;
-      this.name = name;
-      this.strings = strings;
-    }
-    setValue(value) {
-      this.__pendingValue = value;
-    }
-    commit() {
-      while (isDirective(this.__pendingValue)) {
-        const directive2 = this.__pendingValue;
-        this.__pendingValue = noChange;
-        directive2(this);
-      }
-      if (this.__pendingValue === noChange) {
-        return;
-      }
-      const value = !!this.__pendingValue;
-      if (this.value !== value) {
-        if (value) {
-          this.element.setAttribute(this.name, "");
-        } else {
-          this.element.removeAttribute(this.name);
-        }
-        this.value = value;
-      }
-      this.__pendingValue = noChange;
-    }
-  };
-  var PropertyCommitter = class extends AttributeCommitter {
-    constructor(element, name, strings) {
-      super(element, name, strings);
-      this.single = strings.length === 2 && strings[0] === "" && strings[1] === "";
-    }
-    _createPart() {
-      return new PropertyPart(this);
-    }
-    _getValue() {
-      if (this.single) {
-        return this.parts[0].value;
-      }
-      return super._getValue();
-    }
-    commit() {
-      if (this.dirty) {
-        this.dirty = false;
-        this.element[this.name] = this._getValue();
-      }
-    }
-  };
-  var PropertyPart = class extends AttributePart {
-  };
-  var eventOptionsSupported = false;
-  (() => {
-    try {
-      const options = {
-        get capture() {
-          eventOptionsSupported = true;
-          return false;
-        }
-      };
-      window.addEventListener("test", options, options);
-      window.removeEventListener("test", options, options);
-    } catch (_e) {
-    }
-  })();
-  var EventPart = class {
-    constructor(element, eventName, eventContext) {
-      this.value = void 0;
-      this.__pendingValue = void 0;
-      this.element = element;
-      this.eventName = eventName;
-      this.eventContext = eventContext;
-      this.__boundHandleEvent = (e2) => this.handleEvent(e2);
-    }
-    setValue(value) {
-      this.__pendingValue = value;
-    }
-    commit() {
-      while (isDirective(this.__pendingValue)) {
-        const directive2 = this.__pendingValue;
-        this.__pendingValue = noChange;
-        directive2(this);
-      }
-      if (this.__pendingValue === noChange) {
-        return;
-      }
-      const newListener = this.__pendingValue;
-      const oldListener = this.value;
-      const shouldRemoveListener = newListener == null || oldListener != null && (newListener.capture !== oldListener.capture || newListener.once !== oldListener.once || newListener.passive !== oldListener.passive);
-      const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
-      if (shouldRemoveListener) {
-        this.element.removeEventListener(this.eventName, this.__boundHandleEvent, this.__options);
-      }
-      if (shouldAddListener) {
-        this.__options = getOptions(newListener);
-        this.element.addEventListener(this.eventName, this.__boundHandleEvent, this.__options);
-      }
-      this.value = newListener;
-      this.__pendingValue = noChange;
-    }
-    handleEvent(event) {
-      if (typeof this.value === "function") {
-        this.value.call(this.eventContext || this.element, event);
-      } else {
-        this.value.handleEvent(event);
-      }
-    }
-  };
-  var getOptions = (o2) => o2 && (eventOptionsSupported ? {capture: o2.capture, passive: o2.passive, once: o2.once} : o2.capture);
-
-  // node_modules/lit-html/lib/template-factory.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  function templateFactory(result) {
-    let templateCache = templateCaches.get(result.type);
-    if (templateCache === void 0) {
-      templateCache = {
-        stringsArray: new WeakMap(),
-        keyString: new Map()
-      };
-      templateCaches.set(result.type, templateCache);
-    }
-    let template = templateCache.stringsArray.get(result.strings);
-    if (template !== void 0) {
-      return template;
-    }
-    const key = result.strings.join(marker);
-    template = templateCache.keyString.get(key);
-    if (template === void 0) {
-      template = new Template(result, result.getTemplateElement());
-      templateCache.keyString.set(key, template);
-    }
-    templateCache.stringsArray.set(result.strings, template);
-    return template;
-  }
-  var templateCaches = new Map();
-
-  // node_modules/lit-html/lib/render.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var parts = new WeakMap();
-  var render = (result, container, options) => {
-    let part = parts.get(container);
-    if (part === void 0) {
-      removeNodes(container, container.firstChild);
-      parts.set(container, part = new NodePart(Object.assign({templateFactory}, options)));
-      part.appendInto(container);
-    }
-    part.setValue(result);
-    part.commit();
-  };
-
-  // node_modules/lit-html/lib/default-template-processor.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var DefaultTemplateProcessor = class {
-    handleAttributeExpressions(element, name, strings, options) {
-      const prefix = name[0];
-      if (prefix === ".") {
-        const committer2 = new PropertyCommitter(element, name.slice(1), strings);
-        return committer2.parts;
-      }
-      if (prefix === "@") {
-        return [new EventPart(element, name.slice(1), options.eventContext)];
-      }
-      if (prefix === "?") {
-        return [new BooleanAttributePart(element, name.slice(1), strings)];
-      }
-      const committer = new AttributeCommitter(element, name, strings);
-      return committer.parts;
-    }
-    handleTextExpression(options) {
-      return new NodePart(options);
-    }
-  };
-  var defaultTemplateProcessor = new DefaultTemplateProcessor();
-
-  // node_modules/lit-html/lit-html.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  if (typeof window !== "undefined") {
-    (window["litHtmlVersions"] || (window["litHtmlVersions"] = [])).push("1.3.0");
-  }
-  var html = (strings, ...values) => new TemplateResult(strings, values, "html", defaultTemplateProcessor);
-
-  // node_modules/lit-html/lib/shady-render.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var getTemplateCacheKey = (type2, scopeName) => `${type2}--${scopeName}`;
-  var compatibleShadyCSSVersion = true;
-  if (typeof window.ShadyCSS === "undefined") {
-    compatibleShadyCSSVersion = false;
-  } else if (typeof window.ShadyCSS.prepareTemplateDom === "undefined") {
-    console.warn(`Incompatible ShadyCSS version detected. Please update to at least @webcomponents/webcomponentsjs@2.0.2 and @webcomponents/shadycss@1.3.1.`);
-    compatibleShadyCSSVersion = false;
-  }
-  var shadyTemplateFactory = (scopeName) => (result) => {
-    const cacheKey = getTemplateCacheKey(result.type, scopeName);
-    let templateCache = templateCaches.get(cacheKey);
-    if (templateCache === void 0) {
-      templateCache = {
-        stringsArray: new WeakMap(),
-        keyString: new Map()
-      };
-      templateCaches.set(cacheKey, templateCache);
-    }
-    let template = templateCache.stringsArray.get(result.strings);
-    if (template !== void 0) {
-      return template;
-    }
-    const key = result.strings.join(marker);
-    template = templateCache.keyString.get(key);
-    if (template === void 0) {
-      const element = result.getTemplateElement();
-      if (compatibleShadyCSSVersion) {
-        window.ShadyCSS.prepareTemplateDom(element, scopeName);
-      }
-      template = new Template(result, element);
-      templateCache.keyString.set(key, template);
-    }
-    templateCache.stringsArray.set(result.strings, template);
-    return template;
-  };
-  var TEMPLATE_TYPES = ["html", "svg"];
-  var removeStylesFromLitTemplates = (scopeName) => {
-    TEMPLATE_TYPES.forEach((type2) => {
-      const templates = templateCaches.get(getTemplateCacheKey(type2, scopeName));
-      if (templates !== void 0) {
-        templates.keyString.forEach((template) => {
-          const {element: {content}} = template;
-          const styles = new Set();
-          Array.from(content.querySelectorAll("style")).forEach((s3) => {
-            styles.add(s3);
-          });
-          removeNodesFromTemplate(template, styles);
-        });
-      }
-    });
-  };
-  var shadyRenderSet = new Set();
-  var prepareTemplateStyles = (scopeName, renderedDOM, template) => {
-    shadyRenderSet.add(scopeName);
-    const templateElement = !!template ? template.element : document.createElement("template");
-    const styles = renderedDOM.querySelectorAll("style");
-    const {length} = styles;
-    if (length === 0) {
-      window.ShadyCSS.prepareTemplateStyles(templateElement, scopeName);
-      return;
-    }
-    const condensedStyle = document.createElement("style");
-    for (let i2 = 0; i2 < length; i2++) {
-      const style2 = styles[i2];
-      style2.parentNode.removeChild(style2);
-      condensedStyle.textContent += style2.textContent;
-    }
-    removeStylesFromLitTemplates(scopeName);
-    const content = templateElement.content;
-    if (!!template) {
-      insertNodeIntoTemplate(template, condensedStyle, content.firstChild);
-    } else {
-      content.insertBefore(condensedStyle, content.firstChild);
-    }
-    window.ShadyCSS.prepareTemplateStyles(templateElement, scopeName);
-    const style = content.querySelector("style");
-    if (window.ShadyCSS.nativeShadow && style !== null) {
-      renderedDOM.insertBefore(style.cloneNode(true), renderedDOM.firstChild);
-    } else if (!!template) {
-      content.insertBefore(condensedStyle, content.firstChild);
-      const removes = new Set();
-      removes.add(condensedStyle);
-      removeNodesFromTemplate(template, removes);
-    }
-  };
-  var render2 = (result, container, options) => {
-    if (!options || typeof options !== "object" || !options.scopeName) {
-      throw new Error("The `scopeName` option is required.");
-    }
-    const scopeName = options.scopeName;
-    const hasRendered = parts.has(container);
-    const needsScoping = compatibleShadyCSSVersion && container.nodeType === 11 && !!container.host;
-    const firstScopeRender = needsScoping && !shadyRenderSet.has(scopeName);
-    const renderContainer = firstScopeRender ? document.createDocumentFragment() : container;
-    render(result, renderContainer, Object.assign({templateFactory: shadyTemplateFactory(scopeName)}, options));
-    if (firstScopeRender) {
-      const part = parts.get(renderContainer);
-      parts.delete(renderContainer);
-      const template = part.value instanceof TemplateInstance ? part.value.template : void 0;
-      prepareTemplateStyles(scopeName, renderContainer, template);
-      removeNodes(container, container.firstChild);
-      container.appendChild(renderContainer);
-      parts.set(container, part);
-    }
-    if (!hasRendered && needsScoping) {
-      window.ShadyCSS.styleElement(container.host);
-    }
-  };
-
-  // node_modules/lit-element/lib/updating-element.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var _a;
-  window.JSCompiler_renameProperty = (prop, _obj) => prop;
-  var defaultConverter = {
-    toAttribute(value, type2) {
-      switch (type2) {
-        case Boolean:
-          return value ? "" : null;
-        case Object:
-        case Array:
-          return value == null ? value : JSON.stringify(value);
-      }
-      return value;
-    },
-    fromAttribute(value, type2) {
-      switch (type2) {
-        case Boolean:
-          return value !== null;
-        case Number:
-          return value === null ? null : Number(value);
-        case Object:
-        case Array:
-          return JSON.parse(value);
-      }
-      return value;
-    }
-  };
-  var notEqual = (value, old) => {
-    return old !== value && (old === old || value === value);
-  };
-  var defaultPropertyDeclaration = {
-    attribute: true,
-    type: String,
-    converter: defaultConverter,
-    reflect: false,
-    hasChanged: notEqual
-  };
-  var STATE_HAS_UPDATED = 1;
-  var STATE_UPDATE_REQUESTED = 1 << 2;
-  var STATE_IS_REFLECTING_TO_ATTRIBUTE = 1 << 3;
-  var STATE_IS_REFLECTING_TO_PROPERTY = 1 << 4;
-  var finalized = "finalized";
-  var UpdatingElement = class extends HTMLElement {
-    constructor() {
-      super();
-      this.initialize();
-    }
-    static get observedAttributes() {
-      this.finalize();
-      const attributes = [];
-      this._classProperties.forEach((v2, p2) => {
-        const attr = this._attributeNameForProperty(p2, v2);
-        if (attr !== void 0) {
-          this._attributeToPropertyMap.set(attr, p2);
-          attributes.push(attr);
-        }
-      });
-      return attributes;
-    }
-    static _ensureClassProperties() {
-      if (!this.hasOwnProperty(JSCompiler_renameProperty("_classProperties", this))) {
-        this._classProperties = new Map();
-        const superProperties = Object.getPrototypeOf(this)._classProperties;
-        if (superProperties !== void 0) {
-          superProperties.forEach((v2, k2) => this._classProperties.set(k2, v2));
-        }
-      }
-    }
-    static createProperty(name, options = defaultPropertyDeclaration) {
-      this._ensureClassProperties();
-      this._classProperties.set(name, options);
-      if (options.noAccessor || this.prototype.hasOwnProperty(name)) {
-        return;
-      }
-      const key = typeof name === "symbol" ? Symbol() : `__${name}`;
-      const descriptor = this.getPropertyDescriptor(name, key, options);
-      if (descriptor !== void 0) {
-        Object.defineProperty(this.prototype, name, descriptor);
-      }
-    }
-    static getPropertyDescriptor(name, key, options) {
-      return {
-        get() {
-          return this[key];
-        },
-        set(value) {
-          const oldValue = this[name];
-          this[key] = value;
-          this.requestUpdateInternal(name, oldValue, options);
-        },
-        configurable: true,
-        enumerable: true
-      };
-    }
-    static getPropertyOptions(name) {
-      return this._classProperties && this._classProperties.get(name) || defaultPropertyDeclaration;
-    }
-    static finalize() {
-      const superCtor = Object.getPrototypeOf(this);
-      if (!superCtor.hasOwnProperty(finalized)) {
-        superCtor.finalize();
-      }
-      this[finalized] = true;
-      this._ensureClassProperties();
-      this._attributeToPropertyMap = new Map();
-      if (this.hasOwnProperty(JSCompiler_renameProperty("properties", this))) {
-        const props = this.properties;
-        const propKeys = [
-          ...Object.getOwnPropertyNames(props),
-          ...typeof Object.getOwnPropertySymbols === "function" ? Object.getOwnPropertySymbols(props) : []
-        ];
-        for (const p2 of propKeys) {
-          this.createProperty(p2, props[p2]);
-        }
-      }
-    }
-    static _attributeNameForProperty(name, options) {
-      const attribute = options.attribute;
-      return attribute === false ? void 0 : typeof attribute === "string" ? attribute : typeof name === "string" ? name.toLowerCase() : void 0;
-    }
-    static _valueHasChanged(value, old, hasChanged = notEqual) {
-      return hasChanged(value, old);
-    }
-    static _propertyValueFromAttribute(value, options) {
-      const type2 = options.type;
-      const converter = options.converter || defaultConverter;
-      const fromAttribute = typeof converter === "function" ? converter : converter.fromAttribute;
-      return fromAttribute ? fromAttribute(value, type2) : value;
-    }
-    static _propertyValueToAttribute(value, options) {
-      if (options.reflect === void 0) {
-        return;
-      }
-      const type2 = options.type;
-      const converter = options.converter;
-      const toAttribute = converter && converter.toAttribute || defaultConverter.toAttribute;
-      return toAttribute(value, type2);
-    }
-    initialize() {
-      this._updateState = 0;
-      this._updatePromise = new Promise((res) => this._enableUpdatingResolver = res);
-      this._changedProperties = new Map();
-      this._saveInstanceProperties();
-      this.requestUpdateInternal();
-    }
-    _saveInstanceProperties() {
-      this.constructor._classProperties.forEach((_v, p2) => {
-        if (this.hasOwnProperty(p2)) {
-          const value = this[p2];
-          delete this[p2];
-          if (!this._instanceProperties) {
-            this._instanceProperties = new Map();
-          }
-          this._instanceProperties.set(p2, value);
-        }
-      });
-    }
-    _applyInstanceProperties() {
-      this._instanceProperties.forEach((v2, p2) => this[p2] = v2);
-      this._instanceProperties = void 0;
-    }
-    connectedCallback() {
-      this.enableUpdating();
-    }
-    enableUpdating() {
-      if (this._enableUpdatingResolver !== void 0) {
-        this._enableUpdatingResolver();
-        this._enableUpdatingResolver = void 0;
-      }
-    }
-    disconnectedCallback() {
-    }
-    attributeChangedCallback(name, old, value) {
-      if (old !== value) {
-        this._attributeToProperty(name, value);
-      }
-    }
-    _propertyToAttribute(name, value, options = defaultPropertyDeclaration) {
-      const ctor = this.constructor;
-      const attr = ctor._attributeNameForProperty(name, options);
-      if (attr !== void 0) {
-        const attrValue = ctor._propertyValueToAttribute(value, options);
-        if (attrValue === void 0) {
-          return;
-        }
-        this._updateState = this._updateState | STATE_IS_REFLECTING_TO_ATTRIBUTE;
-        if (attrValue == null) {
-          this.removeAttribute(attr);
-        } else {
-          this.setAttribute(attr, attrValue);
-        }
-        this._updateState = this._updateState & ~STATE_IS_REFLECTING_TO_ATTRIBUTE;
-      }
-    }
-    _attributeToProperty(name, value) {
-      if (this._updateState & STATE_IS_REFLECTING_TO_ATTRIBUTE) {
-        return;
-      }
-      const ctor = this.constructor;
-      const propName = ctor._attributeToPropertyMap.get(name);
-      if (propName !== void 0) {
-        const options = ctor.getPropertyOptions(propName);
-        this._updateState = this._updateState | STATE_IS_REFLECTING_TO_PROPERTY;
-        this[propName] = ctor._propertyValueFromAttribute(value, options);
-        this._updateState = this._updateState & ~STATE_IS_REFLECTING_TO_PROPERTY;
-      }
-    }
-    requestUpdateInternal(name, oldValue, options) {
-      let shouldRequestUpdate = true;
-      if (name !== void 0) {
-        const ctor = this.constructor;
-        options = options || ctor.getPropertyOptions(name);
-        if (ctor._valueHasChanged(this[name], oldValue, options.hasChanged)) {
-          if (!this._changedProperties.has(name)) {
-            this._changedProperties.set(name, oldValue);
-          }
-          if (options.reflect === true && !(this._updateState & STATE_IS_REFLECTING_TO_PROPERTY)) {
-            if (this._reflectingProperties === void 0) {
-              this._reflectingProperties = new Map();
-            }
-            this._reflectingProperties.set(name, options);
-          }
-        } else {
-          shouldRequestUpdate = false;
-        }
-      }
-      if (!this._hasRequestedUpdate && shouldRequestUpdate) {
-        this._updatePromise = this._enqueueUpdate();
-      }
-    }
-    requestUpdate(name, oldValue) {
-      this.requestUpdateInternal(name, oldValue);
-      return this.updateComplete;
-    }
-    async _enqueueUpdate() {
-      this._updateState = this._updateState | STATE_UPDATE_REQUESTED;
-      try {
-        await this._updatePromise;
-      } catch (e2) {
-      }
-      const result = this.performUpdate();
-      if (result != null) {
-        await result;
-      }
-      return !this._hasRequestedUpdate;
-    }
-    get _hasRequestedUpdate() {
-      return this._updateState & STATE_UPDATE_REQUESTED;
-    }
-    get hasUpdated() {
-      return this._updateState & STATE_HAS_UPDATED;
-    }
-    performUpdate() {
-      if (!this._hasRequestedUpdate) {
-        return;
-      }
-      if (this._instanceProperties) {
-        this._applyInstanceProperties();
-      }
-      let shouldUpdate = false;
-      const changedProperties = this._changedProperties;
-      try {
-        shouldUpdate = this.shouldUpdate(changedProperties);
-        if (shouldUpdate) {
-          this.update(changedProperties);
-        } else {
-          this._markUpdated();
-        }
-      } catch (e2) {
-        shouldUpdate = false;
-        this._markUpdated();
-        throw e2;
-      }
-      if (shouldUpdate) {
-        if (!(this._updateState & STATE_HAS_UPDATED)) {
-          this._updateState = this._updateState | STATE_HAS_UPDATED;
-          this.firstUpdated(changedProperties);
-        }
-        this.updated(changedProperties);
-      }
-    }
-    _markUpdated() {
-      this._changedProperties = new Map();
-      this._updateState = this._updateState & ~STATE_UPDATE_REQUESTED;
-    }
-    get updateComplete() {
-      return this._getUpdateComplete();
-    }
-    _getUpdateComplete() {
-      return this._updatePromise;
-    }
-    shouldUpdate(_changedProperties) {
-      return true;
-    }
-    update(_changedProperties) {
-      if (this._reflectingProperties !== void 0 && this._reflectingProperties.size > 0) {
-        this._reflectingProperties.forEach((v2, k2) => this._propertyToAttribute(k2, this[k2], v2));
-        this._reflectingProperties = void 0;
-      }
-      this._markUpdated();
-    }
-    updated(_changedProperties) {
-    }
-    firstUpdated(_changedProperties) {
-    }
-  };
-  _a = finalized;
-  UpdatingElement[_a] = true;
-
-  // node_modules/lit-element/lib/decorators.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  var ElementProto = Element.prototype;
-  var legacyMatches = ElementProto.msMatchesSelector || ElementProto.webkitMatchesSelector;
-
-  // node_modules/lit-element/lib/css-tag.js
-  /**
-  @license
-  Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
-  This code may only be used under the BSD style license found at
-  http://polymer.github.io/LICENSE.txt The complete set of authors may be found at
-  http://polymer.github.io/AUTHORS.txt The complete set of contributors may be
-  found at http://polymer.github.io/CONTRIBUTORS.txt Code distributed by Google as
-  part of the polymer project is also subject to an additional IP rights grant
-  found at http://polymer.github.io/PATENTS.txt
-  */
-  var supportsAdoptingStyleSheets = window.ShadowRoot && (window.ShadyCSS === void 0 || window.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
-  var constructionToken = Symbol();
-  var CSSResult = class {
-    constructor(cssText, safeToken) {
-      if (safeToken !== constructionToken) {
-        throw new Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
-      }
-      this.cssText = cssText;
-    }
-    get styleSheet() {
-      if (this._styleSheet === void 0) {
-        if (supportsAdoptingStyleSheets) {
-          this._styleSheet = new CSSStyleSheet();
-          this._styleSheet.replaceSync(this.cssText);
-        } else {
-          this._styleSheet = null;
-        }
-      }
-      return this._styleSheet;
-    }
-    toString() {
-      return this.cssText;
-    }
-  };
-  var unsafeCSS = (value) => {
-    return new CSSResult(String(value), constructionToken);
-  };
-  var textFromCSSResult = (value) => {
-    if (value instanceof CSSResult) {
-      return value.cssText;
-    } else if (typeof value === "number") {
-      return value;
-    } else {
-      throw new Error(`Value passed to 'css' function must be a 'css' function result: ${value}. Use 'unsafeCSS' to pass non-literal values, but
-            take care to ensure page security.`);
-    }
-  };
-  var css = (strings, ...values) => {
-    const cssText = values.reduce((acc, v2, idx) => acc + textFromCSSResult(v2) + strings[idx + 1], strings[0]);
-    return new CSSResult(cssText, constructionToken);
-  };
-
-  // node_modules/lit-element/lit-element.js
-  /**
-   * @license
-   * Copyright (c) 2017 The Polymer Project Authors. All rights reserved.
-   * This code may only be used under the BSD style license found at
-   * http://polymer.github.io/LICENSE.txt
-   * The complete set of authors may be found at
-   * http://polymer.github.io/AUTHORS.txt
-   * The complete set of contributors may be found at
-   * http://polymer.github.io/CONTRIBUTORS.txt
-   * Code distributed by Google as part of the polymer project is also
-   * subject to an additional IP rights grant found at
-   * http://polymer.github.io/PATENTS.txt
-   */
-  (window["litElementVersions"] || (window["litElementVersions"] = [])).push("2.4.0");
-  var renderNotImplemented = {};
-  var LitElement = class extends UpdatingElement {
-    static getStyles() {
-      return this.styles;
-    }
-    static _getUniqueStyles() {
-      if (this.hasOwnProperty(JSCompiler_renameProperty("_styles", this))) {
-        return;
-      }
-      const userStyles = this.getStyles();
-      if (Array.isArray(userStyles)) {
-        const addStyles = (styles2, set3) => styles2.reduceRight((set4, s3) => Array.isArray(s3) ? addStyles(s3, set4) : (set4.add(s3), set4), set3);
-        const set2 = addStyles(userStyles, new Set());
-        const styles = [];
-        set2.forEach((v2) => styles.unshift(v2));
-        this._styles = styles;
-      } else {
-        this._styles = userStyles === void 0 ? [] : [userStyles];
-      }
-      this._styles = this._styles.map((s3) => {
-        if (s3 instanceof CSSStyleSheet && !supportsAdoptingStyleSheets) {
-          const cssText = Array.prototype.slice.call(s3.cssRules).reduce((css2, rule) => css2 + rule.cssText, "");
-          return unsafeCSS(cssText);
-        }
-        return s3;
-      });
-    }
-    initialize() {
-      super.initialize();
-      this.constructor._getUniqueStyles();
-      this.renderRoot = this.createRenderRoot();
-      if (window.ShadowRoot && this.renderRoot instanceof window.ShadowRoot) {
-        this.adoptStyles();
-      }
-    }
-    createRenderRoot() {
-      return this.attachShadow({mode: "open"});
-    }
-    adoptStyles() {
-      const styles = this.constructor._styles;
-      if (styles.length === 0) {
-        return;
-      }
-      if (window.ShadyCSS !== void 0 && !window.ShadyCSS.nativeShadow) {
-        window.ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map((s3) => s3.cssText), this.localName);
-      } else if (supportsAdoptingStyleSheets) {
-        this.renderRoot.adoptedStyleSheets = styles.map((s3) => s3 instanceof CSSStyleSheet ? s3 : s3.styleSheet);
-      } else {
-        this._needsShimAdoptedStyleSheets = true;
-      }
-    }
-    connectedCallback() {
-      super.connectedCallback();
-      if (this.hasUpdated && window.ShadyCSS !== void 0) {
-        window.ShadyCSS.styleElement(this);
-      }
-    }
-    update(changedProperties) {
-      const templateResult = this.render();
-      super.update(changedProperties);
-      if (templateResult !== renderNotImplemented) {
-        this.constructor.render(templateResult, this.renderRoot, {scopeName: this.localName, eventContext: this});
-      }
-      if (this._needsShimAdoptedStyleSheets) {
-        this._needsShimAdoptedStyleSheets = false;
-        this.constructor._styles.forEach((s3) => {
-          const style = document.createElement("style");
-          style.textContent = s3.cssText;
-          this.renderRoot.appendChild(style);
-        });
-      }
-    }
-    render() {
-      return renderNotImplemented;
-    }
-  };
-  LitElement["finalized"] = true;
-  LitElement.render = render2;
+  // public/components/simple-greeting.js
+  init_lit_element();
 
   // assets/scripts/ECS/helpers.js
   var PIXI16 = __toModule(require_pixi());
@@ -28985,6 +29260,8 @@ void main() {
     constructor(state = null) {
       super();
       this.actor = null;
+      this.awakened = false;
+      this.started = false;
       if (state !== null) {
         this.once("awake", () => {
           getCurrentState().attachToBehavior(this, state);
@@ -28995,6 +29272,13 @@ void main() {
           this[methodName] = voidFunction;
         }
       }
+    }
+    triggerMethod(name, ...options) {
+      if (typeof this[name] !== "function") {
+        return;
+      }
+      this.emit(name, ...options);
+      this[name](...options);
     }
     sendMessage(name, ...args) {
       if (typeof this[name] === "function") {
@@ -29441,8 +29725,20 @@ void main() {
       this.autoRepeatedKey = null;
       this.keyboardButtons = new Map();
       this.keyboardButtonsDown = new Set();
+      this.gamepadsButtons = [];
+      this.gamepadsAxes = [];
+      this.gamepadsAutoRepeats = [];
+      this.gamepadAxisDeadZone = 0.25;
+      this.gamepadAxisAutoRepeatDelayMs = 500;
+      this.gamepadAxisAutoRepeatRateMs = 33;
       document.addEventListener("keydown", this.onKeyDown.bind(this), true);
       document.addEventListener("keyup", this.onKeyUp.bind(this), true);
+      for (let i2 = 0; i2 < 4; i2++) {
+        this.gamepadsButtons[i2] = [];
+        this.gamepadsAxes[i2] = [];
+        this.gamepadsAutoRepeats[i2] = null;
+      }
+      this.resetGamepads();
     }
     destroy() {
       document.removeEventListener("keydown", this.onKeyDown, true);
@@ -29481,6 +29777,30 @@ void main() {
       this.autoRepeatedKey = null;
       this.keyboardButtons.clear();
       this.keyboardButtonsDown.clear();
+      this.resetGamepads();
+    }
+    resetGamepads() {
+      for (let i2 = 0; i2 < 4; i2++) {
+        for (let button = 0; button < 16; button++) {
+          this.gamepadsButtons[i2][button] = {
+            isDown: false,
+            wasJustPressed: false,
+            wasJustReleased: false,
+            value: 0
+          };
+        }
+        for (let axes = 0; axes < 4; axes++) {
+          this.gamepadsAxes[i2][axes] = {
+            wasPositiveJustPressed: false,
+            wasPositiveJustAutoRepeated: false,
+            wasPositiveJustReleased: false,
+            wasNegativeJustPressed: false,
+            wasNegativeJustAutoRepeated: false,
+            wasNegativeJustReleased: false,
+            value: 0
+          };
+        }
+      }
     }
     key(code) {
       let button = this.keyboardButtons.get(code);
@@ -29504,6 +29824,55 @@ void main() {
     isKeyDown(keyName) {
       const keyboardButton = this._checkKeyboard(keyName, "isDown");
       return keyboardButton.isDown;
+    }
+    isLeftStick(direction) {
+      switch (direction) {
+        case "LEFT":
+          return this.gamepadsAxes[0][LEFT_STICK_X_AXIS].value < -this.gamepadAxisDeadZone;
+        case "RIGHT":
+          return this.gamepadsAxes[0][LEFT_STICK_X_AXIS].value > this.gamepadAxisDeadZone;
+        case "UP":
+          return this.gamepadsAxes[0][LEFT_STICK_Y_AXIS].value < -this.gamepadAxisDeadZone;
+        case "DOWN":
+          return this.gamepadsAxes[0][LEFT_STICK_Y_AXIS].value > this.gamepadAxisDeadZone;
+        default:
+          return false;
+      }
+    }
+    isRightStick(direction) {
+      switch (direction) {
+        case "LEFT":
+          return this.gamepadsAxes[0][RIGHT_STICK_X_AXIS].value < -this.gamepadAxisDeadZone;
+        case "RIGHT":
+          return this.gamepadsAxes[0][RIGHT_STICK_X_AXIS].value > this.gamepadAxisDeadZone;
+        case "UP":
+          return this.gamepadsAxes[0][RIGHT_STICK_Y_AXIS].value < -this.gamepadAxisDeadZone;
+        case "DOWN":
+          return this.gamepadsAxes[0][RIGHT_STICK_Y_AXIS].value > this.gamepadAxisDeadZone;
+        default:
+          return false;
+      }
+    }
+    isGamepadButtonDown(buttonName) {
+      const button = this.gamepadsButtons[0][buttonName];
+      if (button) {
+        return button.isDown;
+      }
+      return false;
+    }
+    wasGamepadButtonJustPressed(buttonName) {
+      const button = this.gamepadsButtons[0][buttonName];
+      if (button) {
+        return button.wasJustPressed;
+      }
+      return false;
+    }
+    wasGamepadButtonJustReleased(buttonName) {
+      const button = this.gamepadsButtons[0][buttonName];
+      if (button) {
+        return button.wasJustReleased;
+      }
+      return false;
     }
     wasKeyJustPressed(keyName, autoRepeat = false) {
       const keyboardButton = this._checkKeyboard(keyName, "wasJustPressed");
@@ -29554,9 +29923,137 @@ void main() {
         this.key(this.autoRepeatedKey).wasJustAutoRepeated = true;
         this.autoRepeatedKey = null;
       }
+      const gamepads = navigator.getGamepads === null ? null : navigator.getGamepads();
+      if (gamepads === null) {
+        return;
+      }
+      for (let index = 0; index < 4; index++) {
+        const gamepad = gamepads[index];
+        if (gamepad === null || gamepad === void 0) {
+          continue;
+        }
+        for (let i2 = 0; i2 < this.gamepadsButtons[index].length; i2++) {
+          if (!Reflect.has(gamepad.buttons, i2) || gamepad.buttons[i2] === null) {
+            continue;
+          }
+          const button = this.gamepadsButtons[index][i2];
+          const wasDown = button.isDown;
+          button.isDown = gamepad.buttons[i2].pressed;
+          button.value = gamepad.buttons[i2].value;
+          button.wasJustPressed = !wasDown && button.isDown;
+          button.wasJustReleased = wasDown && !button.isDown;
+        }
+        const pressedValue = 0.5;
+        const now = Date.now();
+        for (let stick = 0; stick < 2; stick++) {
+          if (gamepad.axes[2 * stick] === null || gamepad.axes[2 * stick + 1] === null) {
+            continue;
+          }
+          if (gamepad.axes[2 * stick] === void 0 || gamepad.axes[2 * stick + 1] === void 0) {
+            continue;
+          }
+          const axisLength = Math.sqrt(Math.pow(Math.abs(gamepad.axes[2 * stick]), 2) + Math.pow(Math.abs(gamepad.axes[2 * stick + 1]), 2));
+          const axes = [this.gamepadsAxes[index][2 * stick], this.gamepadsAxes[index][2 * stick + 1]];
+          const wasAxisDown = [
+            {positive: axes[0].value > pressedValue, negative: axes[0].value < -pressedValue},
+            {positive: axes[1].value > pressedValue, negative: axes[1].value < -pressedValue}
+          ];
+          if (axisLength < this.gamepadAxisDeadZone) {
+            axes[0].value = 0;
+            axes[1].value = 0;
+          } else {
+            axes[0].value = gamepad.axes[2 * stick];
+            axes[1].value = gamepad.axes[2 * stick + 1];
+          }
+          const isAxisDown = [
+            {positive: axes[0].value > pressedValue, negative: axes[0].value < -pressedValue},
+            {positive: axes[1].value > pressedValue, negative: axes[1].value < -pressedValue}
+          ];
+          axes[0].wasPositiveJustPressed = !wasAxisDown[0].positive && isAxisDown[0].positive;
+          axes[0].wasPositiveJustReleased = wasAxisDown[0].positive && !isAxisDown[0].positive;
+          axes[0].wasPositiveJustAutoRepeated = false;
+          axes[0].wasNegativeJustPressed = !wasAxisDown[0].negative && isAxisDown[0].negative;
+          axes[0].wasNegativeJustReleased = wasAxisDown[0].negative && !isAxisDown[0].negative;
+          axes[0].wasNegativeJustAutoRepeated = false;
+          axes[1].wasPositiveJustPressed = !wasAxisDown[1].positive && isAxisDown[1].positive;
+          axes[1].wasPositiveJustReleased = wasAxisDown[1].positive && !isAxisDown[1].positive;
+          axes[1].wasPositiveJustAutoRepeated = false;
+          axes[1].wasNegativeJustPressed = !wasAxisDown[1].negative && isAxisDown[1].negative;
+          axes[1].wasNegativeJustReleased = wasAxisDown[1].negative && !isAxisDown[1].negative;
+          axes[1].wasNegativeJustAutoRepeated = false;
+          let currentAutoRepeat = this.gamepadsAutoRepeats[index];
+          if (currentAutoRepeat !== null && currentAutoRepeat !== void 0) {
+            const axisIndex = currentAutoRepeat.axis - stick * 2;
+            if (axisIndex === 0 || axisIndex === 1) {
+              const autoRepeatedAxis = axes[axisIndex];
+              if (currentAutoRepeat.positive && !isAxisDown[axisIndex].positive || !currentAutoRepeat.positive && !isAxisDown[axisIndex].negative) {
+                currentAutoRepeat = null;
+                this.gamepadsAutoRepeats[index] = null;
+              } else {
+                if (currentAutoRepeat.time <= now) {
+                  if (currentAutoRepeat.positive) {
+                    autoRepeatedAxis.wasPositiveJustAutoRepeated = true;
+                  } else {
+                    autoRepeatedAxis.wasNegativeJustAutoRepeated = true;
+                  }
+                  currentAutoRepeat.time = now + this.gamepadAxisAutoRepeatRateMs;
+                }
+              }
+            }
+          }
+          let newAutoRepeat;
+          if (axes[0].wasPositiveJustPressed || axes[0].wasNegativeJustPressed) {
+            newAutoRepeat = {
+              axis: stick * 2,
+              positive: axes[0].wasPositiveJustPressed,
+              time: now + this.gamepadAxisAutoRepeatDelayMs
+            };
+          } else if (axes[1].wasPositiveJustPressed || axes[1].wasNegativeJustPressed) {
+            newAutoRepeat = {
+              axis: stick * 2 + 1,
+              positive: axes[1].wasPositiveJustPressed,
+              time: now + this.gamepadAxisAutoRepeatDelayMs
+            };
+          }
+          if (newAutoRepeat !== null && newAutoRepeat !== void 0) {
+            if (currentAutoRepeat === null || currentAutoRepeat === void 0 || currentAutoRepeat.axis !== newAutoRepeat.axis || currentAutoRepeat.positive !== newAutoRepeat.positive) {
+              this.gamepadsAutoRepeats[index] = newAutoRepeat;
+            }
+          }
+        }
+      }
     }
   };
   var input_class_default = Input;
+  var StickDirection = Object.freeze({
+    UP: {axe: 1, triggerValue: -0.25},
+    DOWN: {axe: 1, triggerValue: 0.25},
+    LEFT: {axe: 0, triggerValue: -0.25},
+    RIGHT: {axe: 0, triggerValue: 0.25}
+  });
+  var Button = Object.freeze({
+    ANY: "ANY",
+    A: 0,
+    B: 1,
+    X: 2,
+    Y: 3,
+    LEFT_BUTTON: 4,
+    RIGHT_BUTTON: 5,
+    RIGHT_TRIGGER: 6,
+    LEFT_TRIGGER: 7,
+    SELECT: 8,
+    START: 9,
+    LEFT_STICK: 10,
+    RIGHT_STICK: 11,
+    ARROW_UP: 12,
+    ARROW_DOWN: 13,
+    ARROW_LEFT: 14,
+    ARROW_RIGHT: 15
+  });
+  var LEFT_STICK_X_AXIS = 0;
+  var LEFT_STICK_Y_AXIS = 1;
+  var RIGHT_STICK_X_AXIS = 2;
+  var RIGHT_STICK_Y_AXIS = 3;
   var Key = Object.freeze({
     ANY: "ANY",
     BACKSPACE: 8,
@@ -29688,7 +30185,6 @@ void main() {
       if (controller !== null) {
         controller.emit("start");
       }
-      this.setupUpdateTick();
     }
     setupUpdateTick() {
       if (this.isUpdated) {
@@ -31322,9 +31818,13 @@ void main() {
       const {margin, image} = data;
       for (let y2 = margin; y2 < image.height; y2 += this.tileHeight) {
         for (let x2 = margin; x2 < image.width; x2 += this.tileWidth) {
-          const tileRectangle = new PIXI9.Rectangle(x2, y2, this.tileWidth, this.tileHeight);
-          const texture = new PIXI9.Texture(this.baseTexture, tileRectangle);
-          this.textures.push(texture);
+          try {
+            const tileRectangle = new PIXI9.Rectangle(x2, y2, this.tileWidth, this.tileHeight);
+            const texture = new PIXI9.Texture(this.baseTexture, tileRectangle);
+            this.textures.push(texture);
+          } catch (err) {
+            console.log(`[INFO] Failed to load TiledSet name '${this.name}'`);
+          }
         }
       }
       if (this.debug) {
@@ -31515,6 +32015,26 @@ void main() {
         bottom: this.isRawWalkable(posx, bottomY)
       };
     }
+    getNeighBourWalkableForGivenRange(x2, y2, range) {
+      const posx = Math.floor(x2 / this.tileWidth);
+      const posy = Math.floor(y2 / this.tileHeight);
+      const leftX = posx - range;
+      const rightX = posx + range;
+      const topY = posy - range;
+      const bottomY = posy + range + 1;
+      return {
+        diag: {
+          leftTop: this.isRawWalkable(leftX, topY),
+          rightTop: this.isRawWalkable(rightX, topY),
+          leftBottom: this.isRawWalkable(leftX, bottomY),
+          bottom: this.isRawWalkable(rightX, bottomY)
+        },
+        left: this.isRawWalkable(leftX, posy),
+        right: this.isRawWalkable(rightX, posy),
+        top: this.isRawWalkable(posx, topY),
+        bottom: this.isRawWalkable(posx, bottomY)
+      };
+    }
     getTilePosition(x2, y2) {
       return {
         x: Math.floor(x2 / this.tileWidth),
@@ -31537,8 +32057,8 @@ void main() {
   var _TiledMap = class extends PIXI13.Container {
     static assignProperties(object, properties = []) {
       object.tileProperties = Object.create(null);
-      for (const property of properties) {
-        object.tileProperties[property.name] = property.value;
+      for (const property2 of properties) {
+        object.tileProperties[property2.name] = property2.value;
       }
     }
     constructor(mapName, options = {}) {
@@ -31546,7 +32066,9 @@ void main() {
       assignSymbols(this);
       this.name = mapName;
       this.debug = options.debug || false;
+      this.showObjects = options.showObjects || false;
       this.useSharedCollision = options.useSharedCollision || false;
+      this.autoAddObjects = typeof options.autoAddObjects === "boolean" ? options.autoAddObjects : true;
       this.collisionOffset = options.collisionOffset || null;
       this.layers = new Map();
       this.objects = new Map();
@@ -31615,33 +32137,32 @@ void main() {
       actor.position.set(x2, y2);
       actor.rotation = object.rotation;
       _TiledMap.assignProperties(actor, object.properties);
-      if (this.debug) {
-        const areaGraphic = new PIXI13.Graphics().beginFill(16777215, 0.35);
-        if (object.ellipse) {
-          areaGraphic.drawEllipse(0, 0, width, height);
-        } else {
-          areaGraphic.drawRect(0, 0, width, height);
-        }
-        areaGraphic.interactive = true;
-        const areaNameText = new PIXI13.Text(name.toLowerCase(), {
-          fill: "#12d94d",
-          fontFamily: "Verdana",
-          fontSize: 10,
-          fontVariant: "small-caps",
-          fontWeight: "bold",
-          letterSpacing: 1,
-          lineJoin: "round",
-          strokeThickness: 2,
-          align: "center"
-        });
-        areaNameText.anchor.set(0.5);
-        areaGraphic.endFill();
-        if (!object.ellipse) {
-          areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
-        }
-        areaGraphic.addChild(areaNameText);
-        actor.addChild(areaGraphic);
+      const areaGraphic = new PIXI13.Graphics().beginFill(16777215, 0.35);
+      areaGraphic.alpha = this.showObjects ? 1 : 0;
+      if (object.ellipse) {
+        areaGraphic.drawEllipse(0, 0, width, height);
+      } else {
+        areaGraphic.drawRect(0, 0, width, height);
       }
+      areaGraphic.interactive = true;
+      const areaNameText = new PIXI13.Text(name.toLowerCase(), {
+        fill: "#12d94d",
+        fontFamily: "Verdana",
+        fontSize: 10,
+        fontVariant: "small-caps",
+        fontWeight: "bold",
+        letterSpacing: 1,
+        lineJoin: "round",
+        strokeThickness: 2,
+        align: "center"
+      });
+      areaNameText.anchor.set(0.5);
+      areaGraphic.endFill();
+      if (!object.ellipse) {
+        areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
+      }
+      areaGraphic.addChild(areaNameText);
+      actor.addChild(areaGraphic);
       this.objects.set(actor.name, actor);
       this.emit("object", actor);
       return actor;
@@ -31649,8 +32170,14 @@ void main() {
     setObjects(layer) {
       const objects = layer.objects || [];
       for (const object of objects) {
-        console.log(`[INFO] create object ${object.name}`);
-        this.addChild(this.drawObjectShape(object));
+        if (this.debug) {
+          console.log(`[INFO] create object ${object.name}`);
+        }
+        if (this.autoAddObjects) {
+          this.addChild(this.drawObjectShape(object));
+        } else {
+          this.drawObjectShape(object);
+        }
       }
     }
     setTileLayer(layer) {
@@ -31832,14 +32359,25 @@ void main() {
         actor.triggerBehaviorEvent(eventName, ...args);
       }
       for (const behavior of this.behaviors) {
-        behavior.emit(eventName, ...args);
-        behavior[eventName](...args);
+        behavior.triggerMethod(eventName, ...args);
+        if (eventName === "awake") {
+          behavior.awakened = true;
+        } else if (eventName === "start") {
+          if (!behavior.awakened) {
+            behavior.triggerMethod("awake");
+            behavior.awakened = true;
+          }
+          behavior.started = true;
+        }
       }
     }
   };
   var actor_class_default = Actor;
 
   // assets/scripts/ECS/helpers.js
+  function getActor(name) {
+    return game.rootScene.findChild(name, true);
+  }
   function findAsset(assetName) {
     return game.app.loader.resources[assetName];
   }
@@ -31885,65 +32423,2489 @@ void main() {
   customElements.define("simple-greeting", SimpleGreeting);
 
   // public/components/player-hp.js
+  init_lit_element();
   var PlayerHp = class extends LitElement {
     constructor() {
       super();
       bindToScriptEvent(this, "player.currentHp", "currentHp");
+      bindToScriptEvent(this, "player.gold", "gold");
       bindToScriptEvent(this, "player.maxHp", "maxHp");
     }
     static get styles() {
       return css`
-      .hud-life {
-        position: absolute;
-        bottom: 0;
-       }
+          .player-hp {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            margin-left: 20px;
+          }
 
-      .life-bar {
-        padding: 2px;
-        margin: 4px;
-        background-color: white;
-        border: 1px grey solid;
-        height: 20px;
-        border-radius: 3px;
-        width: 200px;
-       }
+          .gold-wrapper {
+            z-index: 2;
+          }
 
-      .current-life {
-        height: 100%;
-        background-color: red;
-       }
+          .life-bar {
+            padding: 2px;
+            margin: 4px;
+            margin-left: -12px;
+            background-color: white;
+            height: 30px;
+            border-radius: 3px 30px 6px 12px;
+            width: 300px;
+            position: relative;
+            box-shadow: 0 0 0 2px #8E9397 inset;
+          }
 
-       .info-life {
-         position: absolute;
-         color: white;
-         height: 20px;
-         padding: inherit;
-       }
-     `;
+          .current-life {
+            height: 100%;
+            border-radius: 3px 108px 12px 41px;
+            background: linear-gradient(191deg, rgba(255,99,99,1) 0%, rgba(215,0,0,1) 35%, rgba(74,32,32,1) 100%);
+          }
+          .name {
+              background: grey;
+              color: white;
+              border-radius: 4px;
+              padding: 4px 8px;
+              margin-left: 20px;
+              font-weight: bold;
+              font-variant: small-caps;
+          }
+          .gold {
+            font: "Roboto";
+            font-size: 13px;
+            color: white;
+            font-weight: bold;
+            position: absolute;
+            top: 52px;
+            left: 30px;
+          }
+        `;
     }
     render() {
       const lifePercent = this.currentHp / this.maxHp * 100;
       return html`
-      <div class="hud-life">
-        <div class="life-bar">
-          <span class="info-life">${lifePercent} %</span>
-          <div class="current-life" style="width: ${lifePercent}% "/>
+        <div class="player-hp">
+          <div class="gold-wrapper">
+            <div class="gold">${this.gold}</div>
+            <img width=${50} src="../images/bg-monnaie.png"/>
+          </div>
+          <div class="life-bar">
+            <div class="current-life" style="width: ${lifePercent}% "></div>
+          </div>
         </div>
-      </div>
     `;
     }
   };
   customElements.define("player-hp", PlayerHp);
 
+  // public/components/positioning-grid.js
+  init_lit_element();
+  var PositioningGrid = class extends LitElement {
+    constructor() {
+      super();
+    }
+    static get styles() {
+      return css`
+            .grid-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                grid-template-rows: 1fr 1fr 1fr;
+                gap: 0px 0px;
+                height: 100%;
+                width: 100%;
+            }
+            .left-top {
+                grid-area: 1 / 1 / 2 / 2;
+            }
+            .top {
+                grid-area: 1 / 2 / 2 / 3;
+                display: flex;
+                justify-content: center;
+            }
+            .right-top {
+                grid-area: 1 / 3 / 2 / 4;
+                display: flex;
+                justify-content: flex-end;
+            }
+            .left {
+                grid-area: 2 / 1 / 3 / 2;
+                display: flex;
+                align-items: center;
+            }
+            .center {
+                grid-area: 2 / 2 / 3 / 3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .right {
+                grid-area: 2 / 3 / 3 / 4;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+            .left-bottom {
+                grid-area: 3 / 1 / 4 / 2;
+                display: flex;
+                align-items: flex-end;
+            }
+            .bottom {
+                grid-area: 3 / 2 / 4 / 3;
+                display: flex;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .right-bottom {
+                 grid-area: 3 / 3 / 4 / 4;
+                display: flex;
+                align-items: flex-end;
+                justify-content: flex-end;
+            }
+        `;
+    }
+    render() {
+      return html`
+            <div class="grid-container">
+                <div class="left-top">
+                    <slot name=left-top></slot>
+                </div>
+                <div class="top">
+                    <slot name=top></slot>
+                </div>
+                <div class="left">
+                    <slot name=left></slot>
+                </div>
+                <div class="center">
+                    <slot name=center></slot>
+                </div>
+                <div class="left-bottom">
+                    <slot name=left-bottom></slot>
+                </div>
+                <div class="bottom">
+                    <slot name=bottom></slot>
+                </div>
+                <div class="right-top">
+                    <slot name=right-top></slot>
+                </div>
+                <div class="right">
+                    <slot name=right></slot>
+                </div>
+                <div class="right-bottom">
+                    <slot name=right-bottom></slot>
+                </div>
+            </div>
+        `;
+    }
+  };
+  customElements.define("positioning-grid", PositioningGrid);
+
+  // public/components/action-bar/action-bar-slot-card.js
+  init_lit_element();
+  var ActionBarSlotCard = class extends LitElement {
+    static get properties() {
+      return {
+        offensive: {type: Object},
+        defensive: {type: Object},
+        passive: {type: Object},
+        consumable: {type: Object}
+      };
+    }
+    static get styles() {
+      return css`
+            .action-bar-container {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+                margin-bottom: 40px;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      bindToScriptEvent(this, "deck.slotHUD.offensive", "offensive");
+      bindToScriptEvent(this, "deck.slotHUD.defensive", "defensive");
+      bindToScriptEvent(this, "deck.slotHUD.passive", "passive");
+      bindToScriptEvent(this, "deck.slotHUD.consumable", "consumable");
+    }
+    render() {
+      if (this.consumable === void 0 || this.consumable === null) {
+        return html`
+            <div class='action-bar-container'>
+                <render-slot .card='${this.offensive}' typeCard='offensive' key='1'></render-slot>
+                <render-slot .card='${this.defensive}' typeCard='defensive'  key='2'></render-slot>
+                <render-slot .card='${this.passive}' typeCard='passive'></render-slot>
+                <refresh-action-card key='X'></refresh-action-card>
+            </div>
+        `;
+      }
+      return html`
+            <div class='action-bar-container'>
+                <render-slot .card='${this.offensive}' typeCard='offensive' key='1'></render-slot>
+                <render-slot .card='${this.defensive}' typeCard='defensive'  key='2'></render-slot>
+                <render-slot .card='${this.passive}' typeCard='passive'></render-slot>
+                <render-slot .card='${this.consumable}' typeCard='consumable' key='3'></render-slot>
+                <refresh-action-card key='X'></refresh-action-card>
+            </div>
+        `;
+    }
+  };
+  customElements.define("action-bar-slot-card", ActionBarSlotCard);
+
+  // public/components/action-bar/action-card.js
+  init_lit_element();
+  var ActionCard = class extends LitElement {
+    static get properties() {
+      return {
+        card: {type: Object}
+      };
+    }
+    static get styles() {
+      return css`
+          .action-card-container {
+            background-color: white;
+            height: 100%;
+            width: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            color: black;
+            min-height: 100px;
+            min-width: 80px;
+          }
+          .action-button {
+            position: absolute;
+            transform: translate(36px , 46px);
+          }
+        `;
+    }
+    constructor() {
+      super();
+      this.card = {};
+    }
+    render() {
+      return html`
+            <div class="action-card-container">
+                <div>${this.card.typeCard}</div>
+                <div class="action-button">
+                    <keyboard-icon key='${this.card.key}' ?isPress=${false}></keyboard-icon>
+                </div>
+            </div>
+        `;
+    }
+  };
+  customElements.define("action-card", ActionCard);
+
+  // public/components/action-bar/refresh-action-card.js
+  init_lit_element();
+  var RefreshActionCard = class extends LitElement {
+    static get properties() {
+      return {
+        key: {type: String}
+      };
+    }
+    static get styles() {
+      return css`
+          .action-card-container {
+            background: url("./images/icons/refresh.png") no-repeat;
+            height: 84px;
+            width: 84px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+          }
+          .action-button {
+            position: absolute;
+            bottom: 14px;
+            right: 8px;
+          }
+        `;
+    }
+    constructor() {
+      super();
+      this.key = "";
+    }
+    render() {
+      return html`
+            <div class="action-card-container">
+                <div class="action-button">
+                    <keyboard-icon key='${this.key}' ?isPress=${false}></keyboard-icon>
+                </div>
+            </div>
+        `;
+    }
+  };
+  customElements.define("refresh-action-card", RefreshActionCard);
+
+  // public/components/action-bar/action-button.js
+  init_lit_element();
+  var ActionButton = class extends LitElement {
+    static get properties() {
+      return {
+        key: {type: String}
+      };
+    }
+    static get styles() {
+      return css`
+          .action-button {
+            position: absolute;
+            height: 40px;
+            width: 40px;
+            background-color: white;
+            bottom: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translate(4px , 4px);
+            border-radius: 2px;
+            border: 1px solid grey;
+          }
+        `;
+    }
+    constructor() {
+      super();
+      this.key = "";
+    }
+    render() {
+      return html`
+            <div class="action-button">${this.key}</div>
+        `;
+    }
+  };
+  customElements.define("action-button", ActionButton);
+
+  // public/components/keyboard-icon/keyboard-icon.js
+  init_lit_element();
+
+  // node_modules/lit-html/directives/style-map.js
+  init_lit_html();
+  /**
+   * @license
+   * Copyright (c) 2018 The Polymer Project Authors. All rights reserved.
+   * This code may only be used under the BSD style license found at
+   * http://polymer.github.io/LICENSE.txt
+   * The complete set of authors may be found at
+   * http://polymer.github.io/AUTHORS.txt
+   * The complete set of contributors may be found at
+   * http://polymer.github.io/CONTRIBUTORS.txt
+   * Code distributed by Google as part of the polymer project is also
+   * subject to an additional IP rights grant found at
+   * http://polymer.github.io/PATENTS.txt
+   */
+  var previousStylePropertyCache = new WeakMap();
+  var styleMap = directive((styleInfo) => (part) => {
+    if (!(part instanceof AttributePart) || part instanceof PropertyPart || part.committer.name !== "style" || part.committer.parts.length > 1) {
+      throw new Error("The `styleMap` directive must be used in the style attribute and must be the only part in the attribute.");
+    }
+    const {committer} = part;
+    const {style} = committer.element;
+    let previousStyleProperties = previousStylePropertyCache.get(part);
+    if (previousStyleProperties === void 0) {
+      style.cssText = committer.strings.join(" ");
+      previousStylePropertyCache.set(part, previousStyleProperties = new Set());
+    }
+    previousStyleProperties.forEach((name) => {
+      if (!(name in styleInfo)) {
+        previousStyleProperties.delete(name);
+        if (name.indexOf("-") === -1) {
+          style[name] = null;
+        } else {
+          style.removeProperty(name);
+        }
+      }
+    });
+    for (const name in styleInfo) {
+      previousStyleProperties.add(name);
+      if (name.indexOf("-") === -1) {
+        style[name] = styleInfo[name];
+      } else {
+        style.setProperty(name, styleInfo[name]);
+      }
+    }
+  });
+
+  // public/components/keyboard-icon/keys-position.js
+  var PIXEL_GAP = 224;
+  var PIXEL_SCALE = 1.3;
+  var PIXEL_SCALE_MOUSE = 1.2;
+  var KeysPosition = {
+    ESC: {x: -32, y: -353, h: 15, w: 16},
+    F1: {x: -64, y: -353, h: 15, w: 16},
+    "1": {x: -64, y: -369, h: 15, w: 16},
+    Q: {x: -64, y: -385, h: 15, w: 16},
+    A: {x: -64, y: -401, h: 15, w: 16},
+    Z: {x: -64, y: -417, h: 15, w: 16},
+    F2: {x: -80, y: -353, h: 15, w: 16},
+    "2": {x: -80, y: -369, h: 15, w: 16},
+    W: {x: -80, y: -385, h: 15, w: 16},
+    S: {x: -80, y: -401, h: 15, w: 16},
+    X: {x: -80, y: -417, h: 15, w: 16},
+    F3: {x: -96, y: -353, h: 15, w: 16},
+    "3": {x: -96, y: -369, h: 15, w: 16},
+    E: {x: -96, y: -385, h: 15, w: 16},
+    D: {x: -96, y: -401, h: 15, w: 16},
+    C: {x: -96, y: -417, h: 15, w: 16},
+    F4: {x: -112, y: -353, h: 15, w: 16},
+    "4": {x: -112, y: -369, h: 15, w: 16},
+    R: {x: -112, y: -385, h: 15, w: 16},
+    F: {x: -112, y: -401, h: 15, w: 16},
+    V: {x: -112, y: -417, h: 15, w: 16},
+    F5: {x: -128, y: -353, h: 15, w: 16},
+    "5": {x: -128, y: -369, h: 15, w: 16},
+    T: {x: -128, y: -385, h: 15, w: 16},
+    G: {x: -128, y: -401, h: 15, w: 16},
+    B: {x: -128, y: -417, h: 15, w: 16},
+    F6: {x: -144, y: -353, h: 15, w: 16},
+    "6": {x: -144, y: -369, h: 15, w: 16},
+    Y: {x: -144, y: -385, h: 15, w: 16},
+    H: {x: -144, y: -401, h: 15, w: 16},
+    N: {x: -144, y: -417, h: 15, w: 16},
+    F7: {x: -160, y: -353, h: 15, w: 16},
+    "7": {x: -160, y: -369, h: 15, w: 16},
+    U: {x: -160, y: -385, h: 15, w: 16},
+    J: {x: -160, y: -401, h: 15, w: 16},
+    M: {x: -160, y: -417, h: 15, w: 16},
+    F8: {x: -176, y: -353, h: 15, w: 16},
+    "8": {x: -176, y: -369, h: 15, w: 16},
+    I: {x: -176, y: -385, h: 15, w: 16},
+    K: {x: -176, y: -401, h: 15, w: 16},
+    F9: {x: -192, y: -353, h: 15, w: 16},
+    "9": {x: -192, y: -369, h: 15, w: 16},
+    O: {x: -192, y: -385, h: 15, w: 16},
+    L: {x: -192, y: -401, h: 15, w: 16},
+    F10: {x: -206, y: -353, h: 15, w: 16},
+    "0": {x: -206, y: -369, h: 15, w: 16},
+    P: {x: -206, y: -385, h: 15, w: 16},
+    F11: {x: -222, y: -353, h: 15, w: 16},
+    F12: {x: -236, y: -353, h: 15, w: 16},
+    TAB: {x: -36, y: -385, h: 15, w: 26},
+    CAPS_LOCK: {x: -36, y: -401, h: 15, w: 26},
+    SHIFT: {x: -36, y: -417, h: 15, w: 26},
+    CTRL: {x: -36, y: -433, h: 15, w: 26},
+    ALT: {x: -68, y: -433, h: 15, w: 26},
+    ENTER: {x: -244, y: -401, h: 15, w: 26},
+    DELETE: {x: -260, y: -369, h: 15, w: 26},
+    LEFT: {x: -304, y: -433, h: 15, w: 16},
+    UP: {x: -320, y: -417, h: 15, w: 16},
+    DOWN: {x: -320, y: -433, h: 15, w: 16},
+    RIGHT: {x: -336, y: -433, h: 15, w: 16},
+    MOUSE: {x: -1063, y: -1, h: 30, w: 18},
+    MOUSE_RIGHT_CLICK: {x: -1063, y: -33, h: 30, w: 18},
+    MOUSE_LEFT_CLICK: {x: -1095, y: -1, h: 30, w: 18},
+    MOUSE_FULL_CLICK: {x: -1095, y: -33, h: 30, w: 18}
+  };
+
+  // public/components/keyboard-icon/keyboard-icon.js
+  var KeyboardIcon = class extends LitElement {
+    static get properties() {
+      return {
+        key: {type: String},
+        isPress: {type: Boolean}
+      };
+    }
+    static get styles() {
+      console.log(KeysPosition[this.key]);
+      return css`
+            div {
+                background: url("../images/keyboard.png");
+            }
+        `;
+    }
+    constructor() {
+      super();
+      this.key = "";
+      this.isPress = false;
+    }
+    render() {
+      if (!KeysPosition[this.key]) {
+        return null;
+      }
+      const {x: x2, y: y2, h: h2, w: w2} = KeysPosition[this.key];
+      const isMouseKey = ["MOUSE", "MOUSE_RIGHT_CLICK", "MOUSE_LEFT_CLICK", "MOUSE_FULL_CLICK"].includes(this.key);
+      const isPressButton = this.isPress && !isMouseKey;
+      return html`
+            <div style=${styleMap({
+        height: `${h2}px`,
+        width: `${w2}px`,
+        backgroundPosition: `${x2}px ${y2 + (isPressButton ? PIXEL_GAP : 0)}px`,
+        transform: `scale(${isMouseKey ? PIXEL_SCALE_MOUSE : PIXEL_SCALE})`
+      })}>
+            </div>
+        `;
+    }
+  };
+  customElements.define("keyboard-icon", KeyboardIcon);
+
+  // public/components/action-keys/action-keys.js
+  init_lit_element();
+  var ActionKeys = class extends LitElement {
+    static get properties() {
+      return {
+        typeController: {type: String}
+      };
+    }
+    static get styles() {
+      return css`
+        .action-keys-container {
+           display:flex;
+           margin-right: 65px;
+           flex-direction: column;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        `;
+    }
+    _handleChangeKeyboard(e2) {
+      this.typeController = e2;
+    }
+    constructor() {
+      super();
+      this.typeController = "KeyboardL";
+      window.hudevents.on("input_type", this._handleChangeKeyboard.bind(this));
+    }
+    _renderMoveKeys() {
+      if (this.typeController === "KeyboardL") {
+        return html`
+                <move-keys
+                    upKey='Z'
+                    downKey='S'
+                    leftKey='Q'
+                    rightKey='D'    
+                ></move-keys>
+            `;
+      }
+      if (this.typeController === "KeyboardR") {
+        return html`
+                <move-keys
+                    upKey='UP'
+                    downKey='DOWN'
+                    leftKey='LEFT'
+                    rightKey='RIGHT'      
+                ></move-keys>
+            `;
+      }
+    }
+    render() {
+      return html`
+            <div class="action-keys-container">
+                ${this._renderMoveKeys()}
+                <div class='container'>
+                    <action-key key='E' typeAction='action'></action-key> 
+                    <action-key key='T' typeAction='deck'></action-key>
+                </div>
+            </div>
+        `;
+    }
+  };
+  customElements.define("action-keys", ActionKeys);
+
+  // public/components/action-keys/move-keys.js
+  init_lit_element();
+  var MoveKeys = class extends LitElement {
+    static get properties() {
+      return {
+        upKey: {type: String},
+        downKey: {type: String},
+        leftKey: {type: String},
+        rightKey: {type: String}
+      };
+    }
+    static get styles() {
+      return css`
+        .move-keys-container {
+            display: grid;
+            position: relative;
+            gap: 6px;
+            margin-top: 34px;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            grid-template-areas:
+                ". . upLabel . ."
+                ". . up . ."
+                "leftLabel left down right rightLabel"
+                ". . downLabel . .";
+        }
+        .up { grid-area: up; }
+        .left { grid-area: left; }
+        .down { grid-area: down; }
+        .right {
+            grid-area: right;
+         }
+        .upLabel {
+            grid-area: upLabel;
+            transform: translateY(-6px);
+        }
+        .leftLabel {
+            grid-area: leftLabel;
+            transform: translate(-24px , -6px);
+        }
+        .downLabel {
+            grid-area: downLabel;
+            transform: translateX(-16px);
+        }
+        .rightLabel {
+            grid-area: rightLabel;
+            transform: translateY(-6px);
+        }
+        .label {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            font-variant: small-caps;
+            font-family: Roboto;
+            text-shadow: 2px 2px 5px black;
+         }
+        `;
+    }
+    constructor() {
+      super();
+      this.upKey = "";
+      this.downKey = "";
+      this.leftKey = "";
+      this.rightKey = "";
+    }
+    render() {
+      return html`
+            <div class="move-keys-container">
+                <div class='up'>
+                    <keyboard-icon key='${this.upKey}' ?isPress=${false}></keyboard-icon>
+                </div>
+                <div class='down'>
+                    <keyboard-icon key='${this.downKey}' ?isPress=${false}></keyboard-icon>
+                </div>
+                <div class='left'>
+                    <keyboard-icon key='${this.leftKey}' ?isPress=${false}></keyboard-icon>
+                </div>
+                <div class='right'>
+                    <keyboard-icon key='${this.rightKey}' ?isPress=${false}></keyboard-icon>
+                </div>
+                <div class='upLabel label'>
+                    <div>UP</div>
+                </div>
+                <div class='downLabel label'>
+                    <div>DOWN</div>
+                </div>
+                <div class='leftLabel label'>
+                    <div>LEFT</div>
+                </div>
+                <div class='rightLabel label'>
+                    <div>RIGHT</div>
+                </div>
+            </div>
+        `;
+    }
+  };
+  customElements.define("move-keys", MoveKeys);
+
+  // public/components/action-keys/action-key.js
+  init_lit_element();
+  var ActionKey = class extends LitElement {
+    static get properties() {
+      return {
+        key: {type: String},
+        typeAction: {type: String}
+      };
+    }
+    static get styles() {
+      return css`
+        .action-keys-container {
+            margin-top: 20px;
+            height: 76px;
+            width: 118px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .name{
+            position: absolute;
+            bottom: 19px;
+            left: 2px;
+            text-transform: uppercase;
+            font-family: Roboto;
+            text-shadow: 2px 2px 5px black;
+            font-weight: bold;
+            height: 23px;
+            width: 62px;
+            font-size: 15px;
+            line-height: 23px;
+            text-align: center;
+            color: white;
+        }
+        .button {
+            position:absolute;
+            right: 8px;
+            bottom: 18px;
+        }
+        .action {
+            background: url('./images/icons/action.png') no-repeat;
+        }
+        .deck {
+            background: url('./images/icons/deck.png') no-repeat;
+        }
+        `;
+    }
+    constructor() {
+      super();
+      this.key = "";
+      this.typeAction = "action";
+    }
+    render() {
+      return html`
+            <div class="action-keys-container ${this.typeAction}">
+                <div class='name'>${this.typeAction}</div>
+                <div class='button'>
+                    <keyboard-icon key='${this.key}' ?isPress=${false}></keyboard-icon>
+                </div>
+            </div>
+        `;
+    }
+  };
+  customElements.define("action-key", ActionKey);
+
+  // public/components/common/slot/index.js
+  init_lit_element();
+  var Slot = class extends LitElement {
+    static get properties() {
+      return {
+        card: {type: Object},
+        typeCard: {type: String},
+        key: {type: String}
+      };
+    }
+    static get styles() {
+      return css`
+            .card-container {
+                height: 175px;
+                width: 135px;
+                position: relative;
+            }
+            .card-container-offensive {
+                background: url('./images/slot/offensif.png') no-repeat; 
+            }
+            .card-container-defensive {
+                background: url('./images/slot/defensif.png') no-repeat;
+            }
+            .card-container-passive {
+                background: url('./images/slot/passif.png') no-repeat;
+            }
+            .card-container-consumable {
+                background: url('./images/slot/consommable.png') no-repeat;
+            }
+            .card-name {
+                height: 20px;
+                text-align: center;
+                width: 123px;
+                position: absolute;
+                font-family: Roboto;
+                text-transform: uppercase;
+                font-size: smaller;
+                text-shadow: 2px 2px 2px #000000;
+                color: white;
+                top: 31px;
+            }
+            .stars {
+                height: 76px;
+                width: 17px;
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: center;
+            }
+            .left {
+                top: 50px;
+                left: 13px;
+            }
+            .right {
+                top: 50px;
+                right: 20px;
+            }
+            .star-on {
+                background: url('./images/icons/starOn.png') no-repeat;
+                height: 10px;
+                width: 10px
+            }
+            .star-off-defensive {
+                background: url('./images/icons/starOff-defensive.png') no-repeat;
+                height: 10px;
+                width: 10px
+            }
+            .star-off-offensive {
+                background: url('./images/icons/starOff-offensive.png') no-repeat;
+                height: 10px;
+                width: 10px
+            }
+            .star-off-passive {
+                background: url('./images/icons/starOff-passive.png') no-repeat;
+                height: 10px;
+                width: 10px;
+            }
+            .star-off-consumable {
+                background: url('./images/icons/starOff-consumable.png') no-repeat;
+                height: 10px;
+                width: 10px
+            }
+            .desc {
+                position: absolute;
+                color: white;
+                bottom: 27px;
+                left: 10px;
+                width: 103px;
+                text-align: center;
+            }
+            .icon {
+                height: 18px;
+                width: 18px;
+            }
+            .icon-type-offensive {
+                position: absolute;
+                top: 10px;
+                left: 12px;
+            }
+            .icon-type-defensive {
+                position: absolute;
+                top: 9px;
+                left: 42px;
+            }
+            .icon-type-passive {
+                position: absolute;
+                top: 10px;
+                left: 72px;
+            }
+            .icon-type-consumable {
+                position: absolute;
+                top: 10px;
+                left:102px;
+            }
+            .icon-offensive-offensive {
+                background: url(./images/icons/offensif/offensif.png) no-repeat;
+            }
+            .icon-offensive-defensive {
+                background: url(./images/icons/offensif/defensif.png) no-repeat;
+            }
+            .icon-offensive-passive {
+                background: url(./images/icons/offensif/passif.png) no-repeat;
+            }
+            .icon-offensive-consumable {
+                background: url(./images/icons/offensif/consommable.png) no-repeat;
+            }
+            .icon-defensive-offensive {
+                background: url(./images/icons/defensif/offensif.png) no-repeat;
+            }
+            .icon-defensive-defensive {
+                background: url(./images/icons/defensif/defensif.png) no-repeat;
+            }
+            .icon-defensive-passive {
+                background: url(./images/icons/defensif/passif.png) no-repeat;
+            }
+            .icon-defensive-consumable {
+                background: url(./images/icons/defensif/consommable.png) no-repeat;
+            }
+            .icon-passive-offensive {
+                background: url(./images/icons/passif/offensif.png) no-repeat;
+            }
+            .icon-passive-defensive {
+                background: url(./images/icons/passif/defensif.png) no-repeat;
+            }
+            .icon-passive-passive {
+                background: url(./images/icons/passif/passif.png) no-repeat;
+            }
+            .icon-passive-consumable {
+                background: url(./images/icons/passif/consommable.png) no-repeat;
+            }
+            .icon-consumable-offensive {
+                background: url(./images/icons/consommable/offensif.png) no-repeat;
+            }
+            .icon-consumable-defensive {
+                background: url(./images/icons/consommable/defensif.png) no-repeat;
+            }
+            .icon-consumable-passive {
+                background: url(./images/icons/consommable/passif.png) no-repeat;
+            }
+            .icon-consumable-consumable {
+                background: url(./images/icons/consommable/consommable.png) no-repeat;
+            }
+            .body-slot {
+                position: absolute;
+                height: 60px;
+                width: 60px;
+                top: 60px;
+                left: 35px;
+                color: white;
+                text-transform: capitalize;
+                text-shadow: 2px 2px 2px #000000;
+                display: flex;
+                flex-direction: column;
+            }
+            .icon-small {
+                transform: scale(0.6);
+            }
+            .small-info {
+                display: flex;
+                align-items: center;
+            }
+            .small-description {
+                font-size: 10px;
+                text-overflow: ellipsis;
+            }
+            .button {
+                position: absolute;
+                bottom: 13px;
+                right: 10px;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      this.card = {};
+      this.key = "";
+      this.typeCard = "offensive";
+    }
+    renderLeftStars(nbStars) {
+      let nbTemp = nbStars;
+      if (nbStars > 5) {
+        nbTemp = 5;
+      }
+      return html`
+            <span class="stars left">
+                ${[...new Array(nbTemp)].map((_2) => html`<span class="star-on"></span>`)}
+                ${[...new Array(5 - nbTemp)].map((_2) => html`<span class="${`star-off-${this.typeCard}`}"></span>`)}
+            </span>
+        `;
+    }
+    renderRightStars(nbStars) {
+      let nbTemp = 0;
+      if (nbStars > 5) {
+        nbTemp = nbStars - 5;
+      }
+      return html`
+            <span class="stars right">
+                ${[...new Array(nbTemp)].map((_2) => html`<span class="star-on"></span>`)}
+                ${[...new Array(5 - nbTemp)].map((_2) => html`<span class="${`star-off-${this.typeCard}`}"></span>`)}
+            </span>
+        `;
+    }
+    renderDescriptionSkill(card, type2) {
+      let description = "";
+      switch (type2) {
+        case "offensive":
+          description = card.offensiveSkill.name;
+          break;
+        case "defensive":
+          description = card.defensiveSkill.name;
+          break;
+        case "passive":
+          description = card.passiveSkill.name;
+          break;
+        case "consumable":
+          description = card.consumableSkill.name;
+          break;
+      }
+      return html`
+            <span class="desc">${description}</span>
+        `;
+    }
+    renderIconsTop(typeIcons, typeCard) {
+      return html`
+            <span class="${`icon icon-type-${typeIcons} icon-${typeIcons}-${typeCard} `}"></span>
+        `;
+    }
+    renderBody(card, typeCard) {
+      const tab = [];
+      if (typeCard !== "offensive") {
+        tab.push(html`
+                    <span class="small-info">
+                        <div class="icon icon-offensive-offensive icon-small"></div>
+                        <span class="small-description">${card.offensiveSkill.name}</span>
+                    </span>
+                `);
+      }
+      if (typeCard !== "defensive") {
+        tab.push(html`
+                    <span class="small-info">
+                    <div class="icon icon-defensive-defensive icon-small"></div>
+                    <span class="small-description">${card.defensiveSkill.name}</span>
+                </span>
+                `);
+      }
+      if (typeCard !== "passive") {
+        tab.push(html`
+                    <span class="small-info">
+                    <div class="icon icon-passive-passive icon-small"></div>
+                    <span class="small-description">${card.passiveSkill.name}</span>
+                </span>
+                `);
+      }
+      if (typeCard !== "consumable") {
+        tab.push(html`
+                    <span class="small-info">
+                    <div class="icon icon-consumable-consumable icon-small"></div>
+                    <span class="small-description">${card.consumableSkill.name}</span> 
+                </span>
+                `);
+      }
+      return html`
+            <span class="body-slot">
+                ${tab.map((element) => element)}
+            </span>
+        `;
+    }
+    render() {
+      return html`
+            <div class="${`card-container card-container-${this.typeCard}`}">
+                ${this.renderIconsTop("offensive", this.typeCard)}
+                ${this.renderIconsTop("defensive", this.typeCard)}
+                ${this.renderIconsTop("passive", this.typeCard)}
+                ${this.renderIconsTop("consumable", this.typeCard)}
+                <span class="card-name">${this.card.name}</span>
+                ${this.renderLeftStars(this.card.stars)}
+                ${this.renderRightStars(this.card.stars)}
+                ${this.renderDescriptionSkill(this.card, this.typeCard)}
+                ${this.renderBody(this.card, this.typeCard)}
+                <span class="button">
+                    <keyboard-icon key="${this.key}"></keyboard-icon>
+                </span>
+            </div>
+        `;
+    }
+  };
+  customElements.define("render-slot", Slot);
+
+  // public/components/common/card/index.js
+  init_lit_element();
+  var Card = class extends LitElement {
+    static get properties() {
+      return {
+        card: {type: Object}
+      };
+    }
+    static get styles() {
+      return css`
+            .card-container {
+                height: 175px;
+                width: 135px;
+                position: relative;
+                border: 1px solid grey;
+                border-radius: 4px;
+                color: white;
+                background-color: #353535;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
+            }
+            .card-container-offensive {
+                background: url('./images/slot/offensif.png') no-repeat;
+            }
+            .card-container-defensive {
+                background: url('./images/slot/defensif.png') no-repeat;
+            }
+            .card-container-passive {
+                background: url('./images/slot/passif.png') no-repeat;
+            }
+            .card-container-consumable {
+                background: url('./images/slot/consommable.png') no-repeat;
+            }
+            .card-name {
+                height: 20px;
+                text-align: center;
+                width: 123px;
+                font-family: Roboto;
+                font-size: smaller;
+                color: white;
+                text-shadow: rgb(116 116 116) 1px 1px 1px;
+            }
+            .star-on {
+                background: url('./images/icons/starOn.png') no-repeat;
+                height: 10px;
+                width: 10px;
+                margin-left: 6px;
+            }
+            .icon {
+                height: 18px;
+                width: 18px;
+            }
+            .icon-offensive-offensive {
+                background: url(./images/icons/offensif/offensif.png) no-repeat;
+            }
+            .icon-defensive-defensive {
+                background: url(./images/icons/defensif/defensif.png) no-repeat;
+            }
+            .icon-passive-passive {
+                background: url(./images/icons/passif/passif.png) no-repeat;
+            }
+            .icon-consumable-consumable {
+                background: url(./images/icons/consommable/consommable.png) no-repeat;
+            }
+            .body-slot {
+                margin-top: 30px;
+                height: 60px;
+                display: flex;
+                flex-direction: column;
+            }
+            .small-info {
+                display: flex;
+                align-items: center;
+            }
+            .small-info + .small-info {
+                margin-top: 2px;
+            }
+            .small-description {
+                font-size: 10px;
+                text-overflow: ellipsis;
+                font-family: Roboto;
+                letter-spacing: 1px;
+                color: #FFF;
+                font-weight: bold;
+                text-shadow: 1px 1px 5px rgba(20,20,20, 0.5);
+                margin-left: 5px;
+            }
+            .button {
+                position: absolute;
+                bottom: 13px;
+                right: 10px;
+            }
+            .star-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      this.card = {};
+    }
+    renderLeftStars(nbStars) {
+      return html`<div class="star-container"> <div>${nbStars}</div> <div class="star-on"></div> </div>`;
+    }
+    renderBody(card) {
+      return html`
+            <span class="body-slot">
+                <span class="small-info">
+                    <div class="icon icon-offensive-offensive icon-small"></div>
+                    <span class="small-description">${card.offensiveSkill.name}</span>
+                </span>
+                <span class="small-info">
+                    <div class="icon icon-defensive-defensive icon-small"></div>
+                    <span class="small-description">${card.defensiveSkill.name}</span>
+                </span>
+                <span class="small-info">
+                    <div class="icon icon-passive-passive icon-small"></div>
+                    <span class="small-description">${card.passiveSkill.name}</span>
+                </span>
+                <span class="small-info">
+                    <div class="icon icon-consumable-consumable icon-small"></div>
+                    <span class="small-description">${card.consumableSkill.name}</span>
+                </span>
+            </span>
+        `;
+    }
+    render() {
+      return html`
+            <div class="card-container">
+                <span class="card-name">${this.card.name}</span>
+                ${this.renderLeftStars(this.card.stars)}
+                ${this.renderBody(this.card, this.typeCard)}
+            </div>
+        `;
+    }
+  };
+  customElements.define("render-card", Card);
+
+  // public/components/modals/manager.js
+  init_lit_element();
+
+  // public/components/modals/store/index.js
+  init_lit_element();
+
+  // assets/scripts/helpers/Deck/Skill.js
+  var AbstractSkill = class {
+    constructor(name, params, description = "") {
+      this.name = name;
+      this.params = params;
+      this.description = description;
+    }
+  };
+  var OffensiveSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    use() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("offensiveSkill", this.name);
+    }
+  };
+  var DefensiveSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    use() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("defensiveSkill", this.name);
+    }
+  };
+  var PassiveSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    activate(stars) {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("activatePassive", this.name, this.params * stars);
+    }
+    deactivate() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("deactivatePassive", this.name);
+    }
+  };
+  var ConsumableSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    use() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("consumable", this.name, this.params);
+    }
+  };
+  var OffensiveSkills = Object.freeze({
+    sword: new OffensiveSkill("sword", 1),
+    axe: new OffensiveSkill("axe", 1),
+    hammer: new OffensiveSkill("hammer", 1),
+    claw: new OffensiveSkill("claw", 1),
+    spear: new OffensiveSkill("spear", 2),
+    whip: new OffensiveSkill("whip", 2),
+    bow: new OffensiveSkill("bow", 1),
+    crossbow: new OffensiveSkill("crossbow", 2),
+    knife: new OffensiveSkill("knife", 2),
+    pistol: new OffensiveSkill("pistol", 2),
+    riffle: new OffensiveSkill("riffle", 2),
+    spell: new OffensiveSkill("spell", 1)
+  });
+  var DefensiveSkills = Object.freeze({
+    shield: new DefensiveSkill("shield", 1),
+    dodge: new DefensiveSkill("dodge", 1),
+    counter: new DefensiveSkill("counter", 1),
+    dash: new DefensiveSkill("dash", 1)
+  });
+  var PassiveSkills = Object.freeze({
+    attack: new PassiveSkill("attack", 1),
+    defense: new PassiveSkill("defense", 1),
+    special: new PassiveSkill("special", 1),
+    speed: new PassiveSkill("speed", 1),
+    healthRegenBoost: new PassiveSkill("healthRegenBoost", 1)
+  });
+  var ConsumableSkills = Object.freeze({
+    heal: new ConsumableSkill("heal", 4),
+    portal: new ConsumableSkill("portal", 1),
+    nuke: new ConsumableSkill("nuke", 1),
+    invincible: new ConsumableSkill("invincible", 1),
+    resistance: new ConsumableSkill("resistance", 1),
+    secretVision: new ConsumableSkill("secretVision", 1)
+  });
+
+  // assets/scripts/helpers/Deck/Card.js
+  var Card2 = class {
+    constructor(name, offensiveSkillName, defensiveSkillName, passiveSkillName, consumableSkillName, stars) {
+      this.name = name;
+      this.offensiveSkill = OffensiveSkills[offensiveSkillName];
+      this.defensiveSkill = DefensiveSkills[defensiveSkillName];
+      this.passiveSkill = PassiveSkills[passiveSkillName];
+      this.consumableSkill = ConsumableSkills[consumableSkillName];
+      this.stars = stars;
+    }
+    upgrade() {
+      if (this.stars < 10) {
+        ++this.stars;
+      } else {
+        console.log("ALREADY AT LEVEL MAX");
+      }
+    }
+    attack() {
+      this.offensiveSkill.use();
+    }
+    defend() {
+      this.defensiveSkill.use();
+    }
+    activatePassive() {
+      this.passiveSkill.activate(this.stars);
+    }
+    deactivatePassive() {
+      this.passiveSkill.deactivate();
+    }
+    consume() {
+      this.consumableSkill.use();
+    }
+  };
+  var StarterCards = Object.freeze([
+    new Card2("Warrior", "sword", "shield", "speed", "heal", 1),
+    new Card2("Archer", "bow", "shield", "speed", "heal", 3),
+    new Card2("Knight", "spear", "shield", "speed", "invincible", 2),
+    new Card2("Bandit", "axe", "dodge", "speed", "heal", 2),
+    new Card2("Berserker", "hammer", "dodge", "defense", "invincible", 2),
+    new Card2("Thief", "knife", "counter", "defense", "resistance", 3),
+    new Card2("Ranger", "crossbow", "dash", "defense", "resistance", 4),
+    new Card2("Wizard", "spell", "dash", "special", "invincible", 2)
+  ]);
+
+  // public/fixtures.js
+  function buildFakeCard(id) {
+    const card = new Card2(`Potion n ${id}`, 3, 0, 1, 0, 5);
+    card.id = id;
+    card.description = `Awesome potion ${id}, take it.`;
+    return card;
+  }
+  function buildFakeCards(count) {
+    const products = [];
+    for (let index = 0; index < count; index++) {
+      products.push(buildFakeCard(index));
+    }
+    return products;
+  }
+
+  // public/components/modals/store/card-detail.js
+  init_lit_element();
+  var CardDetail = class extends LitElement {
+    static get properties() {
+      return {
+        product: {type: Object}
+      };
+    }
+    static get styles() {
+      return css`
+      .title-detail {
+        margin: 0;
+        margin-bottom: 10px;
+      }
+
+      .buy-button{
+        text-align: center; 
+        display: inline-block;
+        margin: 5px;
+        font-weight: bold;
+        padding: 10px 10px 10px 10px ;
+        background-color: burlywood;
+        border-radius: 7px;
+        box-shadow: 0 .2em gray; 
+        cursor: pointer;
+      }
+      
+      .skills {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .skill-item {
+        background-color: #37474F;
+        border-radius: 10px;
+        margin: 10px;
+        height: 40px;
+        width: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+      }
+    `;
+    }
+    render() {
+      const shouldRenderFallBack = this.product === null || this.product === void 0;
+      return html`
+      <div>
+        ${shouldRenderFallBack ? this.renderCardDetailFallback() : this.renderCardDetail()}
+      </div>
+    `;
+    }
+    renderCardDetail() {
+      const {
+        name,
+        description,
+        offensiveSkill,
+        defensiveSkill,
+        passiveSkill,
+        consumableSkill,
+        stars
+      } = this.product;
+      return html`
+      <div>
+        <h2 class="title-detail">
+          Detail of ${name}
+          ${new Array(stars).fill(1).map(() => html`<icon-star></icon-star>`)}
+        </h2>
+        <p>${description}</p>
+        <h4>Skills</h4>
+        <div class="skills">
+          <div class="skill-item" title="Offense"><icon-offense width=${30}></icon-offense><div>${offensiveSkill}</div></div>
+          <div class="skill-item" title="Defense"><icon-defense width=${30}></icon-defense><div>${defensiveSkill}</div></div>
+          <div class="skill-item" title="Passive"><icon-passive width=${30}></icon-passive><div>${passiveSkill}</div></div>
+          <div class="skill-item" title="Consumable"><icon-consumable width=${30}></icon-consumable><div>${consumableSkill}</div></div>
+        </div>
+        <button
+          @click=${() => alert("Gimme the loot !")}
+          class="buy-button"
+        >Buy</button>
+      </div>
+    `;
+    }
+    renderCardDetailFallback() {
+      return html`Please select a product.`;
+    }
+  };
+  customElements.define("card-detail", CardDetail);
+
+  // public/components/modals/store/index.js
+  var StoreModal = class extends LitElement {
+    static get properties() {
+      return {
+        selectedCardIndex: {type: Number},
+        cards: {type: Array}
+      };
+    }
+    static get styles() {
+      return css`
+      .modal-store {
+        min-width: 600px;
+        padding: 20px;
+        box-shadow: 1px 1px 10px black;
+        background: rgba(20, 40, 20, 0.65);
+        border-radius: 10px;
+      }
+      .modal-store-column-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: calc(50vh - 200px);
+        gap: 0px 8px;
+      }
+      .main-list {
+        height: calc(100% - 20px);
+        overflow-y: scroll;
+      }
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        padding-top: 5px;
+        padding-bottom: 5px;
+        padding-left: 5px;
+      }
+      .list-name {
+        margin: 0;
+        margin-bottom: 10px;
+      }
+      .even {
+        background-color: red;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    `;
+    }
+    constructor() {
+      super();
+      this.selectedCardIndex = null;
+      this.cards = buildFakeCards(50);
+    }
+    render() {
+      return html`
+      <div class="modal-store">
+        <h1 class="modal-store-title">Store</h1>
+        <div class="modal-store-column-wrapper">
+          <div class="modal-store-column">
+          <h3 class="list-name">
+            Available cards (${this.cards.length})
+          </h3>
+          <div class="main-list">
+            ${this.renderCardList()}
+          </div>
+          </div>
+          <div class="modal-store-column">
+            <card-detail .product=${this.cards[this.selectedCardIndex]}></card-detail>
+          </div>
+        </div>
+      </div>
+    `;
+    }
+    handleSelectItem(id) {
+      const newIndex = this.cards.findIndex((item) => item.id === id);
+      this.selectedCardIndex = newIndex;
+    }
+    renderCardList() {
+      return html`
+      <ul>
+        ${this.cards.map((item, index) => html`
+          <li
+            class=${index % 2 ? "odd" : "even"}
+            @click=${() => this.handleSelectItem(item.id)}
+          >
+            ${item.name} - ${new Array(item.stars).fill(1).map(() => html`<icon-star></icon-star>`)}
+          </li>
+        `)}
+      </ul>
+    `;
+    }
+  };
+  customElements.define("modal-store", StoreModal);
+
+  // public/components/modals/minimap/index.js
+  init_lit_element();
+
+  // public/images/minimap/room.png
+  var room_default = "./room-2FEEDNA3.png";
+
+  // public/images/minimap/special.png
+  var special_default = "./special-JABISSBH.png";
+
+  // public/images/minimap/boss.png
+  var boss_default = "./boss-RGULWJML.png";
+
+  // public/images/minimap/end.png
+  var end_default = "./end-YZHHALPA.png";
+
+  // public/images/minimap/start.png
+  var start_default = "./start-CUZQVP4O.png";
+
+  // public/images/minimap/recuperateur.png
+  var recuperateur_default = "./recuperateur-THVOLTXU.png";
+
+  // public/images/minimap/survival.png
+  var survival_default = "./survival-T72RMY54.png";
+
+  // public/images/minimap/trap.png
+  var trap_default = "./trap-UYZJIT6Y.png";
+
+  // public/images/minimap/parcours.png
+  var parcours_default = "./parcours-DADMLBNK.png";
+
+  // public/images/minimap/secret.png
+  var secret_default = "./secret-I7ZT2HEP.png";
+
+  // public/components/modals/minimap/index.js
+  var _Minimap = class extends LitElement {
+    static get properties() {
+      return {name: {type: String}};
+    }
+    static get styles() {
+      return css`
+            p, b {
+                margin: 0;
+                padding: 0;
+            }
+            .minimap {
+                width: 510px;
+                height: 330px;
+                display: flex;
+                flex-wrap: wrap;
+                position: relative;
+            }
+
+            .minimap > .room {
+                flex-basis: 150px;
+                flex-grow: 1;
+                height: 95px;
+                margin-right: 15px;
+                margin-bottom 20px;
+                box-sizing: border-box;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .minimap > .room.hidden {
+                background: none;
+                border: none;
+            }
+
+            .centered-room {
+                width: 120px;
+                height: 70px;
+                background: #191f2b;
+                background: -moz-linear-gradient(top,  #191f2b 0%, #283044 100%);
+                background: -webkit-linear-gradient(top,  #191f2b 0%,#283044 100%);
+                background: linear-gradient(to bottom,  #191f2b 0%,#283044 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#191f2b', endColorstr='#283044',GradientType=0 );
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                border-radius: 10px;
+                flex-direction: column;
+                border-sizing: border-box;
+                border: 4px solid #FFF;
+                box-shadow: 3px 3px 10px rgba(80, 20, 20, 0.8);
+            }
+            .centered-room.selected {
+                border-color: #651FFF !important;
+            }
+
+            .centered-room > img {
+                width: 30px;
+                height: 30px;
+            }
+            .centered-room > p {
+                font-size: 13px;
+                font-family: Roboto;
+                position: absolute;
+                bottom: 4px;
+                text-align: center;
+                letter-spacing: 1px;
+                font-weight: bold;
+                font-style: "small-caps";
+                text-shadow: 1px 1px 2px rgba(20, 20, 20, 0.5);
+            }
+
+            .centered-room .door {
+                width: 20px;
+                height: 20px;
+                background: #FFF;
+                border-radius: 100%;
+                position: absolute;
+                box-shadow: 2px 2px 10px rgba(80, 20, 20, 0.5);
+            }
+            .centered-room.selected .door {
+                background: #651FFF;
+            }
+            .centered-room .door.left {
+                left: -18px;
+                top: 25px;
+            }
+            .centered-room .door.right {
+                right: -18px;
+                top: 25px;
+            }
+            .centered-room .door.top {
+                right: 50px;
+                top: -18px;
+            }
+            .centered-room .door.bottom {
+                right: 50px;
+                bottom: -18px;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      this.minimap = game.rootScene.getMinimapData();
+    }
+    drawDoor(sideName) {
+      return html`<div class="door ${sideName}"></div>`;
+    }
+    drawRoom(side) {
+      if (this.minimap.currentRoom.side.has(side)) {
+        const room = this.minimap.connectedRooms.get(side);
+        console.log("room type: ", room.type, _Minimap.Icons[room.type]);
+        return html`<div class="room">
+                <div class="centered-room">
+                    <!-- <p>${room.id}</p> -->
+                    <img src="${_Minimap.Icons[room.type]}"></img>
+                    ${[...room.side].map(this.drawDoor)}
+                </div>
+            </div>`;
+      } else {
+        return html`<div class="room hidden"></div>`;
+      }
+    }
+    render() {
+      return html`
+            <div class="minimap">
+                <div class="room hidden"></div>
+                ${this.drawRoom("top")}
+                <div class="room hidden"></div>
+
+                ${this.drawRoom("left")}
+                <div class="room">
+                    <div class="centered-room selected">
+                        <p>You are here!</p>
+                        <img src="${_Minimap.Icons[this.minimap.currentRoom.type]}"></img>
+                        ${[...this.minimap.currentRoom.side].map(this.drawDoor)}
+                    </div>
+                </div>
+                ${this.drawRoom("right")}
+
+                <div class="room hidden"></div>
+                ${this.drawRoom("bottom")}
+                <div class="room hidden"></div>
+            </div>
+        `;
+    }
+  };
+  var Minimap = _Minimap;
+  __publicField(Minimap, "Icons", {
+    room: room_default,
+    special: special_default,
+    boss: boss_default,
+    end: end_default,
+    start: start_default,
+    recuperateur: recuperateur_default,
+    survival: survival_default,
+    trap: trap_default,
+    parcours: parcours_default,
+    secret: secret_default
+  });
+  customElements.define("mini-map", Minimap);
+
+  // public/components/modals/recuperator-deck/index.js
+  init_lit_element();
+  var RecuperatorDeckModal = class extends LitElement {
+    static get properties() {
+      return {
+        cards: {type: Array},
+        selectedCardIds: {type: Array}
+      };
+    }
+    static get styles() {
+      return css`
+      .modal-recuperator-deck {
+        min-width: 600px;
+        padding: 20px;
+        box-shadow: 1px 1px 10px black;
+        background: rgba(20, 40, 20, 0.65);
+        border-radius: 10px;
+      }
+      .modal-recuperator-deck-card {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px 8px;
+        overflow-y: auto;
+        height: 250px;
+        width: 100%;
+        background: red;
+      }
+
+      .card-wrapper {
+        width: 80px;
+        height: 100px;
+        margin-right: 4px;
+        margin-bottom: 4px;
+        font-size: 8px;
+        cursor: pointer;
+      }
+      .selected {
+        z-index: 2;
+        position: relative;
+        bottom: 30px;
+        left: 4px;
+        color: green;
+      }
+      .save-button {
+        margin-top: 10px;
+        font-weight: bold;
+        padding: 10px 10px 10px 10px ;
+        background-color: green;
+        border-radius: 7px;
+        box-shadow: 0 .2em gray;
+        cursor: pointer;
+      }
+    `;
+    }
+    constructor() {
+      super();
+      const cards = game.state.getState("deck.recuperator");
+      console.log(cards);
+      this.cards = buildFakeCards(5);
+      this.selectedCardIds = [];
+      this.handleSubmitSelect = this.handleSubmitSelect.bind(this);
+    }
+    render() {
+      return html`
+      <div class="modal-recuperator-deck">
+        <h1>Recuperator deck</h1>
+        <p>Choose one or several card to revive</p>
+        <div class="modal-recuperator-deck-card">
+          <!-- 🤮 poor this -->
+          ${this.cards && this.cards.length ? this.cards.map(this.renderCard(this)) : html`No cards to revive`}
+          <!-- 🤮 -->
+        </div>
+        <button
+          class="save-button"
+          ?disabled=${!this.selectedCardIds.length}
+          @click=${this.handleSubmitSelect}
+        >
+          Revive ${this.selectedCardIds.length} cards
+        </button>
+      </div>
+    `;
+    }
+    handleSubmitSelect() {
+      if (this.selectedCardIds.length) {
+        alert(`You save card: ${this.selectedCardIds.reduce((acc, id) => acc += `${id},`, "")}`);
+        this.selectedCardIds = [];
+      } else {
+        alert("No cards to save.");
+      }
+    }
+    handleSelect(targetId) {
+      return () => {
+        const isSelected = this.selectedCardIds.includes(targetId);
+        if (isSelected) {
+          this.selectedCardIds = this.selectedCardIds.filter((id) => id !== targetId);
+        } else {
+          this.selectedCardIds = [...this.selectedCardIds, targetId];
+        }
+      };
+    }
+    renderCard(self2) {
+      return (card) => {
+        const isSelected = self2.selectedCardIds.includes(card.id);
+        return html`
+        <div class="card-wrapper" @click=${self2.handleSelect(card.id)}>
+          <action-card .card=${{typeCard: card.name}}></action-card>
+          ${isSelected ? html`<div class="selected">✅</div>` : null}
+        </div>
+      `;
+      };
+    }
+  };
+  customElements.define("modal-recuperator-deck", RecuperatorDeckModal);
+
+  // public/components/modals/trunk/index.js
+  init_lit_element();
+  var TrunkModal = class extends LitElement {
+    static get styles() {
+      return css`
+            .modal-trunk {
+                padding: 60px;
+                background: #474747;
+                background: -moz-linear-gradient(top,  #474747 0%, #1e1812 100%);
+                background: -webkit-linear-gradient(top,  #474747 0%,#1e1812 100%);
+                background: linear-gradient(to bottom,  #474747 0%,#1e1812 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#474747', endColorstr='#1e1812',GradientType=0 );
+                border: 4px solid black;
+                border-radius: 10px;
+                display: flex;
+            }
+            .modal-trunk .card-slot {
+                display: flex;
+                flex-direction: column;
+            }
+            .modal-trunk .card-slot + .card-slot {
+                margin-left: 80px;
+            }
+            .modal-trunk .card-slot .pick {
+                height: 40px;
+                background: #95a5a5;
+                background: -moz-linear-gradient(top,  #95a5a5 0%, #596a72 100%);
+                background: -webkit-linear-gradient(top,  #95a5a5 0%,#596a72 100%);
+                background: linear-gradient(to bottom,  #95a5a5 0%,#596a72 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#95a5a5', endColorstr='#596a72',GradientType=0 );
+                color: black;
+                box-sizing: border-box;
+                border-radius: 10px;
+                border: 2px solid black;
+                padding: 0 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: Roboto;
+                margin-top: 20px;
+                font-weight: bold;
+                letter-spacing: 1px;
+            }
+            .modal-trunk .card-slot .pick:hover {
+                cursor: pointer;
+                border-color: #FFF;
+                color: #FFF;
+                text-shadow: 2px 2px 2px black;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      this.cards = Array.isArray(window.trunkCards) ? window.trunkCards : buildFakeCards(3);
+    }
+    addCardToDeck(event) {
+      const id = event.target.getAttribute("data-id");
+      const [card] = this.cards.splice(id, 1);
+      console.log(card);
+      this.update();
+    }
+    *fetchCardsInCurrentChest() {
+      for (let id = 0; id < this.cards.length; id++) {
+        const card = this.cards[id];
+        console.log(card);
+        yield html`
+            <div class="card-slot">
+                <render-slot .card='${card}' typeCard='offensive'></render-slot>
+                <div class="pick" data-id=${id} @click=${this.addCardToDeck}>ADD TO DECK</div>
+            </div>
+            `;
+      }
+    }
+    render() {
+      return html`
+            <div class="modal-trunk">${[...this.fetchCardsInCurrentChest()].concat()}</div>
+        `;
+    }
+  };
+  customElements.define("modal-trunk", TrunkModal);
+
+  // public/components/modals/dungeon-picker/index.js
+  init_lit_element();
+
+  // assets/scripts/helpers/entitybuilder.js
+  var cache = new Map();
+  var incrementStore = new Map();
+
+  // assets/scripts/helpers/spatialSound.js
+  var PIXI17 = __toModule(require_pixi());
+
+  // assets/scripts/helpers/zIndexManager.js
+  var PIXI18 = __toModule(require_pixi());
+  var _zIndexManager = class {
+    constructor(target, items = []) {
+      this.target = target;
+      this.target.zIndex = 2;
+      this.items = new Set(items);
+      this.started = true;
+    }
+    addItem(item) {
+      this.items.add(item);
+      item.once("destroy", () => this.items.delete(item));
+      return this;
+    }
+    stop() {
+      this.items = new Set();
+      this.started = false;
+    }
+    update() {
+      if (!this.started || this.target === null) {
+        return;
+      }
+      const targetY = this.target.position.y;
+      for (const item of this.items) {
+        const itemPosY = item.position.y;
+        if (itemPosY > targetY) {
+          if (item.zIndex !== _zIndexManager.positiveId) {
+            item.zIndex = _zIndexManager.positiveId;
+          }
+        } else if (item.zIndex !== _zIndexManager.negativeId) {
+          item.zIndex = _zIndexManager.negativeId;
+        }
+      }
+    }
+  };
+  var zIndexManager = _zIndexManager;
+  __publicField(zIndexManager, "negativeId", 1);
+  __publicField(zIndexManager, "positiveId", 3);
+  var zIndexManager_default = zIndexManager;
+
+  // assets/scripts/helpers/LifeBar.js
+  var PIXI19 = __toModule(require_pixi());
+  var LifeBar = class {
+    container = new PIXI19.Container();
+    constructor(options) {
+      this.maxHpBarLength = options.maxHpBarLength;
+      this.maxHpBarX = -(this.maxHpBarLength - this.maxHpBarLength / 2);
+      this.maxHpBarY = -(options.spriteHeight + 2.5);
+      this.relativeMaxHp = options.relativeMaxHp;
+      this.ratio = this.maxHpBarLength / this.relativeMaxHp;
+      this.barHeight = 6.5;
+      this.maxHpBar = new PIXI19.Graphics().beginFill(PIXI19.utils.string2hex("#666"), 1).drawRect(this.maxHpBarX, this.maxHpBarY, this.maxHpBarLength, this.barHeight).endFill();
+      const currentHpBar = new PIXI19.Graphics().beginFill(PIXI19.utils.string2hex("FF0000"), 1).drawRect(this.maxHpBarX, this.maxHpBarY, options.currentHp * this.ratio, this.barHeight).endFill();
+      const textStyle = {
+        fill: "white",
+        fontFamily: "Verdana",
+        fontSize: 5,
+        letterSpacing: 2,
+        lineJoin: "round",
+        strokeThickness: 2,
+        align: "center"
+      };
+      const hpTxt = new PIXI19.Text(`${options.currentHp} / ${this.relativeMaxHp}`, {...textStyle});
+      hpTxt.x = this.maxHpBarX + this.maxHpBarLength / 2 - 14;
+      hpTxt.y = this.maxHpBarY;
+      this.maxHpBar.addChild(currentHpBar);
+      this.maxHpBar.addChild(hpTxt);
+      this.container.addChild(this.maxHpBar);
+      return this;
+    }
+    update(currentHp) {
+      this.maxHpBar.children[0].clear().beginFill(PIXI19.utils.string2hex("#FF0000"), 1).drawRect(this.maxHpBarX, this.maxHpBarY, currentHp * this.ratio, this.barHeight).endFill();
+      this.maxHpBar.children[1].text = `${currentHp} / ${this.relativeMaxHp}`;
+      return this;
+    }
+    cleanup() {
+      this.container.destroy();
+    }
+  };
+  var LifeBar_default = LifeBar;
+
+  // assets/scripts/helpers/AnimatedText.js
+  var PIXI20 = __toModule(require_pixi());
+
+  // assets/scripts/helpers/index.js
+  function progressionParser(str) {
+    const [room, niveau] = str.split(".");
+    return [Number(room), Number(niveau)];
+  }
+
+  // public/images/biome_open.png
+  var biome_open_default = "./biome_open-FW5SGJ7P.png";
+
+  // public/images/biome_close.png
+  var biome_close_default = "./biome_close-QBLVHMAY.png";
+
+  // public/components/modals/dungeon-picker/index.js
+  var DungeonPicker = class extends LitElement {
+    static get properties() {
+      return {name: {type: String}};
+    }
+    static get styles() {
+      return css`
+            p, div {
+                margin: 0;
+                padding: 0;
+            }
+
+            .picker {
+                width: 560px;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+            }
+
+            .picker > .niveau {
+                height: 90px;
+                display: flex;
+                flex-direction: column;
+                background: #2d2d2d;
+                background: -moz-linear-gradient(top,  #2d2d2d 0%, #1c1916 100%);
+                background: -webkit-linear-gradient(top,  #2d2d2d 0%,#1c1916 100%);
+                background: linear-gradient(to bottom,  #2d2d2d 0%,#1c1916 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d2d2d', endColorstr='#1c1916',GradientType=0 );
+                border: 2px solid black;
+                padding: 5px;
+                border-radius: 10px;
+            }
+            .picker > .niveau + .niveau {
+                margin-top: 16px;
+            }
+
+            .niveau > p {
+                height: 20px;
+                flex-shrink: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 15px;
+                font-family: Roboto;
+                font-weight: bold;
+                text-shadow: 2px 2px 4px black;
+                padding-top: 5px;
+                letter-spacing: 1px;
+            }
+
+            .niveau .rooms {
+                display: flex;
+                flex-grow: 1;
+                justify-content: space-evenly;
+                align-items: center;
+            }
+
+            .niveau .rooms .room {
+                width: 140px;
+                height: 45px;
+                background: #37474F;
+                border-radius: 10px;
+                border: 2px solid black;
+                overflow: hidden;
+            }
+            .niveau .rooms .room.unlock {
+                border-color: #FFF !important;
+                cursor: pointer;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      const state = game.state;
+      const [roomId, niveauId] = progressionParser(state.getState("dungeon.progression"));
+      this.roomId = roomId;
+      this.niveauId = niveauId;
+    }
+    roomClicked(isLocked, dataid) {
+      if (isLocked) {
+        return;
+      }
+      const [roomId, niveauId] = progressionParser(dataid);
+      const player = game.rootScene.findChild("player", true);
+      const script = player.getScriptedBehavior("PlayerBehavior");
+      hudevents.emit("picker", false);
+      script.sendMessage("enterDungeon", roomId, niveauId);
+    }
+    generateRoom(niveau) {
+      let [roomOneLocked, roomTwoLocked, roomThreeLocked] = [true, true, true];
+      if (niveau <= this.niveauId) {
+        const inferiorNiveau = niveau < this.niveauId;
+        roomOneLocked = false;
+        roomTwoLocked = inferiorNiveau || this.roomId >= 2 ? false : true;
+        roomThreeLocked = inferiorNiveau || this.roomId >= 3 ? false : true;
+      }
+      const nv1 = "1." + niveau;
+      const nv2 = "2." + niveau;
+      const nv3 = "3." + niveau;
+      return html`
+            <div class="room ${roomOneLocked ? "lock" : "unlock"}" @click=${() => this.roomClicked(roomOneLocked, nv1)}>
+                <img  src=${roomOneLocked ? biome_close_default : biome_open_default} />
+            </div>
+            <div class="room ${roomTwoLocked ? "lock" : "unlock"}" @click=${() => this.roomClicked(roomOneLocked, nv2)}>
+                <img data-id="2.${niveau}" src=${roomTwoLocked ? biome_close_default : biome_open_default} />
+            </div>
+            <div class="room ${roomThreeLocked ? "lock" : "unlock"}" @click=${() => this.roomClicked(roomOneLocked, nv3)}>
+                <img data-id="3.${niveau}" src=${roomThreeLocked ? biome_close_default : biome_open_default} />
+            </div>
+        `;
+    }
+    *generateNiveau() {
+      for (let niveau = 1; niveau <= 3; niveau++) {
+        yield html`
+            <div class="niveau">
+                <p>Profondeur ${niveau}</p>
+                <div class="rooms">${this.generateRoom(niveau)}</div>
+            </div>
+            `;
+      }
+    }
+    render() {
+      return html`
+            <div class="picker">${[...this.generateNiveau()].concat()}</div>
+        `;
+    }
+  };
+  customElements.define("dungeon-picker", DungeonPicker);
+
+  // public/components/modals/deck/index.js
+  init_lit_element();
+  var DeckModal = class extends LitElement {
+    static get properties() {
+      return {
+        deck: {type: Object},
+        selectedId: {type: Number}
+      };
+    }
+    static get styles() {
+      return css`
+            .modal-deck {
+                min-width: 600px;
+                padding: 20px;
+                box-shadow: 1px 1px 10px black;
+                background: #2d2d2d;
+                background: -moz-linear-gradient(top,  #2d2d2d 0%, #1c1916 100%);
+                background: -webkit-linear-gradient(top,  #2d2d2d 0%,#1c1916 100%);
+                background: linear-gradient(to bottom,  #2d2d2d 0%,#1c1916 100%);
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2d2d2d', endColorstr='#1c1916',GradientType=0 );
+                border: 2px solid black;
+                border-radius: 10px;
+            }
+            .list-card {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+                gap: 10px 8px;
+                overflow-y: scroll;
+                height: 250px;
+                width: 100%;
+            }
+            .isSelected {
+                border: 1px solid white;
+                border-radius: 4px;
+            }
+            .isNotSelected:hover {
+                border: 1px solid lightgray;
+                border-radius: 4px;
+            }
+            .isNotSelected {
+                border: 1px solid black;
+                border-radius: 4px; 
+            }
+            .slot {
+                height: 175px;
+                width: 135px;
+                margin-left: 20px;
+                -webkit-filter: grayscale(100%); /* Chrome, Safari, Opera */
+                filter: grayscale(100%);
+            }
+            .slot-offensive {
+                background: url("./images/slot/offensif.png") no-repeat;
+            }
+            .slot-defensive {
+                background: url("./images/slot/defensif.png") no-repeat;
+            }
+            .slot-passive {
+                background: url("./images/slot/passif.png") no-repeat;
+            }
+            .slot-consumable {
+                background: url("./images/slot/consommable.png") no-repeat;
+            }
+            .slot-offensive:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+            .slot-defensive:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+            .slot-passive:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+            .slot-consumable:hover {
+                -webkit-filter: grayscale(0%); /* Chrome, Safari, Opera */
+                filter: grayscale(0%);
+            }
+
+
+            .selector {
+                display: flex;
+                transform: scale(0.3);
+                position: absolute;
+                right: -218px;
+                top: -63px;
+            }
+            .header {
+                position: relative;
+                display: flex;
+                justify-content: space-between;
+            }
+        `;
+    }
+    constructor() {
+      super();
+      const state = game.state;
+      this.deck = state.getState("deck");
+      console.log(this.deck);
+      this.selectedId = -1;
+    }
+    selectedCard(index) {
+      this.selectedId = index;
+    }
+    renderWrapper(card, index) {
+      const isSelected = index === this.selectedId;
+      return html`
+        <div @click='${() => this.selectedCard(index)}' class="${isSelected ? "isSelected" : "isNotSelected"}">
+            <render-card .card="${card}"></render-card>
+        </div>
+        `;
+    }
+    renderList() {
+      return html`
+            <div class="list-card">
+                ${this.deck.draw.map((card, index) => this.renderWrapper(card, index))}
+            </div>
+        `;
+    }
+    handleSelectSlot(selectedId, selectedSlot) {
+      window.hudevents.emit("selectSlotForCard", selectedId, selectedSlot);
+    }
+    renderSlotSelector() {
+      if (this.selectedId !== -1) {
+        return html`
+                <div class="selector">
+                    <div class="slot slot-offensive" @click='${() => this.handleSelectSlot(this.selectedId, "offensive")}'></div>
+                    <div class="slot slot-defensive" @click='${() => this.handleSelectSlot(this.selectedId, "defensive")}'></div>
+                    <div class="slot slot-passive" @click='${() => this.handleSelectSlot(this.selectedId, "passive")}'></div>
+                    <div class="slot slot-consumable" @click='${() => this.handleSelectSlot(this.selectedId, "consumable")}'></div>
+                </div>
+            `;
+      }
+    }
+    render() {
+      return html`
+            <div class="modal-deck">
+                <div class="header">
+                    <h1>Deck</h1>
+                    ${this.renderSlotSelector()}
+                </div>
+                ${this.renderList()}
+            </div>
+        `;
+    }
+  };
+  customElements.define("modal-deck", DeckModal);
+
+  // public/components/modals/manager.js
+  var ModalManager = class extends LitElement {
+    constructor() {
+      super();
+    }
+    static get styles() {
+      return css`
+      .modal {
+        pointer-events: all;
+        font-family: Roboto;
+        color: white;
+      }
+    `;
+    }
+    render() {
+      return html`
+      <div class="modal">
+        <slot name="modal"></slot>
+      </div>
+    `;
+    }
+  };
+  customElements.define("modal-manager", ModalManager);
+
+  // public/components/common/icons/icon-base.js
+  var {LitElement: LitElement2, css: css2, html: html2} = (init_lit_element(), lit_element_exports);
+  var BaseIcon = class extends LitElement2 {
+    static get properties() {
+      return {
+        width: {type: Number},
+        src: {type: String}
+      };
+    }
+    static get styles() {
+      return css2``;
+    }
+    constructor() {
+      super();
+      this.width = 15;
+      this.src = "../images/star.png";
+    }
+    render() {
+      return html2`<img width=${this.width} src=${this.src}/>`;
+    }
+  };
+  customElements.define("icon-base", BaseIcon);
+
+  // public/components/common/icons/icon-star.js
+  var {LitElement: LitElement3, css: css3, html: html3} = (init_lit_element(), lit_element_exports);
+  var StarIcon = class extends LitElement3 {
+    static get properties() {
+      return {
+        width: {type: Number}
+      };
+    }
+    static get styles() {
+      return css3``;
+    }
+    constructor() {
+      super();
+      this.width = 15;
+    }
+    render() {
+      return html3`<icon-base width=${this.width} src="../images/star.png"></icon-base>`;
+    }
+  };
+  customElements.define("icon-star", StarIcon);
+
+  // public/components/common/icons/icon-offense.js
+  var {LitElement: LitElement4, css: css4, html: html4} = (init_lit_element(), lit_element_exports);
+  var OffenseIcon = class extends LitElement4 {
+    static get properties() {
+      return {
+        width: {type: Number}
+      };
+    }
+    static get styles() {
+      return css4``;
+    }
+    constructor() {
+      super();
+      this.width = 15;
+    }
+    render() {
+      return html4`<icon-base width=${this.width} src="../images/offense.png"></icon-base>`;
+    }
+  };
+  customElements.define("icon-offense", OffenseIcon);
+
+  // public/components/common/icons/icon-defense.js
+  var {LitElement: LitElement5, css: css5, html: html5} = (init_lit_element(), lit_element_exports);
+  var DefenseIcon = class extends LitElement5 {
+    static get properties() {
+      return {
+        width: {type: Number}
+      };
+    }
+    static get styles() {
+      return css5``;
+    }
+    constructor() {
+      super();
+      this.width = 15;
+    }
+    render() {
+      return html5`<icon-base width=${this.width} src="../images/defense.png"></icon-base>`;
+    }
+  };
+  customElements.define("icon-defense", DefenseIcon);
+
+  // public/components/common/icons/icon-passive.js
+  var {LitElement: LitElement6, css: css6, html: html6} = (init_lit_element(), lit_element_exports);
+  var PassiveIcon = class extends LitElement6 {
+    static get properties() {
+      return {
+        width: {type: Number}
+      };
+    }
+    static get styles() {
+      return css6``;
+    }
+    constructor() {
+      super();
+      this.width = 15;
+    }
+    render() {
+      return html6`<icon-base width=${this.width} src="../images/passive.png"></icon-base>`;
+    }
+  };
+  customElements.define("icon-passive", PassiveIcon);
+
+  // public/components/common/icons/icon-consumable.js
+  var {LitElement: LitElement7, css: css7, html: html7} = (init_lit_element(), lit_element_exports);
+  var ConsumableIcon = class extends LitElement7 {
+    static get properties() {
+      return {
+        width: {type: Number}
+      };
+    }
+    static get styles() {
+      return css7``;
+    }
+    constructor() {
+      super();
+      this.width = 15;
+    }
+    render() {
+      return html7`<icon-base width=${this.width} src="../images/consumable.png"></icon-base>`;
+    }
+  };
+  customElements.define("icon-consumable", ConsumableIcon);
+
   // public/hud.js
+  function newInputType(newType) {
+    console.log("new input usage: ", newType);
+  }
+  function triggerModal(open, modelName) {
+    const modalManager = document.getElementById("modal-manager");
+    modalManager.innerHTML = "";
+    if (open) {
+      const component = document.createElement(modelName);
+      component.setAttribute("slot", "modal");
+      modalManager.appendChild(component);
+      modalManager.style.display = "block";
+    } else {
+      modalManager.style.display = "none";
+    }
+  }
   window.addEventListener("DOMContentLoaded", () => {
     console.log("[INFO] DOM loaded");
     const hud = document.querySelector(".hud");
+    const hudevents2 = window.hudevents;
     window.currentActiveHUD = null;
     function loadHUD(name) {
       if (window.currentActiveHUD === name) {
         return;
       }
+      hudevents2.removeAllListeners();
+      hudevents2.on("input_type", newInputType);
+      hudevents2.on("minimap", (open) => triggerModal(open, "mini-map"));
+      hudevents2.on("picker", (open) => triggerModal(open, "dungeon-picker"));
+      hudevents2.on("store", (open) => triggerModal(open, "modal-store"));
+      hudevents2.on("deck", (open) => triggerModal(open, "modal-deck"));
+      hudevents2.on("trunk", (open) => triggerModal(open, "modal-trunk"));
+      hudevents2.on("recuperator", (open) => triggerModal(open, "modal-recuperator-deck"));
       const elementName = `#${name}`;
       const template = document.querySelector(elementName);
       if (!template) {
@@ -31957,5 +34919,6 @@ void main() {
     }
     window.loadHUD = loadHUD;
   });
+  window.document.addEventListener("contextmenu", (event) => event.preventDefault());
 })();
 //# sourceMappingURL=hud.js.map

@@ -1,0 +1,15 @@
+{
+  "version": "1.5",
+  "tiledversion": "1.5.0",
+  "name": "assetsobstaclesludum",
+  "tilewidth": 16,
+  "tileheight": 16,
+  "tilecount": 1782,
+  "columns": 54,
+  "image": {
+    "source": "tilesets/assetsobstaclesludum.png",
+    "width": 864,
+    "height": 537
+  },
+  "margin": 0
+}

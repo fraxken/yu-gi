@@ -5272,11 +5272,11 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var settings2 = require_settings();
     var constants = require_constants();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var runner = require_runner();
     var ticker = require_ticker();
     var math = require_math();
-    settings2.settings.PREFER_ENV = utils6.isMobile.any ? constants.ENV.WEBGL : constants.ENV.WEBGL2;
+    settings2.settings.PREFER_ENV = utils9.isMobile.any ? constants.ENV.WEBGL : constants.ENV.WEBGL2;
     settings2.settings.STRICT_TEXTURE_CACHE = false;
     var INSTALLED = [];
     function autoDetectResource(source, options) {
@@ -5484,7 +5484,7 @@
         _this.type = type2 || constants.TYPES.UNSIGNED_BYTE;
         _this.target = target || constants.TARGETS.TEXTURE_2D;
         _this.alphaMode = alphaMode !== void 0 ? alphaMode : constants.ALPHA_MODES.UNPACK;
-        _this.uid = utils6.uid();
+        _this.uid = utils9.uid();
         _this.touched = 0;
         _this.isPowerOfTwo = false;
         _this._refreshPOT();
@@ -5548,7 +5548,7 @@
         return this;
       };
       BaseTexture2.prototype._refreshPOT = function() {
-        this.isPowerOfTwo = utils6.isPow2(this.realWidth) && utils6.isPow2(this.realHeight);
+        this.isPowerOfTwo = utils9.isPow2(this.realWidth) && utils9.isPow2(this.realHeight);
       };
       BaseTexture2.prototype.setResolution = function(resolution) {
         var oldResolution = this.resolution;
@@ -5600,8 +5600,8 @@
           this.resource = null;
         }
         if (this.cacheId) {
-          delete utils6.BaseTextureCache[this.cacheId];
-          delete utils6.TextureCache[this.cacheId];
+          delete utils9.BaseTextureCache[this.cacheId];
+          delete utils9.TextureCache[this.cacheId];
           this.cacheId = null;
         }
         this.dispose();
@@ -5626,11 +5626,11 @@
         } else {
           if (!source._pixiId) {
             var prefix = options && options.pixiIdPrefix || "pixiid";
-            source._pixiId = prefix + "_" + utils6.uid();
+            source._pixiId = prefix + "_" + utils9.uid();
           }
           cacheId = source._pixiId;
         }
-        var baseTexture = utils6.BaseTextureCache[cacheId];
+        var baseTexture = utils9.BaseTextureCache[cacheId];
         if (isFrame && strict && !baseTexture) {
           throw new Error('The cacheId "' + cacheId + '" does not exist in BaseTextureCache.');
         }
@@ -5652,26 +5652,26 @@
           if (baseTexture.textureCacheIds.indexOf(id) === -1) {
             baseTexture.textureCacheIds.push(id);
           }
-          if (utils6.BaseTextureCache[id]) {
+          if (utils9.BaseTextureCache[id]) {
             console.warn("BaseTexture added to the cache with an id [" + id + "] that already had an entry");
           }
-          utils6.BaseTextureCache[id] = baseTexture;
+          utils9.BaseTextureCache[id] = baseTexture;
         }
       };
       BaseTexture2.removeFromCache = function(baseTexture) {
         if (typeof baseTexture === "string") {
-          var baseTextureFromCache = utils6.BaseTextureCache[baseTexture];
+          var baseTextureFromCache = utils9.BaseTextureCache[baseTexture];
           if (baseTextureFromCache) {
             var index = baseTextureFromCache.textureCacheIds.indexOf(baseTexture);
             if (index > -1) {
               baseTextureFromCache.textureCacheIds.splice(index, 1);
             }
-            delete utils6.BaseTextureCache[baseTexture];
+            delete utils9.BaseTextureCache[baseTexture];
             return baseTextureFromCache;
           }
         } else if (baseTexture && baseTexture.textureCacheIds) {
           for (var i2 = 0; i2 < baseTexture.textureCacheIds.length; ++i2) {
-            delete utils6.BaseTextureCache[baseTexture.textureCacheIds[i2]];
+            delete utils9.BaseTextureCache[baseTexture.textureCacheIds[i2]];
           }
           baseTexture.textureCacheIds.length = 0;
           return baseTexture;
@@ -5680,7 +5680,7 @@
       };
       BaseTexture2._globalBatch = 0;
       return BaseTexture2;
-    }(utils6.EventEmitter);
+    }(utils9.EventEmitter);
     var AbstractMultiResource = function(_super) {
       __extends(AbstractMultiResource2, _super);
       function AbstractMultiResource2(length, options) {
@@ -5834,7 +5834,7 @@
       }
       BaseImageResource2.crossOrigin = function(element, url, crossorigin) {
         if (crossorigin === void 0 && url.indexOf("data:") !== 0) {
-          element.crossOrigin = utils6.determineCrossOrigin(url);
+          element.crossOrigin = utils9.determineCrossOrigin(url);
         } else if (crossorigin !== false) {
           element.crossOrigin = typeof crossorigin === "string" ? crossorigin : "anonymous";
         }
@@ -6162,7 +6162,7 @@
           var canvas = _this.source;
           canvas.width = width;
           canvas.height = height;
-          canvas._pixiId = "canvas_" + utils6.uid();
+          canvas._pixiId = "canvas_" + utils9.uid();
           canvas.getContext("2d").drawImage(tempImage, 0, 0, svgWidth, svgHeight, 0, 0, width, height);
           _this._resolve();
           _this._resolve = null;
@@ -6682,7 +6682,7 @@
         if (this.baseTexture) {
           if (destroyBase) {
             var resource = this.baseTexture.resource;
-            if (resource && resource.url && utils6.TextureCache[resource.url]) {
+            if (resource && resource.url && utils9.TextureCache[resource.url]) {
               Texture3.removeFromCache(resource.url);
             }
             this.baseTexture.destroy();
@@ -6729,17 +6729,17 @@
         } else {
           if (!source._pixiId) {
             var prefix = options && options.pixiIdPrefix || "pixiid";
-            source._pixiId = prefix + "_" + utils6.uid();
+            source._pixiId = prefix + "_" + utils9.uid();
           }
           cacheId = source._pixiId;
         }
-        var texture = utils6.TextureCache[cacheId];
+        var texture = utils9.TextureCache[cacheId];
         if (isFrame && strict && !texture) {
           throw new Error('The cacheId "' + cacheId + '" does not exist in TextureCache.');
         }
         if (!texture) {
           if (!options.resolution) {
-            options.resolution = utils6.getResolutionOfUrl(source);
+            options.resolution = utils9.getResolutionOfUrl(source);
           }
           texture = new Texture3(new BaseTexture(source, options));
           texture.baseTexture.cacheId = cacheId;
@@ -6765,7 +6765,7 @@
       Texture3.fromLoader = function(source, imageUrl, name2, options) {
         var baseTexture = new BaseTexture(source, Object.assign({
           scaleMode: settings2.settings.SCALE_MODE,
-          resolution: utils6.getResolutionOfUrl(imageUrl)
+          resolution: utils9.getResolutionOfUrl(imageUrl)
         }, options));
         var resource = baseTexture.resource;
         if (resource instanceof ImageResource) {
@@ -6795,27 +6795,27 @@
           if (texture.textureCacheIds.indexOf(id) === -1) {
             texture.textureCacheIds.push(id);
           }
-          if (utils6.TextureCache[id]) {
+          if (utils9.TextureCache[id]) {
             console.warn("Texture added to the cache with an id [" + id + "] that already had an entry");
           }
-          utils6.TextureCache[id] = texture;
+          utils9.TextureCache[id] = texture;
         }
       };
       Texture3.removeFromCache = function(texture) {
         if (typeof texture === "string") {
-          var textureFromCache = utils6.TextureCache[texture];
+          var textureFromCache = utils9.TextureCache[texture];
           if (textureFromCache) {
             var index = textureFromCache.textureCacheIds.indexOf(texture);
             if (index > -1) {
               textureFromCache.textureCacheIds.splice(index, 1);
             }
-            delete utils6.TextureCache[texture];
+            delete utils9.TextureCache[texture];
             return textureFromCache;
           }
         } else if (texture && texture.textureCacheIds) {
           for (var i2 = 0; i2 < texture.textureCacheIds.length; ++i2) {
-            if (utils6.TextureCache[texture.textureCacheIds[i2]] === texture) {
-              delete utils6.TextureCache[texture.textureCacheIds[i2]];
+            if (utils9.TextureCache[texture.textureCacheIds[i2]] === texture) {
+              delete utils9.TextureCache[texture.textureCacheIds[i2]];
             }
           }
           texture.textureCacheIds.length = 0;
@@ -6888,7 +6888,7 @@
         return this.baseTexture;
       };
       return Texture3;
-    }(utils6.EventEmitter);
+    }(utils9.EventEmitter);
     function createWhiteTexture() {
       var canvas = document.createElement("canvas");
       canvas.width = 16;
@@ -6960,7 +6960,7 @@
           rest[_i - 1] = arguments$1[_i];
         }
         if (typeof options === "number") {
-          utils6.deprecation("6.0.0", "Arguments (width, height, scaleMode, resolution) have been deprecated.");
+          utils9.deprecation("6.0.0", "Arguments (width, height, scaleMode, resolution) have been deprecated.");
           options = {
             width: options,
             height: rest[0],
@@ -6996,8 +6996,8 @@
         minWidth *= resolution;
         minHeight *= resolution;
         if (!this.enableFullScreen || minWidth !== this._pixelsWidth || minHeight !== this._pixelsHeight) {
-          minWidth = utils6.nextPow2(minWidth);
-          minHeight = utils6.nextPow2(minHeight);
+          minWidth = utils9.nextPow2(minWidth);
+          minHeight = utils9.nextPow2(minHeight);
           key = (minWidth & 65535) << 16 | minHeight & 65535;
         }
         if (!this.texturePool[key]) {
@@ -9127,9 +9127,9 @@
       });
       Program2.from = function(vertexSrc, fragmentSrc, name2) {
         var key = vertexSrc + fragmentSrc;
-        var program = utils6.ProgramCache[key];
+        var program = utils9.ProgramCache[key];
         if (!program) {
-          utils6.ProgramCache[key] = program = new Program2(vertexSrc, fragmentSrc, name2);
+          utils9.ProgramCache[key] = program = new Program2(vertexSrc, fragmentSrc, name2);
         }
         return program;
       };
@@ -10369,7 +10369,7 @@
           if (!skipRemove) {
             var i2 = this.managedTextures.indexOf(texture);
             if (i2 !== -1) {
-              utils6.removeItems(this.managedTextures, i2, 1);
+              utils9.removeItems(this.managedTextures, i2, 1);
             }
           }
         }
@@ -10458,7 +10458,7 @@
         _this.backgroundColor = options.backgroundColor || _this._backgroundColor;
         _this.backgroundAlpha = options.backgroundAlpha;
         if (options.transparent !== void 0) {
-          utils6.deprecation("6.0.0", "Option transparent is deprecated, please use backgroundAlpha instead.");
+          utils9.deprecation("6.0.0", "Option transparent is deprecated, please use backgroundAlpha instead.");
           _this.useContextAlpha = options.transparent;
           _this.backgroundAlpha = options.transparent ? 0 : 1;
         }
@@ -10545,8 +10545,8 @@
         },
         set: function(value) {
           this._backgroundColor = value;
-          this._backgroundColorString = utils6.hex2string(value);
-          utils6.hex2rgb(value, this._backgroundColorRgba);
+          this._backgroundColorString = utils9.hex2string(value);
+          utils9.hex2rgb(value, this._backgroundColorRgba);
         },
         enumerable: false,
         configurable: true
@@ -10562,7 +10562,7 @@
         configurable: true
       });
       return AbstractRenderer2;
-    }(utils6.EventEmitter);
+    }(utils9.EventEmitter);
     var Renderer = function(_super) {
       __extends(Renderer2, _super);
       function Renderer2(options) {
@@ -10597,12 +10597,12 @@
           });
         }
         _this.renderingToScreen = true;
-        utils6.sayHello(_this.context.webGLVersion === 2 ? "WebGL 2" : "WebGL 1");
+        utils9.sayHello(_this.context.webGLVersion === 2 ? "WebGL 2" : "WebGL 1");
         _this.resize(_this.options.width, _this.options.height);
         return _this;
       }
       Renderer2.create = function(options) {
-        if (utils6.isWebGLSupported()) {
+        if (utils9.isWebGLSupported()) {
           return new Renderer2(options);
         }
         throw new Error('WebGL unsupported in this browser, use "pixi.js-legacy" for fallback canvas2d support.');
@@ -10628,7 +10628,7 @@
         var skipUpdateTransform;
         if (options) {
           if (options instanceof RenderTexture) {
-            utils6.deprecation("6.0.0", "Renderer#render arguments changed, use options instead.");
+            utils9.deprecation("6.0.0", "Renderer#render arguments changed, use options instead.");
             renderTexture = options;
             clear = arguments[2];
             transform = arguments[3];
@@ -10691,7 +10691,7 @@
       };
       Object.defineProperty(Renderer2.prototype, "extract", {
         get: function() {
-          utils6.deprecation("6.0.0", "Renderer#extract has been deprecated, please use Renderer#plugins.extract instead.");
+          utils9.deprecation("6.0.0", "Renderer#extract has been deprecated, please use Renderer#plugins.extract instead.");
           return this.plugins.extract;
         },
         enumerable: false,
@@ -10953,7 +10953,7 @@
         for (var i2 = start; i2 < finish; ++i2) {
           var sprite = elements[i2];
           var tex = sprite._texture.baseTexture;
-          var spriteBlendMode = utils6.premultiplyBlendMode[tex.alphaMode ? 1 : 0][sprite.blendMode];
+          var spriteBlendMode = utils9.premultiplyBlendMode[tex.alphaMode ? 1 : 0][sprite.blendMode];
           elements[i2] = null;
           if (start < i2 && drawCall.blend !== spriteBlendMode) {
             drawCall.size = iIndex - drawCall.start;
@@ -11062,8 +11062,8 @@
         _super.prototype.destroy.call(this);
       };
       AbstractBatchRenderer2.prototype.getAttributeBuffer = function(size) {
-        var roundedP2 = utils6.nextPow2(Math.ceil(size / 8));
-        var roundedSizeIndex = utils6.log2(roundedP2);
+        var roundedP2 = utils9.nextPow2(Math.ceil(size / 8));
+        var roundedSizeIndex = utils9.log2(roundedP2);
         var roundedSize = roundedP2 * 8;
         if (this._aBuffers.length <= roundedSizeIndex) {
           this._iBuffers.length = roundedSizeIndex + 1;
@@ -11075,8 +11075,8 @@
         return buffer;
       };
       AbstractBatchRenderer2.prototype.getIndexBuffer = function(size) {
-        var roundedP2 = utils6.nextPow2(Math.ceil(size / 12));
-        var roundedSizeIndex = utils6.log2(roundedP2);
+        var roundedP2 = utils9.nextPow2(Math.ceil(size / 12));
+        var roundedSizeIndex = utils9.log2(roundedP2);
         var roundedSize = roundedP2 * 12;
         if (this._iBuffers.length <= roundedSizeIndex) {
           this._iBuffers.length = roundedSizeIndex + 1;
@@ -11095,7 +11095,7 @@
         var vertexData = element.vertexData;
         var textureId = element._texture.baseTexture._batchLocation;
         var alpha = Math.min(element.worldAlpha, 1);
-        var argb = alpha < 1 && element._texture.baseTexture.alphaMode ? utils6.premultiplyTint(element._tintRGB, alpha) : element._tintRGB + (alpha * 255 << 24);
+        var argb = alpha < 1 && element._texture.baseTexture.alphaMode ? utils9.premultiplyTint(element._tintRGB, alpha) : element._tintRGB + (alpha * 255 << 24);
         for (var i2 = 0; i2 < vertexData.length; i2 += 2) {
           float32View[aIndex++] = vertexData[i2];
           float32View[aIndex++] = vertexData[i2 + 1];
@@ -11224,7 +11224,7 @@
     var _loop_1 = function(name2) {
       Object.defineProperty(resources, name2, {
         get: function() {
-          utils6.deprecation("6.0.0", "PIXI.systems." + name2 + " has moved to PIXI." + name2);
+          utils9.deprecation("6.0.0", "PIXI.systems." + name2 + " has moved to PIXI." + name2);
           return _resources[name2];
         }
       });
@@ -11236,7 +11236,7 @@
     var _loop_2 = function(name2) {
       Object.defineProperty(systems, name2, {
         get: function() {
-          utils6.deprecation("6.0.0", "PIXI.resources." + name2 + " has moved to PIXI." + name2);
+          utils9.deprecation("6.0.0", "PIXI.resources." + name2 + " has moved to PIXI." + name2);
           return _systems[name2];
         }
       });
@@ -11884,7 +11884,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var settings2 = require_settings();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     settings2.settings.SORTABLE_CHILDREN = false;
     var Bounds = function() {
       function Bounds2() {
@@ -12512,7 +12512,7 @@
         configurable: true
       });
       return DisplayObject2;
-    }(utils6.EventEmitter);
+    }(utils9.EventEmitter);
     var TemporaryDisplayObject = function(_super) {
       __extends(TemporaryDisplayObject2, _super);
       function TemporaryDisplayObject2() {
@@ -12529,18 +12529,18 @@
       }
       return a2.zIndex - b2.zIndex;
     }
-    var Container8 = function(_super) {
-      __extends(Container9, _super);
-      function Container9() {
+    var Container10 = function(_super) {
+      __extends(Container11, _super);
+      function Container11() {
         var _this = _super.call(this) || this;
         _this.children = [];
         _this.sortableChildren = settings2.settings.SORTABLE_CHILDREN;
         _this.sortDirty = false;
         return _this;
       }
-      Container9.prototype.onChildrenChange = function(_length) {
+      Container11.prototype.onChildrenChange = function(_length) {
       };
-      Container9.prototype.addChild = function() {
+      Container11.prototype.addChild = function() {
         var arguments$1 = arguments;
         var children = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -12566,7 +12566,7 @@
         }
         return children[0];
       };
-      Container9.prototype.addChildAt = function(child, index) {
+      Container11.prototype.addChildAt = function(child, index) {
         if (index < 0 || index > this.children.length) {
           throw new Error(child + "addChildAt: The index " + index + " supplied is out of bounds " + this.children.length);
         }
@@ -12583,7 +12583,7 @@
         this.emit("childAdded", child, this, index);
         return child;
       };
-      Container9.prototype.swapChildren = function(child, child2) {
+      Container11.prototype.swapChildren = function(child, child2) {
         if (child === child2) {
           return;
         }
@@ -12593,29 +12593,29 @@
         this.children[index2] = child;
         this.onChildrenChange(index1 < index2 ? index1 : index2);
       };
-      Container9.prototype.getChildIndex = function(child) {
+      Container11.prototype.getChildIndex = function(child) {
         var index = this.children.indexOf(child);
         if (index === -1) {
           throw new Error("The supplied DisplayObject must be a child of the caller");
         }
         return index;
       };
-      Container9.prototype.setChildIndex = function(child, index) {
+      Container11.prototype.setChildIndex = function(child, index) {
         if (index < 0 || index >= this.children.length) {
           throw new Error("The index " + index + " supplied is out of bounds " + this.children.length);
         }
         var currentIndex = this.getChildIndex(child);
-        utils6.removeItems(this.children, currentIndex, 1);
+        utils9.removeItems(this.children, currentIndex, 1);
         this.children.splice(index, 0, child);
         this.onChildrenChange(index);
       };
-      Container9.prototype.getChildAt = function(index) {
+      Container11.prototype.getChildAt = function(index) {
         if (index < 0 || index >= this.children.length) {
           throw new Error("getChildAt: Index (" + index + ") does not exist.");
         }
         return this.children[index];
       };
-      Container9.prototype.removeChild = function() {
+      Container11.prototype.removeChild = function() {
         var arguments$1 = arguments;
         var children = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -12633,7 +12633,7 @@
           }
           child.parent = null;
           child.transform._parentID = -1;
-          utils6.removeItems(this.children, index, 1);
+          utils9.removeItems(this.children, index, 1);
           this._boundsID++;
           this.onChildrenChange(index);
           child.emit("removed", this);
@@ -12641,18 +12641,18 @@
         }
         return children[0];
       };
-      Container9.prototype.removeChildAt = function(index) {
+      Container11.prototype.removeChildAt = function(index) {
         var child = this.getChildAt(index);
         child.parent = null;
         child.transform._parentID = -1;
-        utils6.removeItems(this.children, index, 1);
+        utils9.removeItems(this.children, index, 1);
         this._boundsID++;
         this.onChildrenChange(index);
         child.emit("removed", this);
         this.emit("childRemoved", child, this, index);
         return child;
       };
-      Container9.prototype.removeChildren = function(beginIndex, endIndex) {
+      Container11.prototype.removeChildren = function(beginIndex, endIndex) {
         if (beginIndex === void 0) {
           beginIndex = 0;
         }
@@ -12683,7 +12683,7 @@
         }
         throw new RangeError("removeChildren: numeric values are outside the acceptable range.");
       };
-      Container9.prototype.sortChildren = function() {
+      Container11.prototype.sortChildren = function() {
         var sortRequired = false;
         for (var i2 = 0, j2 = this.children.length; i2 < j2; ++i2) {
           var child = this.children[i2];
@@ -12697,7 +12697,7 @@
         }
         this.sortDirty = false;
       };
-      Container9.prototype.updateTransform = function() {
+      Container11.prototype.updateTransform = function() {
         if (this.sortableChildren && this.sortDirty) {
           this.sortChildren();
         }
@@ -12711,7 +12711,7 @@
           }
         }
       };
-      Container9.prototype.calculateBounds = function() {
+      Container11.prototype.calculateBounds = function() {
         this._bounds.clear();
         this._calculateBounds();
         for (var i2 = 0; i2 < this.children.length; i2++) {
@@ -12732,7 +12732,7 @@
         }
         this._bounds.updateID = this._boundsID;
       };
-      Container9.prototype.getLocalBounds = function(rect, skipChildrenUpdate) {
+      Container11.prototype.getLocalBounds = function(rect, skipChildrenUpdate) {
         if (skipChildrenUpdate === void 0) {
           skipChildrenUpdate = false;
         }
@@ -12747,9 +12747,9 @@
         }
         return result;
       };
-      Container9.prototype._calculateBounds = function() {
+      Container11.prototype._calculateBounds = function() {
       };
-      Container9.prototype.render = function(renderer) {
+      Container11.prototype.render = function(renderer) {
         if (!this.visible || this.worldAlpha <= 0 || !this.renderable) {
           return;
         }
@@ -12762,7 +12762,7 @@
           }
         }
       };
-      Container9.prototype.renderAdvanced = function(renderer) {
+      Container11.prototype.renderAdvanced = function(renderer) {
         renderer.batch.flush();
         var filters = this.filters;
         var mask = this._mask;
@@ -12795,9 +12795,9 @@
           renderer.filter.pop();
         }
       };
-      Container9.prototype._render = function(_renderer) {
+      Container11.prototype._render = function(_renderer) {
       };
-      Container9.prototype.destroy = function(options) {
+      Container11.prototype.destroy = function(options) {
         _super.prototype.destroy.call(this);
         this.sortDirty = false;
         var destroyChildren = typeof options === "boolean" ? options : options && options.children;
@@ -12808,7 +12808,7 @@
           }
         }
       };
-      Object.defineProperty(Container9.prototype, "width", {
+      Object.defineProperty(Container11.prototype, "width", {
         get: function() {
           return this.scale.x * this.getLocalBounds().width;
         },
@@ -12824,7 +12824,7 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Container9.prototype, "height", {
+      Object.defineProperty(Container11.prototype, "height", {
         get: function() {
           return this.scale.y * this.getLocalBounds().height;
         },
@@ -12840,11 +12840,11 @@
         enumerable: false,
         configurable: true
       });
-      return Container9;
+      return Container11;
     }(DisplayObject);
-    Container8.prototype.containerUpdateTransform = Container8.prototype.updateTransform;
+    Container10.prototype.containerUpdateTransform = Container10.prototype.updateTransform;
     exports.Bounds = Bounds;
-    exports.Container = Container8;
+    exports.Container = Container10;
     exports.DisplayObject = DisplayObject;
     exports.TemporaryDisplayObject = TemporaryDisplayObject;
   });
@@ -12861,7 +12861,7 @@
     "use strict";
     Object.defineProperty(exports, "__esModule", {value: true});
     var display = require_display();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var accessibleTarget = {
       accessible: false,
       accessibleTitle: null,
@@ -12895,7 +12895,7 @@
         this.androidUpdateCount = 0;
         this.androidUpdateFrequency = 500;
         this._hookDiv = null;
-        if (utils6.isMobile.tablet || utils6.isMobile.phone) {
+        if (utils9.isMobile.tablet || utils9.isMobile.phone) {
           this.createTouchHook();
         }
         var div = document.createElement("div");
@@ -12990,7 +12990,7 @@
       };
       AccessibilityManager2.prototype.update = function() {
         var now = performance.now();
-        if (utils6.isMobile.android.device && now < this.androidUpdateCount) {
+        if (utils9.isMobile.android.device && now < this.androidUpdateCount) {
           return;
         }
         this.androidUpdateCount = now + this.androidUpdateFrequency;
@@ -13013,7 +13013,7 @@
           var child = this.children[i2];
           if (child.renderId !== this.renderId) {
             child._accessibleActive = false;
-            utils6.removeItems(this.children, i2, 1);
+            utils9.removeItems(this.children, i2, 1);
             this.div.removeChild(child._accessibleDiv);
             this.pool.push(child._accessibleDiv);
             child._accessibleDiv = null;
@@ -13183,7 +13183,7 @@
     var math = require_math();
     var ticker = require_ticker();
     var display = require_display();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var InteractionData = function() {
       function InteractionData2() {
         this.pressure = 0;
@@ -13855,14 +13855,14 @@
           var isRightButton = data.button === 2;
           var flags = InteractionTrackingData.FLAGS;
           var test = isRightButton ? flags.RIGHT_DOWN : flags.LEFT_DOWN;
-          var isDown2 = trackingData !== void 0 && trackingData.flags & test;
+          var isDown = trackingData !== void 0 && trackingData.flags & test;
           if (hit) {
             this.dispatchEvent(displayObject, isRightButton ? "rightup" : "mouseup", interactionEvent);
-            if (isDown2) {
+            if (isDown) {
               this.dispatchEvent(displayObject, isRightButton ? "rightclick" : "click", interactionEvent);
               isMouseTap = true;
             }
-          } else if (isDown2) {
+          } else if (isDown) {
             this.dispatchEvent(displayObject, isRightButton ? "rightupoutside" : "mouseupoutside", interactionEvent);
           }
           if (trackingData) {
@@ -14155,7 +14155,7 @@
         this.search = null;
       };
       return InteractionManager2;
-    }(utils6.EventEmitter);
+    }(utils9.EventEmitter);
     exports.InteractionData = InteractionData;
     exports.InteractionEvent = InteractionEvent;
     exports.InteractionManager = InteractionManager;
@@ -14302,7 +14302,7 @@
      */
     "use strict";
     Object.defineProperty(exports, "__esModule", {value: true});
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var math = require_math();
     var core = require_core();
     var TEMP_RECT = new math.Rectangle();
@@ -14349,7 +14349,7 @@
         }
         var width = Math.floor(frame.width * resolution + 1e-4);
         var height = Math.floor(frame.height * resolution + 1e-4);
-        var canvasBuffer = new utils6.CanvasRenderTarget(width, height, 1);
+        var canvasBuffer = new utils9.CanvasRenderTarget(width, height, 1);
         var webglPixels = new Uint8Array(BYTES_PER_PIXEL * width * height);
         var gl = renderer.gl;
         gl.readPixels(frame.x * resolution, frame.y * resolution, width, height, gl.RGBA, gl.UNSIGNED_BYTE, webglPixels);
@@ -14357,7 +14357,7 @@
         Extract2.arrayPostDivide(webglPixels, canvasData.data);
         canvasBuffer.context.putImageData(canvasData, 0, 0);
         if (flipY) {
-          var target_1 = new utils6.CanvasRenderTarget(canvasBuffer.width, canvasBuffer.height, 1);
+          var target_1 = new utils9.CanvasRenderTarget(canvasBuffer.width, canvasBuffer.height, 1);
           target_1.context.scale(1, -1);
           target_1.context.drawImage(canvasBuffer.canvas, 0, -height);
           canvasBuffer.destroy();
@@ -16543,7 +16543,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var constants = require_constants();
     var display = require_display();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var core = require_core();
     var math = require_math();
     /*! *****************************************************************************
@@ -16631,7 +16631,7 @@
         },
         set: function(value) {
           this._tint = value;
-          utils6.hex2rgb(value, this.tintRgb);
+          utils9.hex2rgb(value, this.tintRgb);
         },
         enumerable: false,
         configurable: true
@@ -16712,7 +16712,7 @@
       ParticleBuffer2.prototype.initBuffers = function() {
         var geometry = this.geometry;
         var dynamicOffset = 0;
-        this.indexBuffer = new core.Buffer(utils6.createIndicesForQuads(this.size), true, true);
+        this.indexBuffer = new core.Buffer(utils9.createIndicesForQuads(this.size), true, true);
         geometry.addIndex(this.indexBuffer);
         this.dynamicStride = 0;
         for (var i2 = 0; i2 < this.dynamicProperties.length; ++i2) {
@@ -16836,13 +16836,13 @@
           buffers = container._buffers = this.generateBuffers(container);
         }
         var baseTexture = children[0]._texture.baseTexture;
-        this.state.blendMode = utils6.correctBlendMode(container.blendMode, baseTexture.alphaMode);
+        this.state.blendMode = utils9.correctBlendMode(container.blendMode, baseTexture.alphaMode);
         renderer.state.set(this.state);
         var gl = renderer.gl;
         var m2 = container.worldTransform.copyTo(this.tempMatrix);
         m2.prepend(renderer.globalUniforms.uniforms.projectionMatrix);
         this.shader.uniforms.translationMatrix = m2.toArray(true);
-        this.shader.uniforms.uColor = utils6.premultiplyRgba(container.tintRgb, container.worldAlpha, this.shader.uniforms.uColor, baseTexture.alphaMode);
+        this.shader.uniforms.uColor = utils9.premultiplyRgba(container.tintRgb, container.worldAlpha, this.shader.uniforms.uColor, baseTexture.alphaMode);
         this.shader.uniforms.uSampler = baseTexture;
         this.renderer.shader.bind(this.shader);
         var updateStatic = false;
@@ -16970,7 +16970,7 @@
           var sprite = children[startIndex + i2];
           var premultiplied = sprite._texture.baseTexture.alphaMode > 0;
           var alpha = sprite.alpha;
-          var argb = alpha < 1 && premultiplied ? utils6.premultiplyTint(sprite._tintRGB, alpha) : sprite._tintRGB + (alpha * 255 << 24);
+          var argb = alpha < 1 && premultiplied ? utils9.premultiplyTint(sprite._tintRGB, alpha) : sprite._tintRGB + (alpha * 255 << 24);
           array[offset] = argb;
           array[offset + stride] = argb;
           array[offset + stride * 2] = argb;
@@ -17005,7 +17005,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var core = require_core();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var constants = require_constants();
     var display = require_display();
     (function(LINE_JOIN) {
@@ -17120,7 +17120,7 @@
             holeArray.push(points.length / 2);
             points = points.concat(hole.points);
           }
-          var triangles = utils6.earcut(points, holeArray, 2);
+          var triangles = utils9.earcut(points, holeArray, 2);
           if (!triangles) {
             return;
           }
@@ -17252,7 +17252,7 @@
         var verts = graphicsGeometry.points;
         var indices = graphicsGeometry.indices;
         var vecPos = verts.length / 2;
-        var triangles = utils6.earcut(points, null, 2);
+        var triangles = utils9.earcut(points, null, 2);
         for (var i2 = 0, j2 = triangles.length; i2 < j2; i2 += 3) {
           indices.push(triangles[i2] + vecPos);
           indices.push(triangles[i2 + 1] + vecPos);
@@ -18227,7 +18227,7 @@
       };
       GraphicsGeometry2.prototype.addColors = function(colors, color, alpha, size) {
         var rgb = (color >> 16) + (color & 65280) + ((color & 255) << 16);
-        var rgba = utils6.premultiplyTint(rgb, alpha);
+        var rgba = utils9.premultiplyTint(rgb, alpha);
         while (size-- > 0) {
           colors.push(rgba);
         }
@@ -18323,9 +18323,9 @@
     }(FillStyle);
     var temp = new Float32Array(3);
     var DEFAULT_SHADERS = {};
-    var Graphics4 = function(_super) {
-      __extends(Graphics5, _super);
-      function Graphics5(geometry) {
+    var Graphics6 = function(_super) {
+      __extends(Graphics7, _super);
+      function Graphics7(geometry) {
         if (geometry === void 0) {
           geometry = null;
         }
@@ -18349,18 +18349,18 @@
         _this.blendMode = constants.BLEND_MODES.NORMAL;
         return _this;
       }
-      Object.defineProperty(Graphics5.prototype, "geometry", {
+      Object.defineProperty(Graphics7.prototype, "geometry", {
         get: function() {
           return this._geometry;
         },
         enumerable: false,
         configurable: true
       });
-      Graphics5.prototype.clone = function() {
+      Graphics7.prototype.clone = function() {
         this.finishPoly();
-        return new Graphics5(this._geometry);
+        return new Graphics7(this._geometry);
       };
-      Object.defineProperty(Graphics5.prototype, "blendMode", {
+      Object.defineProperty(Graphics7.prototype, "blendMode", {
         get: function() {
           return this.state.blendMode;
         },
@@ -18370,7 +18370,7 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Graphics5.prototype, "tint", {
+      Object.defineProperty(Graphics7.prototype, "tint", {
         get: function() {
           return this._tint;
         },
@@ -18380,21 +18380,21 @@
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Graphics5.prototype, "fill", {
+      Object.defineProperty(Graphics7.prototype, "fill", {
         get: function() {
           return this._fillStyle;
         },
         enumerable: false,
         configurable: true
       });
-      Object.defineProperty(Graphics5.prototype, "line", {
+      Object.defineProperty(Graphics7.prototype, "line", {
         get: function() {
           return this._lineStyle;
         },
         enumerable: false,
         configurable: true
       });
-      Graphics5.prototype.lineStyle = function(options, color, alpha, alignment, native) {
+      Graphics7.prototype.lineStyle = function(options, color, alpha, alignment, native) {
         if (options === void 0) {
           options = null;
         }
@@ -18415,7 +18415,7 @@
         }
         return this.lineTextureStyle(options);
       };
-      Graphics5.prototype.lineTextureStyle = function(options) {
+      Graphics7.prototype.lineTextureStyle = function(options) {
         options = Object.assign({
           width: 0,
           texture: core.Texture.WHITE,
@@ -18443,7 +18443,7 @@
         }
         return this;
       };
-      Graphics5.prototype.startPoly = function() {
+      Graphics7.prototype.startPoly = function() {
         if (this.currentPath) {
           var points = this.currentPath.points;
           var len = this.currentPath.points.length;
@@ -18458,7 +18458,7 @@
           this.currentPath.closeStroke = false;
         }
       };
-      Graphics5.prototype.finishPoly = function() {
+      Graphics7.prototype.finishPoly = function() {
         if (this.currentPath) {
           if (this.currentPath.points.length > 2) {
             this.drawShape(this.currentPath);
@@ -18468,13 +18468,13 @@
           }
         }
       };
-      Graphics5.prototype.moveTo = function(x2, y2) {
+      Graphics7.prototype.moveTo = function(x2, y2) {
         this.startPoly();
         this.currentPath.points[0] = x2;
         this.currentPath.points[1] = y2;
         return this;
       };
-      Graphics5.prototype.lineTo = function(x2, y2) {
+      Graphics7.prototype.lineTo = function(x2, y2) {
         if (!this.currentPath) {
           this.moveTo(0, 0);
         }
@@ -18486,7 +18486,7 @@
         }
         return this;
       };
-      Graphics5.prototype._initCurve = function(x2, y2) {
+      Graphics7.prototype._initCurve = function(x2, y2) {
         if (x2 === void 0) {
           x2 = 0;
         }
@@ -18501,7 +18501,7 @@
           this.moveTo(x2, y2);
         }
       };
-      Graphics5.prototype.quadraticCurveTo = function(cpX, cpY, toX, toY) {
+      Graphics7.prototype.quadraticCurveTo = function(cpX, cpY, toX, toY) {
         this._initCurve();
         var points = this.currentPath.points;
         if (points.length === 0) {
@@ -18510,12 +18510,12 @@
         QuadraticUtils.curveTo(cpX, cpY, toX, toY, points);
         return this;
       };
-      Graphics5.prototype.bezierCurveTo = function(cpX, cpY, cpX2, cpY2, toX, toY) {
+      Graphics7.prototype.bezierCurveTo = function(cpX, cpY, cpX2, cpY2, toX, toY) {
         this._initCurve();
         BezierUtils.curveTo(cpX, cpY, cpX2, cpY2, toX, toY, this.currentPath.points);
         return this;
       };
-      Graphics5.prototype.arcTo = function(x1, y1, x2, y2, radius) {
+      Graphics7.prototype.arcTo = function(x1, y1, x2, y2, radius) {
         this._initCurve(x1, y1);
         var points = this.currentPath.points;
         var result = ArcUtils.curveTo(x1, y1, x2, y2, radius, points);
@@ -18525,7 +18525,7 @@
         }
         return this;
       };
-      Graphics5.prototype.arc = function(cx, cy, radius, startAngle, endAngle, anticlockwise) {
+      Graphics7.prototype.arc = function(cx, cy, radius, startAngle, endAngle, anticlockwise) {
         if (anticlockwise === void 0) {
           anticlockwise = false;
         }
@@ -18560,7 +18560,7 @@
         ArcUtils.arc(startX, startY, cx, cy, radius, startAngle, endAngle, anticlockwise, points);
         return this;
       };
-      Graphics5.prototype.beginFill = function(color, alpha) {
+      Graphics7.prototype.beginFill = function(color, alpha) {
         if (color === void 0) {
           color = 0;
         }
@@ -18569,7 +18569,7 @@
         }
         return this.beginTextureFill({texture: core.Texture.WHITE, color, alpha});
       };
-      Graphics5.prototype.beginTextureFill = function(options) {
+      Graphics7.prototype.beginTextureFill = function(options) {
         options = Object.assign({
           texture: core.Texture.WHITE,
           color: 16777215,
@@ -18591,24 +18591,24 @@
         }
         return this;
       };
-      Graphics5.prototype.endFill = function() {
+      Graphics7.prototype.endFill = function() {
         this.finishPoly();
         this._fillStyle.reset();
         return this;
       };
-      Graphics5.prototype.drawRect = function(x2, y2, width, height) {
+      Graphics7.prototype.drawRect = function(x2, y2, width, height) {
         return this.drawShape(new math.Rectangle(x2, y2, width, height));
       };
-      Graphics5.prototype.drawRoundedRect = function(x2, y2, width, height, radius) {
+      Graphics7.prototype.drawRoundedRect = function(x2, y2, width, height, radius) {
         return this.drawShape(new math.RoundedRectangle(x2, y2, width, height, radius));
       };
-      Graphics5.prototype.drawCircle = function(x2, y2, radius) {
+      Graphics7.prototype.drawCircle = function(x2, y2, radius) {
         return this.drawShape(new math.Circle(x2, y2, radius));
       };
-      Graphics5.prototype.drawEllipse = function(x2, y2, width, height) {
+      Graphics7.prototype.drawEllipse = function(x2, y2, width, height) {
         return this.drawShape(new math.Ellipse(x2, y2, width, height));
       };
-      Graphics5.prototype.drawPolygon = function() {
+      Graphics7.prototype.drawPolygon = function() {
         var arguments$1 = arguments;
         var path = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -18630,7 +18630,7 @@
         this.drawShape(shape);
         return this;
       };
-      Graphics5.prototype.drawShape = function(shape) {
+      Graphics7.prototype.drawShape = function(shape) {
         if (!this._holeMode) {
           this._geometry.drawShape(shape, this._fillStyle.clone(), this._lineStyle.clone(), this._matrix);
         } else {
@@ -18638,7 +18638,7 @@
         }
         return this;
       };
-      Graphics5.prototype.clear = function() {
+      Graphics7.prototype.clear = function() {
         this._geometry.clear();
         this._lineStyle.reset();
         this._fillStyle.reset();
@@ -18648,11 +18648,11 @@
         this.currentPath = null;
         return this;
       };
-      Graphics5.prototype.isFastRect = function() {
+      Graphics7.prototype.isFastRect = function() {
         var data = this._geometry.graphicsData;
         return data.length === 1 && data[0].shape.type === math.SHAPES.RECT && !(data[0].lineStyle.visible && data[0].lineStyle.width);
       };
-      Graphics5.prototype._render = function(renderer) {
+      Graphics7.prototype._render = function(renderer) {
         this.finishPoly();
         var geometry = this._geometry;
         var hasuint32 = renderer.context.supports.uint32Indices;
@@ -18667,7 +18667,7 @@
           this._renderDirect(renderer);
         }
       };
-      Graphics5.prototype._populateBatches = function() {
+      Graphics7.prototype._populateBatches = function() {
         var geometry = this._geometry;
         var blendMode = this.blendMode;
         var len = geometry.batches.length;
@@ -18687,7 +18687,7 @@
             blendMode,
             indices,
             uvs,
-            _batchRGB: utils6.hex2rgb(color),
+            _batchRGB: utils9.hex2rgb(color),
             _tintRGB: color,
             _texture: gI.style.texture,
             alpha: gI.style.alpha,
@@ -18696,7 +18696,7 @@
           this.batches[i2] = batch;
         }
       };
-      Graphics5.prototype._renderBatched = function(renderer) {
+      Graphics7.prototype._renderBatched = function(renderer) {
         if (!this.batches.length) {
           return;
         }
@@ -18709,7 +18709,7 @@
           renderer.plugins[this.pluginName].render(batch);
         }
       };
-      Graphics5.prototype._renderDirect = function(renderer) {
+      Graphics7.prototype._renderDirect = function(renderer) {
         var shader = this._resolveDirectShader(renderer);
         var geometry = this._geometry;
         var tint = this.tint;
@@ -18728,7 +18728,7 @@
           this._renderDrawCallDirect(renderer, geometry.drawCalls[i2]);
         }
       };
-      Graphics5.prototype._renderDrawCallDirect = function(renderer, drawCall) {
+      Graphics7.prototype._renderDrawCallDirect = function(renderer, drawCall) {
         var texArray = drawCall.texArray, type2 = drawCall.type, size = drawCall.size, start = drawCall.start;
         var groupTextureCount = texArray.count;
         for (var j2 = 0; j2 < groupTextureCount; j2++) {
@@ -18736,7 +18736,7 @@
         }
         renderer.geometry.draw(type2, size, start);
       };
-      Graphics5.prototype._resolveDirectShader = function(renderer) {
+      Graphics7.prototype._resolveDirectShader = function(renderer) {
         var shader = this.shader;
         var pluginName = this.pluginName;
         if (!shader) {
@@ -18758,7 +18758,7 @@
         }
         return shader;
       };
-      Graphics5.prototype._calculateBounds = function() {
+      Graphics7.prototype._calculateBounds = function() {
         this.finishPoly();
         var geometry = this._geometry;
         if (!geometry.graphicsData.length) {
@@ -18767,14 +18767,14 @@
         var _a2 = geometry.bounds, minX = _a2.minX, minY = _a2.minY, maxX = _a2.maxX, maxY = _a2.maxY;
         this._bounds.addFrame(this.transform, minX, minY, maxX, maxY);
       };
-      Graphics5.prototype.containsPoint = function(point) {
-        this.worldTransform.applyInverse(point, Graphics5._TEMP_POINT);
-        return this._geometry.containsPoint(Graphics5._TEMP_POINT);
+      Graphics7.prototype.containsPoint = function(point) {
+        this.worldTransform.applyInverse(point, Graphics7._TEMP_POINT);
+        return this._geometry.containsPoint(Graphics7._TEMP_POINT);
       };
-      Graphics5.prototype.calculateTints = function() {
+      Graphics7.prototype.calculateTints = function() {
         if (this.batchTint !== this.tint) {
           this.batchTint = this.tint;
-          var tintRGB = utils6.hex2rgb(this.tint, temp);
+          var tintRGB = utils9.hex2rgb(this.tint, temp);
           for (var i2 = 0; i2 < this.batches.length; i2++) {
             var batch = this.batches[i2];
             var batchTint = batch._batchRGB;
@@ -18786,7 +18786,7 @@
           }
         }
       };
-      Graphics5.prototype.calculateVertices = function() {
+      Graphics7.prototype.calculateVertices = function() {
         var wtID = this.transform._worldID;
         if (this._transformID === wtID) {
           return;
@@ -18809,28 +18809,28 @@
           vertexData[count++] = d2 * y2 + b2 * x2 + ty;
         }
       };
-      Graphics5.prototype.closePath = function() {
+      Graphics7.prototype.closePath = function() {
         var currentPath = this.currentPath;
         if (currentPath) {
           currentPath.closeStroke = true;
         }
         return this;
       };
-      Graphics5.prototype.setMatrix = function(matrix) {
+      Graphics7.prototype.setMatrix = function(matrix) {
         this._matrix = matrix;
         return this;
       };
-      Graphics5.prototype.beginHole = function() {
+      Graphics7.prototype.beginHole = function() {
         this.finishPoly();
         this._holeMode = true;
         return this;
       };
-      Graphics5.prototype.endHole = function() {
+      Graphics7.prototype.endHole = function() {
         this.finishPoly();
         this._holeMode = false;
         return this;
       };
-      Graphics5.prototype.destroy = function(options) {
+      Graphics7.prototype.destroy = function(options) {
         this._geometry.refCount--;
         if (this._geometry.refCount === 0) {
           this._geometry.dispose();
@@ -18848,8 +18848,8 @@
         this.batches = null;
         _super.prototype.destroy.call(this, options);
       };
-      Graphics5._TEMP_POINT = new math.Point();
-      return Graphics5;
+      Graphics7._TEMP_POINT = new math.Point();
+      return Graphics7;
     }(display.Container);
     var graphicsUtils = {
       buildPoly,
@@ -18867,7 +18867,7 @@
     };
     exports.FillStyle = FillStyle;
     exports.GRAPHICS_CURVES = GRAPHICS_CURVES;
-    exports.Graphics = Graphics4;
+    exports.Graphics = Graphics6;
     exports.GraphicsData = GraphicsData;
     exports.GraphicsGeometry = GraphicsGeometry;
     exports.LineStyle = LineStyle;
@@ -18890,7 +18890,7 @@
     var display = require_display();
     var math = require_math();
     var settings2 = require_settings();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -18958,10 +18958,10 @@
         this._textureTrimmedID = -1;
         this._cachedTint = 16777215;
         if (this._width) {
-          this.scale.x = utils6.sign(this.scale.x) * this._width / this._texture.orig.width;
+          this.scale.x = utils9.sign(this.scale.x) * this._width / this._texture.orig.width;
         }
         if (this._height) {
-          this.scale.y = utils6.sign(this.scale.y) * this._height / this._texture.orig.height;
+          this.scale.y = utils9.sign(this.scale.y) * this._height / this._texture.orig.height;
         }
       };
       Sprite4.prototype._onAnchorUpdate = function() {
@@ -19130,7 +19130,7 @@
           return Math.abs(this.scale.x) * this._texture.orig.width;
         },
         set: function(value) {
-          var s3 = utils6.sign(this.scale.x) || 1;
+          var s3 = utils9.sign(this.scale.x) || 1;
           this.scale.x = s3 * value / this._texture.orig.width;
           this._width = value;
         },
@@ -19142,7 +19142,7 @@
           return Math.abs(this.scale.y) * this._texture.orig.height;
         },
         set: function(value) {
-          var s3 = utils6.sign(this.scale.y) || 1;
+          var s3 = utils9.sign(this.scale.y) || 1;
           this.scale.y = s3 * value / this._texture.orig.height;
           this._height = value;
         },
@@ -19216,7 +19216,7 @@
     var core = require_core();
     var settings2 = require_settings();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -19706,7 +19706,7 @@
     }();
     function getSingleColor(color) {
       if (typeof color === "number") {
-        return utils6.hex2string(color);
+        return utils9.hex2string(color);
       } else if (typeof color === "string") {
         if (color.indexOf("0x") === 0) {
           color = color.replace("0x", "#");
@@ -20158,7 +20158,7 @@
             context.fillStyle = "black";
             context.strokeStyle = "black";
             var dropShadowColor = style.dropShadowColor;
-            var rgb = utils6.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils6.string2hex(dropShadowColor));
+            var rgb = utils9.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils9.string2hex(dropShadowColor));
             context.shadowColor = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + style.dropShadowAlpha + ")";
             context.shadowBlur = style.dropShadowBlur;
             context.shadowOffsetX = Math.cos(style.dropShadowAngle) * style.dropShadowDistance;
@@ -20222,7 +20222,7 @@
       Text6.prototype.updateTexture = function() {
         var canvas2 = this.canvas;
         if (this._style.trim) {
-          var trimmed = utils6.trimCanvas(canvas2);
+          var trimmed = utils9.trimCanvas(canvas2);
           if (trimmed.data) {
             canvas2.width = trimmed.width;
             canvas2.height = trimmed.height;
@@ -20340,7 +20340,7 @@
         },
         set: function(value) {
           this.updateText(true);
-          var s3 = utils6.sign(this.scale.x) || 1;
+          var s3 = utils9.sign(this.scale.x) || 1;
           this.scale.x = s3 * value / this._texture.orig.width;
           this._width = value;
         },
@@ -20354,7 +20354,7 @@
         },
         set: function(value) {
           this.updateText(true);
-          var s3 = utils6.sign(this.scale.y) || 1;
+          var s3 = utils9.sign(this.scale.y) || 1;
           this.scale.y = s3 * value / this._texture.orig.height;
           this._height = value;
         },
@@ -20750,7 +20750,7 @@
     Object.defineProperty(exports, "__esModule", {value: true});
     var math = require_math();
     var core = require_core();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var loaders = require_loaders();
     var Spritesheet = function() {
       function Spritesheet2(texture, data, resolutionFilename) {
@@ -20774,7 +20774,7 @@
           resolutionFilename = null;
         }
         var scale = this.data.meta.scale;
-        var resolution = utils6.getResolutionOfUrl(resolutionFilename, null);
+        var resolution = utils9.getResolutionOfUrl(resolutionFilename, null);
         if (resolution === null) {
           resolution = scale !== void 0 ? parseFloat(scale) : 1;
         }
@@ -20889,9 +20889,9 @@
               return "continue";
             }
             var itemName = item2.replace(".json", "");
-            var itemUrl = utils6.url.resolve(resource.url.replace(loader.baseUrl, ""), item2);
+            var itemUrl = utils9.url.resolve(resource.url.replace(loader.baseUrl, ""), item2);
             if (loader.resources[itemName] || Object.values(loader.resources).some(function(r2) {
-              return utils6.url.format(utils6.url.parse(r2.url)) === itemUrl;
+              return utils9.url.format(utils9.url.parse(r2.url)) === itemUrl;
             })) {
               return "continue";
             }
@@ -20931,7 +20931,7 @@
         if (resource.isDataUrl) {
           return resource.data.meta.image;
         }
-        return utils6.url.resolve(resource.url.replace(baseUrl, ""), resource.data.meta.image);
+        return utils9.url.resolve(resource.url.replace(baseUrl, ""), resource.data.meta.image);
       };
       return SpritesheetLoader2;
     }();
@@ -20954,7 +20954,7 @@
     var math = require_math();
     var sprite = require_sprite();
     var constants = require_constants();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -21180,12 +21180,12 @@
           shader.uniforms.uClampOffset = uv.uClampOffset;
         }
         shader.uniforms.uTransform = tempMat.toArray(true);
-        shader.uniforms.uColor = utils6.premultiplyTintToRgba(ts.tint, ts.worldAlpha, shader.uniforms.uColor, baseTex.alphaMode);
+        shader.uniforms.uColor = utils9.premultiplyTintToRgba(ts.tint, ts.worldAlpha, shader.uniforms.uColor, baseTex.alphaMode);
         shader.uniforms.translationMatrix = ts.transform.worldTransform.toArray(true);
         shader.uniforms.uSampler = tex;
         renderer.shader.bind(shader);
         renderer.geometry.bind(quad);
-        this.state.blendMode = utils6.correctBlendMode(ts.blendMode, baseTex.alphaMode);
+        this.state.blendMode = utils9.correctBlendMode(ts.blendMode, baseTex.alphaMode);
         renderer.state.set(this.state);
         renderer.geometry.draw(this.renderer.gl.TRIANGLES, 6, 0);
       };
@@ -21211,7 +21211,7 @@
     var constants = require_constants();
     var display = require_display();
     var settings2 = require_settings();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     /*! *****************************************************************************
     Copyright (c) Microsoft Corporation. All rights reserved.
     Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -21570,7 +21570,7 @@
         if (this._colorDirty) {
           this._colorDirty = false;
           var baseTexture = this.texture.baseTexture;
-          utils6.premultiplyTintToRgba(this._tint, this._alpha, this.uniforms.uColor, baseTexture.alphaMode);
+          utils9.premultiplyTintToRgba(this._tint, this._alpha, this.uniforms.uColor, baseTexture.alphaMode);
         }
         if (this.uvMatrix.update()) {
           this.uniforms.uTextureMatrix = this.uvMatrix.mapCoord;
@@ -21618,7 +21618,7 @@
     var math = require_math();
     var settings2 = require_settings();
     var mesh = require_mesh();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var core = require_core();
     var text = require_text();
     var display = require_display();
@@ -21907,7 +21907,7 @@
       context.fillStyle = generateFillStyle(canvas, context, style, resolution, [char], metrics);
       context.strokeStyle = style.stroke;
       var dropShadowColor = style.dropShadowColor;
-      var rgb = utils6.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils6.string2hex(dropShadowColor));
+      var rgb = utils9.hex2rgb(typeof dropShadowColor === "number" ? dropShadowColor : utils9.string2hex(dropShadowColor));
       if (style.dropShadow) {
         context.shadowColor = "rgba(" + rgb[0] * 255 + "," + rgb[1] * 255 + "," + rgb[2] * 255 + "," + style.dropShadowAlpha + ")";
         context.shadowBlur = style.dropShadowBlur;
@@ -21961,7 +21961,7 @@
         var info = data.info[0];
         var common = data.common[0];
         var page = data.page[0];
-        var res = utils6.getResolutionOfUrl(page.file);
+        var res = utils9.getResolutionOfUrl(page.file);
         var pageTextures = {};
         this._ownsTextures = ownsTextures;
         this.font = info.face;
@@ -22259,7 +22259,7 @@
           prevCharCode = charCode;
           if (lastBreakPos !== -1 && maxWidth > 0 && pos.x > maxWidth) {
             ++spacesRemoved;
-            utils6.removeItems(chars, 1 + lastBreakPos - spacesRemoved, 1 + i2 - lastBreakPos);
+            utils9.removeItems(chars, 1 + lastBreakPos - spacesRemoved, 1 + i2 - lastBreakPos);
             i2 = lastBreakPos;
             lastBreakPos = -1;
             lineWidths.push(lastBreakWidth);
@@ -24273,7 +24273,7 @@ void main() {
     var sprite = require_sprite();
     var display = require_display();
     var math = require_math();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var settings2 = require_settings();
     var _tempMatrix = new math.Matrix();
     display.DisplayObject.prototype._cacheAsBitmap = false;
@@ -24387,7 +24387,7 @@ void main() {
         height: bounds.height,
         resolution: this.cacheAsBitmapResolution || renderer.resolution
       });
-      var textureCacheId = "cacheAsBitmap_" + utils6.uid();
+      var textureCacheId = "cacheAsBitmap_" + utils9.uid();
       this._cacheData.textureCacheId = textureCacheId;
       core.BaseTexture.addToCache(renderTexture.baseTexture, textureCacheId);
       core.Texture.addToCache(renderTexture, textureCacheId);
@@ -24438,7 +24438,7 @@ void main() {
       var cachedProjectionTransform = renderer._projTransform;
       bounds.ceil(settings2.settings.RESOLUTION);
       var renderTexture = core.RenderTexture.create({width: bounds.width, height: bounds.height});
-      var textureCacheId = "cacheAsBitmap_" + utils6.uid();
+      var textureCacheId = "cacheAsBitmap_" + utils9.uid();
       this._cacheData.textureCacheId = textureCacheId;
       core.BaseTexture.addToCache(renderTexture.baseTexture, textureCacheId);
       core.Texture.addToCache(renderTexture, textureCacheId);
@@ -25326,7 +25326,7 @@ void main() {
     "use strict";
     Object.defineProperty(exports, "__esModule", {value: true});
     require_polyfill();
-    var utils6 = require_utils();
+    var utils9 = require_utils();
     var accessibility = require_accessibility();
     var interaction = require_interaction();
     var app = require_app();
@@ -25600,7 +25600,7 @@ void main() {
           }
         });
     });
-    exports.utils = utils6;
+    exports.utils = utils9;
     exports.VERSION = VERSION2;
     exports.filters = filters;
   });
@@ -27498,14 +27498,16 @@ void main() {
     var _RoomSpawner = class {
       constructor(size = 10, options = {}) {
         this.floorSize = size;
-        this.maxRooms = options.maxRooms || 10;
-        this.minRooms = options.minRooms || 6;
+        this.maxRooms = options.maxRooms || 4;
+        this.minRooms = options.minRooms || 3;
         this.maxBoss = options.maxBoss || 1;
-        this.specialRooms = options.specialRooms || 1;
+        this.specialRooms = options.specialRooms || 0;
         this.includeSecretRoom = options.includeSecretRoom || false;
         this.tileSize = options.tileSize || 16;
-        this.roomWidth = (options.roomWidth || 10) * this.tileSize;
-        this.roomHeight = (options.roomHeight || 10) * this.tileSize;
+        this.roomWidth = (options.roomWidth || 40) * this.tileSize;
+        this.roomHeight = (options.roomHeight || 26) * this.tileSize;
+        this.marginWidth = (options.marginWidth || 2) * this.tileSize;
+        this.marginHeight = (options.marginHeight || 2) * this.tileSize;
         this.reset();
       }
       get size() {
@@ -27651,22 +27653,30 @@ void main() {
         const hasTop = neighbours.top !== 0;
         const hasBottom = neighbours.bottom !== 0;
         yield {
+          id: i2,
+          doors: {
+            top: hasTop ? i2 - this.floorSize : null,
+            bottom: hasBottom ? i2 + this.floorSize : null,
+            left: hasLeft ? i2 - 1 : null,
+            right: hasRight ? i2 + 1 : null
+          },
           x: x2,
           y: y2,
-          doors: [hasTop, hasRight, hasBottom, hasLeft],
           type: _RoomSpawner.RoomName[this.floorPlan[i2]]
         };
+        const roomHeight = this.roomHeight + this.marginHeight;
+        const roomWidth = this.roomWidth + this.marginWidth;
         if (hasLeft) {
-          yield* this.explore(i2 - 1, x2 - this.roomWidth, y2, visitedNodes);
+          yield* this.explore(i2 - 1, x2 - roomWidth, y2, visitedNodes);
         }
         if (hasRight) {
-          yield* this.explore(i2 + 1, x2 + this.roomWidth, y2, visitedNodes);
+          yield* this.explore(i2 + 1, x2 + roomWidth, y2, visitedNodes);
         }
         if (hasTop) {
-          yield* this.explore(i2 - this.floorSize, x2, y2 + this.roomHeight, visitedNodes);
+          yield* this.explore(i2 - this.floorSize, x2, y2 - roomHeight, visitedNodes);
         }
         if (hasBottom) {
-          yield* this.explore(i2 + this.floorSize, x2, y2 - this.roomHeight, visitedNodes);
+          yield* this.explore(i2 + this.floorSize, x2, y2 + roomHeight, visitedNodes);
         }
       }
       *getWorldRooms() {
@@ -27693,6 +27703,151 @@ void main() {
       1: "room"
     }));
     module.exports = RoomSpawner2;
+  });
+
+  // assets/scripts/dungeon-configuration.js
+  var require_dungeon_configuration = __commonJS((exports, module) => {
+    module.exports = {
+      1: {
+        1: {
+          spawner: {
+            minRooms: 3,
+            maxRooms: 4
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.45
+          },
+          goldMultiplier: 1
+        },
+        2: {
+          spawner: {
+            minRooms: 5,
+            maxRooms: 7,
+            specialRooms: 1
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.4
+          },
+          goldMultiplier: 1.25
+        },
+        3: {
+          spawner: {
+            minRooms: 6,
+            maxRooms: 8,
+            specialRooms: 1,
+            includeSecretRoom: true,
+            maxBoss: 2
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.35
+          },
+          goldMultiplier: 1.5
+        }
+      },
+      2: {
+        1: {
+          spawner: {
+            minRooms: 7,
+            maxRooms: 10,
+            specialRooms: 2
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.3
+          },
+          goldMultiplier: 2
+        },
+        2: {
+          spawner: {
+            minRooms: 8,
+            maxRooms: 12,
+            specialRooms: 2
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.25
+          },
+          goldMultiplier: 2.5
+        },
+        3: {
+          spawner: {
+            minRooms: 9,
+            maxRooms: 14,
+            specialRooms: 2,
+            includeSecretRoom: true,
+            maxBoss: 2
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.15
+          },
+          goldMultiplier: 3
+        }
+      },
+      3: {
+        1: {
+          spawner: {
+            minRooms: 10,
+            maxRooms: 15,
+            specialRooms: 3,
+            includeSecretRoom: true
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.1
+          },
+          goldMultiplier: 4
+        },
+        2: {
+          spawner: {
+            minRooms: 12,
+            maxRooms: 17,
+            specialRooms: 4,
+            includeSecretRoom: true
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.05
+          },
+          goldMultiplier: 6
+        },
+        3: {
+          spawner: {
+            minRooms: 15,
+            maxRooms: 20,
+            specialRooms: 5,
+            includeSecretRoom: true,
+            maxBoss: 2
+          },
+          ia: {
+            defenseMultiplier: 1,
+            attackMultiplier: 1,
+            hpMultiplier: 1,
+            missRatio: 0.02
+          },
+          goldMultiplier: 8
+        }
+      }
+    };
   });
 
   // node_modules/pixi-layers/dist/pixi-layers.js
@@ -27773,7 +27928,7 @@ void main() {
     }();
     var pixi_display;
     (function(pixi_display2) {
-      var utils6 = PIXI.utils;
+      var utils9 = PIXI.utils;
       var Group = function(_super) {
         __extends(Group2, _super);
         function Group2(zIndex, sorting) {
@@ -27877,7 +28032,7 @@ void main() {
         Group2._layerUpdateId = 0;
         Group2._lastLayerConflict = 0;
         return Group2;
-      }(utils6.EventEmitter);
+      }(utils9.EventEmitter);
       pixi_display2.Group = Group;
     })(pixi_display || (pixi_display = {}));
     var pixi_display;
@@ -29449,6 +29604,11 @@ void main() {
   function getCurrentState() {
     return game.state;
   }
+  function boxesIntersect(a2, b2) {
+    const ab = a2.getBounds();
+    const bb = b2.getBounds();
+    return ab.x + ab.width > bb.x && ab.x < bb.x + bb.width && ab.y + ab.height > bb.y && ab.y < bb.y + bb.height;
+  }
   function hitTestRectangle(r1, r2) {
     r1.centerX = r1.x + r1.width / 2;
     r1.centerY = r1.y + r1.height / 2;
@@ -29479,6 +29639,8 @@ void main() {
     constructor(state = null) {
       super();
       this.actor = null;
+      this.awakened = false;
+      this.started = false;
       if (state !== null) {
         this.once("awake", () => {
           getCurrentState().attachToBehavior(this, state);
@@ -29489,6 +29651,13 @@ void main() {
           this[methodName] = voidFunction;
         }
       }
+    }
+    triggerMethod(name, ...options) {
+      if (typeof this[name] !== "function") {
+        return;
+      }
+      this.emit(name, ...options);
+      this[name](...options);
     }
     sendMessage(name, ...args) {
       if (typeof this[name] === "function") {
@@ -29696,9 +29865,13 @@ void main() {
       const {margin, image} = data;
       for (let y2 = margin; y2 < image.height; y2 += this.tileHeight) {
         for (let x2 = margin; x2 < image.width; x2 += this.tileWidth) {
-          const tileRectangle = new PIXI7.Rectangle(x2, y2, this.tileWidth, this.tileHeight);
-          const texture = new PIXI7.Texture(this.baseTexture, tileRectangle);
-          this.textures.push(texture);
+          try {
+            const tileRectangle = new PIXI7.Rectangle(x2, y2, this.tileWidth, this.tileHeight);
+            const texture = new PIXI7.Texture(this.baseTexture, tileRectangle);
+            this.textures.push(texture);
+          } catch (err) {
+            console.log(`[INFO] Failed to load TiledSet name '${this.name}'`);
+          }
         }
       }
       if (this.debug) {
@@ -29834,6 +30007,26 @@ void main() {
         bottom: this.isRawWalkable(posx, bottomY)
       };
     }
+    getNeighBourWalkableForGivenRange(x2, y2, range) {
+      const posx = Math.floor(x2 / this.tileWidth);
+      const posy = Math.floor(y2 / this.tileHeight);
+      const leftX = posx - range;
+      const rightX = posx + range;
+      const topY = posy - range;
+      const bottomY = posy + range + 1;
+      return {
+        diag: {
+          leftTop: this.isRawWalkable(leftX, topY),
+          rightTop: this.isRawWalkable(rightX, topY),
+          leftBottom: this.isRawWalkable(leftX, bottomY),
+          bottom: this.isRawWalkable(rightX, bottomY)
+        },
+        left: this.isRawWalkable(leftX, posy),
+        right: this.isRawWalkable(rightX, posy),
+        top: this.isRawWalkable(posx, topY),
+        bottom: this.isRawWalkable(posx, bottomY)
+      };
+    }
     getTilePosition(x2, y2) {
       return {
         x: Math.floor(x2 / this.tileWidth),
@@ -29865,7 +30058,9 @@ void main() {
       assignSymbols(this);
       this.name = mapName;
       this.debug = options.debug || false;
+      this.showObjects = options.showObjects || false;
       this.useSharedCollision = options.useSharedCollision || false;
+      this.autoAddObjects = typeof options.autoAddObjects === "boolean" ? options.autoAddObjects : true;
       this.collisionOffset = options.collisionOffset || null;
       this.layers = new Map();
       this.objects = new Map();
@@ -29934,33 +30129,32 @@ void main() {
       actor.position.set(x2, y2);
       actor.rotation = object.rotation;
       _TiledMap.assignProperties(actor, object.properties);
-      if (this.debug) {
-        const areaGraphic = new PIXI10.Graphics().beginFill(16777215, 0.35);
-        if (object.ellipse) {
-          areaGraphic.drawEllipse(0, 0, width, height);
-        } else {
-          areaGraphic.drawRect(0, 0, width, height);
-        }
-        areaGraphic.interactive = true;
-        const areaNameText = new PIXI10.Text(name.toLowerCase(), {
-          fill: "#12d94d",
-          fontFamily: "Verdana",
-          fontSize: 10,
-          fontVariant: "small-caps",
-          fontWeight: "bold",
-          letterSpacing: 1,
-          lineJoin: "round",
-          strokeThickness: 2,
-          align: "center"
-        });
-        areaNameText.anchor.set(0.5);
-        areaGraphic.endFill();
-        if (!object.ellipse) {
-          areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
-        }
-        areaGraphic.addChild(areaNameText);
-        actor.addChild(areaGraphic);
+      const areaGraphic = new PIXI10.Graphics().beginFill(16777215, 0.35);
+      areaGraphic.alpha = this.showObjects ? 1 : 0;
+      if (object.ellipse) {
+        areaGraphic.drawEllipse(0, 0, width, height);
+      } else {
+        areaGraphic.drawRect(0, 0, width, height);
       }
+      areaGraphic.interactive = true;
+      const areaNameText = new PIXI10.Text(name.toLowerCase(), {
+        fill: "#12d94d",
+        fontFamily: "Verdana",
+        fontSize: 10,
+        fontVariant: "small-caps",
+        fontWeight: "bold",
+        letterSpacing: 1,
+        lineJoin: "round",
+        strokeThickness: 2,
+        align: "center"
+      });
+      areaNameText.anchor.set(0.5);
+      areaGraphic.endFill();
+      if (!object.ellipse) {
+        areaNameText.position.set(areaGraphic.width / 2, areaGraphic.height / 2);
+      }
+      areaGraphic.addChild(areaNameText);
+      actor.addChild(areaGraphic);
       this.objects.set(actor.name, actor);
       this.emit("object", actor);
       return actor;
@@ -29968,8 +30162,14 @@ void main() {
     setObjects(layer) {
       const objects = layer.objects || [];
       for (const object of objects) {
-        console.log(`[INFO] create object ${object.name}`);
-        this.addChild(this.drawObjectShape(object));
+        if (this.debug) {
+          console.log(`[INFO] create object ${object.name}`);
+        }
+        if (this.autoAddObjects) {
+          this.addChild(this.drawObjectShape(object));
+        } else {
+          this.drawObjectShape(object);
+        }
       }
     }
     setTileLayer(layer) {
@@ -30368,8 +30568,16 @@ void main() {
         actor.triggerBehaviorEvent(eventName, ...args);
       }
       for (const behavior of this.behaviors) {
-        behavior.emit(eventName, ...args);
-        behavior[eventName](...args);
+        behavior.triggerMethod(eventName, ...args);
+        if (eventName === "awake") {
+          behavior.awakened = true;
+        } else if (eventName === "start") {
+          if (!behavior.awakened) {
+            behavior.triggerMethod("awake");
+            behavior.awakened = true;
+          }
+          behavior.started = true;
+        }
       }
     }
   };
@@ -32858,8 +33066,20 @@ void main() {
       this.autoRepeatedKey = null;
       this.keyboardButtons = new Map();
       this.keyboardButtonsDown = new Set();
+      this.gamepadsButtons = [];
+      this.gamepadsAxes = [];
+      this.gamepadsAutoRepeats = [];
+      this.gamepadAxisDeadZone = 0.25;
+      this.gamepadAxisAutoRepeatDelayMs = 500;
+      this.gamepadAxisAutoRepeatRateMs = 33;
       document.addEventListener("keydown", this.onKeyDown.bind(this), true);
       document.addEventListener("keyup", this.onKeyUp.bind(this), true);
+      for (let i2 = 0; i2 < 4; i2++) {
+        this.gamepadsButtons[i2] = [];
+        this.gamepadsAxes[i2] = [];
+        this.gamepadsAutoRepeats[i2] = null;
+      }
+      this.resetGamepads();
     }
     destroy() {
       document.removeEventListener("keydown", this.onKeyDown, true);
@@ -32898,6 +33118,30 @@ void main() {
       this.autoRepeatedKey = null;
       this.keyboardButtons.clear();
       this.keyboardButtonsDown.clear();
+      this.resetGamepads();
+    }
+    resetGamepads() {
+      for (let i2 = 0; i2 < 4; i2++) {
+        for (let button = 0; button < 16; button++) {
+          this.gamepadsButtons[i2][button] = {
+            isDown: false,
+            wasJustPressed: false,
+            wasJustReleased: false,
+            value: 0
+          };
+        }
+        for (let axes = 0; axes < 4; axes++) {
+          this.gamepadsAxes[i2][axes] = {
+            wasPositiveJustPressed: false,
+            wasPositiveJustAutoRepeated: false,
+            wasPositiveJustReleased: false,
+            wasNegativeJustPressed: false,
+            wasNegativeJustAutoRepeated: false,
+            wasNegativeJustReleased: false,
+            value: 0
+          };
+        }
+      }
     }
     key(code) {
       let button = this.keyboardButtons.get(code);
@@ -32921,6 +33165,55 @@ void main() {
     isKeyDown(keyName) {
       const keyboardButton = this._checkKeyboard(keyName, "isDown");
       return keyboardButton.isDown;
+    }
+    isLeftStick(direction) {
+      switch (direction) {
+        case "LEFT":
+          return this.gamepadsAxes[0][LEFT_STICK_X_AXIS].value < -this.gamepadAxisDeadZone;
+        case "RIGHT":
+          return this.gamepadsAxes[0][LEFT_STICK_X_AXIS].value > this.gamepadAxisDeadZone;
+        case "UP":
+          return this.gamepadsAxes[0][LEFT_STICK_Y_AXIS].value < -this.gamepadAxisDeadZone;
+        case "DOWN":
+          return this.gamepadsAxes[0][LEFT_STICK_Y_AXIS].value > this.gamepadAxisDeadZone;
+        default:
+          return false;
+      }
+    }
+    isRightStick(direction) {
+      switch (direction) {
+        case "LEFT":
+          return this.gamepadsAxes[0][RIGHT_STICK_X_AXIS].value < -this.gamepadAxisDeadZone;
+        case "RIGHT":
+          return this.gamepadsAxes[0][RIGHT_STICK_X_AXIS].value > this.gamepadAxisDeadZone;
+        case "UP":
+          return this.gamepadsAxes[0][RIGHT_STICK_Y_AXIS].value < -this.gamepadAxisDeadZone;
+        case "DOWN":
+          return this.gamepadsAxes[0][RIGHT_STICK_Y_AXIS].value > this.gamepadAxisDeadZone;
+        default:
+          return false;
+      }
+    }
+    isGamepadButtonDown(buttonName) {
+      const button = this.gamepadsButtons[0][buttonName];
+      if (button) {
+        return button.isDown;
+      }
+      return false;
+    }
+    wasGamepadButtonJustPressed(buttonName) {
+      const button = this.gamepadsButtons[0][buttonName];
+      if (button) {
+        return button.wasJustPressed;
+      }
+      return false;
+    }
+    wasGamepadButtonJustReleased(buttonName) {
+      const button = this.gamepadsButtons[0][buttonName];
+      if (button) {
+        return button.wasJustReleased;
+      }
+      return false;
     }
     wasKeyJustPressed(keyName, autoRepeat = false) {
       const keyboardButton = this._checkKeyboard(keyName, "wasJustPressed");
@@ -32971,9 +33264,137 @@ void main() {
         this.key(this.autoRepeatedKey).wasJustAutoRepeated = true;
         this.autoRepeatedKey = null;
       }
+      const gamepads = navigator.getGamepads === null ? null : navigator.getGamepads();
+      if (gamepads === null) {
+        return;
+      }
+      for (let index = 0; index < 4; index++) {
+        const gamepad = gamepads[index];
+        if (gamepad === null || gamepad === void 0) {
+          continue;
+        }
+        for (let i2 = 0; i2 < this.gamepadsButtons[index].length; i2++) {
+          if (!Reflect.has(gamepad.buttons, i2) || gamepad.buttons[i2] === null) {
+            continue;
+          }
+          const button = this.gamepadsButtons[index][i2];
+          const wasDown = button.isDown;
+          button.isDown = gamepad.buttons[i2].pressed;
+          button.value = gamepad.buttons[i2].value;
+          button.wasJustPressed = !wasDown && button.isDown;
+          button.wasJustReleased = wasDown && !button.isDown;
+        }
+        const pressedValue = 0.5;
+        const now = Date.now();
+        for (let stick = 0; stick < 2; stick++) {
+          if (gamepad.axes[2 * stick] === null || gamepad.axes[2 * stick + 1] === null) {
+            continue;
+          }
+          if (gamepad.axes[2 * stick] === void 0 || gamepad.axes[2 * stick + 1] === void 0) {
+            continue;
+          }
+          const axisLength = Math.sqrt(Math.pow(Math.abs(gamepad.axes[2 * stick]), 2) + Math.pow(Math.abs(gamepad.axes[2 * stick + 1]), 2));
+          const axes = [this.gamepadsAxes[index][2 * stick], this.gamepadsAxes[index][2 * stick + 1]];
+          const wasAxisDown = [
+            {positive: axes[0].value > pressedValue, negative: axes[0].value < -pressedValue},
+            {positive: axes[1].value > pressedValue, negative: axes[1].value < -pressedValue}
+          ];
+          if (axisLength < this.gamepadAxisDeadZone) {
+            axes[0].value = 0;
+            axes[1].value = 0;
+          } else {
+            axes[0].value = gamepad.axes[2 * stick];
+            axes[1].value = gamepad.axes[2 * stick + 1];
+          }
+          const isAxisDown = [
+            {positive: axes[0].value > pressedValue, negative: axes[0].value < -pressedValue},
+            {positive: axes[1].value > pressedValue, negative: axes[1].value < -pressedValue}
+          ];
+          axes[0].wasPositiveJustPressed = !wasAxisDown[0].positive && isAxisDown[0].positive;
+          axes[0].wasPositiveJustReleased = wasAxisDown[0].positive && !isAxisDown[0].positive;
+          axes[0].wasPositiveJustAutoRepeated = false;
+          axes[0].wasNegativeJustPressed = !wasAxisDown[0].negative && isAxisDown[0].negative;
+          axes[0].wasNegativeJustReleased = wasAxisDown[0].negative && !isAxisDown[0].negative;
+          axes[0].wasNegativeJustAutoRepeated = false;
+          axes[1].wasPositiveJustPressed = !wasAxisDown[1].positive && isAxisDown[1].positive;
+          axes[1].wasPositiveJustReleased = wasAxisDown[1].positive && !isAxisDown[1].positive;
+          axes[1].wasPositiveJustAutoRepeated = false;
+          axes[1].wasNegativeJustPressed = !wasAxisDown[1].negative && isAxisDown[1].negative;
+          axes[1].wasNegativeJustReleased = wasAxisDown[1].negative && !isAxisDown[1].negative;
+          axes[1].wasNegativeJustAutoRepeated = false;
+          let currentAutoRepeat = this.gamepadsAutoRepeats[index];
+          if (currentAutoRepeat !== null && currentAutoRepeat !== void 0) {
+            const axisIndex = currentAutoRepeat.axis - stick * 2;
+            if (axisIndex === 0 || axisIndex === 1) {
+              const autoRepeatedAxis = axes[axisIndex];
+              if (currentAutoRepeat.positive && !isAxisDown[axisIndex].positive || !currentAutoRepeat.positive && !isAxisDown[axisIndex].negative) {
+                currentAutoRepeat = null;
+                this.gamepadsAutoRepeats[index] = null;
+              } else {
+                if (currentAutoRepeat.time <= now) {
+                  if (currentAutoRepeat.positive) {
+                    autoRepeatedAxis.wasPositiveJustAutoRepeated = true;
+                  } else {
+                    autoRepeatedAxis.wasNegativeJustAutoRepeated = true;
+                  }
+                  currentAutoRepeat.time = now + this.gamepadAxisAutoRepeatRateMs;
+                }
+              }
+            }
+          }
+          let newAutoRepeat;
+          if (axes[0].wasPositiveJustPressed || axes[0].wasNegativeJustPressed) {
+            newAutoRepeat = {
+              axis: stick * 2,
+              positive: axes[0].wasPositiveJustPressed,
+              time: now + this.gamepadAxisAutoRepeatDelayMs
+            };
+          } else if (axes[1].wasPositiveJustPressed || axes[1].wasNegativeJustPressed) {
+            newAutoRepeat = {
+              axis: stick * 2 + 1,
+              positive: axes[1].wasPositiveJustPressed,
+              time: now + this.gamepadAxisAutoRepeatDelayMs
+            };
+          }
+          if (newAutoRepeat !== null && newAutoRepeat !== void 0) {
+            if (currentAutoRepeat === null || currentAutoRepeat === void 0 || currentAutoRepeat.axis !== newAutoRepeat.axis || currentAutoRepeat.positive !== newAutoRepeat.positive) {
+              this.gamepadsAutoRepeats[index] = newAutoRepeat;
+            }
+          }
+        }
+      }
     }
   };
   var input_class_default = Input;
+  var StickDirection = Object.freeze({
+    UP: {axe: 1, triggerValue: -0.25},
+    DOWN: {axe: 1, triggerValue: 0.25},
+    LEFT: {axe: 0, triggerValue: -0.25},
+    RIGHT: {axe: 0, triggerValue: 0.25}
+  });
+  var Button = Object.freeze({
+    ANY: "ANY",
+    A: 0,
+    B: 1,
+    X: 2,
+    Y: 3,
+    LEFT_BUTTON: 4,
+    RIGHT_BUTTON: 5,
+    RIGHT_TRIGGER: 6,
+    LEFT_TRIGGER: 7,
+    SELECT: 8,
+    START: 9,
+    LEFT_STICK: 10,
+    RIGHT_STICK: 11,
+    ARROW_UP: 12,
+    ARROW_DOWN: 13,
+    ARROW_LEFT: 14,
+    ARROW_RIGHT: 15
+  });
+  var LEFT_STICK_X_AXIS = 0;
+  var LEFT_STICK_Y_AXIS = 1;
+  var RIGHT_STICK_X_AXIS = 2;
+  var RIGHT_STICK_Y_AXIS = 3;
   var Key = Object.freeze({
     ANY: "ANY",
     BACKSPACE: 8,
@@ -33105,7 +33526,6 @@ void main() {
       if (controller !== null) {
         controller.emit("start");
       }
-      this.setupUpdateTick();
     }
     setupUpdateTick() {
       if (this.isUpdated) {
@@ -33708,6 +34128,7 @@ void main() {
       this.input = new input_class_default(this.app.view);
       this.mousePosition = null;
       this.app.renderer.view.addEventListener("mousedown", () => {
+        this.input.lockMouse();
       }, {once: true});
       this.defaultRootScene = options.defaultScene;
       this.rootScene = null;
@@ -33728,16 +34149,22 @@ void main() {
       return this.app.renderer;
     }
     loadScene(sceneName, ...options) {
+      console.clear();
       const sceneInstance = scene_class_default.cache.get(sceneName);
       if (typeof sceneInstance === "undefined") {
         throw new Error(`Unable to found scene with name '${sceneName}'`);
       }
+      console.log(`[DEBUG] Loading new scene '${sceneName}'`);
       this.fade.out(() => {
         this._destroyRootScene();
         tiledset_default.cache = [];
         tiledset_default.loaded.clear();
         tiledmap_default.sharedCollisionLayer = null;
         this.rootScene = null;
+        const hp = this.state.getState("player.currentHp");
+        if (hp === 0) {
+          this.state.setState("player.currentHp", 1);
+        }
         this._initRootScene(sceneInstance, ...options);
       });
     }
@@ -33774,6 +34201,8 @@ void main() {
       this.app.stage.addChild(this.viewport);
       this.viewport.zoomPercent(1);
       this.viewport.wheel({smooth: 150, lineHeight: 300});
+      this.viewport.decelerate();
+      this.viewport.clampZoom({minWidth: 250, minHeight: 250, maxWidth: 500, maxHeight: 500});
       this._initRootScene(this.defaultRootScene);
       this.app.ticker.add(this.update.bind(this));
       console.log(`[INFO] initStage end`);
@@ -33787,28 +34216,24 @@ void main() {
       }
       this.waitingScenes = [];
       console.log("[INFO] Waiting scenes added to current scene!");
-      this.cursorSprite = new PIXI17.Graphics().beginFill(PIXI17.utils.string2hex("#000"), 1).drawCircle(0, 0, 5).endFill();
-      this.cursorSprite.zIndex = 29;
-      this.app.stage.on("pointermove", (event) => {
+      this.app.stage.on("pointerdown", (event) => {
         this.mousePosition = event.data.global;
         const localPos = this.viewport.toWorld(this.mousePosition.x, this.mousePosition.y);
-        this.cursorSprite.position.set(localPos.x, localPos.y);
+        this.app.stage.children[0].children[0].actors.get("player").getScriptedBehavior("PlayerBehavior").sendMessage("shooting", localPos);
       });
       const fadeGraphic = new PIXI17.Graphics().beginFill(PIXI17.utils.string2hex("#000"), 1).drawRect(0, 0, window.innerWidth, window.innerHeight).endFill();
       fadeGraphic.zIndex = 30;
       this.fade = new fade_default(fadeGraphic, {
-        frame: 30,
-        delayIn: 20,
-        delayOut: 20,
+        frame: 45,
+        delayIn: 60,
+        delayOut: 0,
         defaultState: "in"
       });
-      this.rootScene.addChild(this.cursorSprite);
       this.rootScene.addChild(fadeGraphic);
       this.rootScene.init(this);
     }
     _destroyRootScene() {
       this.app.stage.removeAllListeners("pointermove");
-      this.cursorSprite.destroy();
       this.fade.displayObject.destroy({children: true});
       this.fade = null;
       this.rootScene.cleanup();
@@ -33817,6 +34242,9 @@ void main() {
     update(delta = 0) {
       if (this.fade !== null) {
         this.fade.update();
+      }
+      if (this.rootScene !== null) {
+        this.rootScene.update();
       }
       this.emit("update", delta);
       this.input.update(delta);
@@ -33934,6 +34362,98 @@ void main() {
     return entities;
   }
 
+  // assets/scripts/helpers/backgroundmediaplayer.js
+  var BackgroundMediaPlayer = class {
+    constructor(options = {}) {
+      const {tracks = {}, defaultTrack, defaultSoundVolume = 0.05, defaultFilters = []} = options;
+      if (typeof defaultTrack != "string") {
+        throw new TypeError("defaultTrack must be a string");
+      }
+      if (!(defaultTrack in tracks)) {
+        throw new Error(`Unable to found '${defaultTrack}' in options tracks!`);
+      }
+      this.isWaiting = false;
+      this.isStarted = false;
+      this.defaultSoundVolume = defaultSoundVolume;
+      this.defaultFilters = defaultFilters;
+      this.defaultTrack = defaultTrack;
+      this.currentSound = null;
+      this.currentTrack = null;
+      this.currentSoundIndex = null;
+      this.tracks = new Map(Object.entries(tracks));
+    }
+    bindToEngine(engine) {
+      engine.app.renderer.view.addEventListener("mousedown", () => {
+        this.play();
+        setTimeout(() => engine.on("update", () => this.update()), 200);
+      }, {once: true});
+      return this;
+    }
+    getSound(trackName, index) {
+      const currentTrack = this.tracks.get(trackName)[index];
+      const currentSound = I.find(currentTrack.name);
+      currentSound.volume = currentTrack.volume || this.defaultSoundVolume;
+      currentSound.loop = false;
+      const soundFilters = [...this.defaultFilters];
+      if (Array.isArray(currentTrack.filters)) {
+        soundFilters.push(...currentTrack.filters);
+      }
+      currentSound.filters = soundFilters;
+      return currentSound;
+    }
+    play(trackName = this.defaultTrack, startSound = null) {
+      if (trackName === this.currentTrack) {
+        return;
+      }
+      if (this.isStarted) {
+        this.stop();
+      }
+      const track = this.tracks.get(trackName);
+      const startIndex = startSound === null ? 0 : track.findIndex(({name}) => name === startSound) || 0;
+      this.currentTrack = trackName;
+      this.currentSoundIndex = startIndex;
+      this.currentSound = this.getSound(this.currentTrack, this.currentSoundIndex);
+      this.currentSound.play();
+      this.isStarted = true;
+    }
+    stop() {
+      if (this.isStarted) {
+        this.currentSound.stop();
+      }
+      this.currentSound = null;
+      this.currentTrack = null;
+      this.currentSoundIndex = null;
+      this.isStarted = false;
+    }
+    get trackSize() {
+      return this.tracks.get(this.currentTrack).length;
+    }
+    nextTrackSound(backward = false) {
+      this.currentSound.stop();
+      if (backward) {
+        this.currentSoundIndex = this.currentSoundIndex - 1 <= 0 ? this.trackSize : this.currentSoundIndex - 1;
+      } else {
+        this.currentSoundIndex = this.currentSoundIndex + 1 >= this.trackSize ? 0 : this.currentSoundIndex + 1;
+      }
+      this.currentSound = this.getSound(this.currentTrack, this.currentSoundIndex);
+      this.currentSound.play();
+      setTimeout(() => {
+        this.isWaiting = false;
+      }, 1e3);
+    }
+    update() {
+      if (!this.isStarted || this.isWaiting || !this.currentSound.isLoaded) {
+        return;
+      }
+      if (!this.currentSound.isPlaying) {
+        console.log("[SOUND] Next track sound triggered!");
+        this.isWaiting = true;
+        this.nextTrackSound();
+      }
+    }
+  };
+  var backgroundmediaplayer_default = BackgroundMediaPlayer;
+
   // assets/scripts/helpers/spatialSound.js
   var PIXI18 = __toModule(require_pixi());
   function rad(degress) {
@@ -34027,11 +34547,9 @@ void main() {
         const itemPosY = item.position.y;
         if (itemPosY > targetY) {
           if (item.zIndex !== _zIndexManager.positiveId) {
-            console.log("target at the top!");
             item.zIndex = _zIndexManager.positiveId;
           }
         } else if (item.zIndex !== _zIndexManager.negativeId) {
-          console.log("target at the bottom!");
           item.zIndex = _zIndexManager.negativeId;
         }
       }
@@ -34042,6 +34560,47 @@ void main() {
   __publicField(zIndexManager, "positiveId", 3);
   var zIndexManager_default = zIndexManager;
 
+  // assets/scripts/helpers/LifeBar.js
+  var PIXI20 = __toModule(require_pixi());
+  var LifeBar = class {
+    container = new PIXI20.Container();
+    constructor(options) {
+      this.maxHpBarLength = options.maxHpBarLength;
+      this.maxHpBarX = -(this.maxHpBarLength - this.maxHpBarLength / 2);
+      this.maxHpBarY = -(options.spriteHeight + 2.5);
+      this.relativeMaxHp = options.relativeMaxHp;
+      this.ratio = this.maxHpBarLength / this.relativeMaxHp;
+      this.barHeight = 6.5;
+      this.maxHpBar = new PIXI20.Graphics().beginFill(PIXI20.utils.string2hex("#666"), 1).drawRect(this.maxHpBarX, this.maxHpBarY, this.maxHpBarLength, this.barHeight).endFill();
+      const currentHpBar = new PIXI20.Graphics().beginFill(PIXI20.utils.string2hex("FF0000"), 1).drawRect(this.maxHpBarX, this.maxHpBarY, options.currentHp * this.ratio, this.barHeight).endFill();
+      const textStyle = {
+        fill: "white",
+        fontFamily: "Verdana",
+        fontSize: 5,
+        letterSpacing: 2,
+        lineJoin: "round",
+        strokeThickness: 2,
+        align: "center"
+      };
+      const hpTxt = new PIXI20.Text(`${options.currentHp} / ${this.relativeMaxHp}`, {...textStyle});
+      hpTxt.x = this.maxHpBarX + this.maxHpBarLength / 2 - 14;
+      hpTxt.y = this.maxHpBarY;
+      this.maxHpBar.addChild(currentHpBar);
+      this.maxHpBar.addChild(hpTxt);
+      this.container.addChild(this.maxHpBar);
+      return this;
+    }
+    update(currentHp) {
+      this.maxHpBar.children[0].clear().beginFill(PIXI20.utils.string2hex("#FF0000"), 1).drawRect(this.maxHpBarX, this.maxHpBarY, currentHp * this.ratio, this.barHeight).endFill();
+      this.maxHpBar.children[1].text = `${currentHp} / ${this.relativeMaxHp}`;
+      return this;
+    }
+    cleanup() {
+      this.container.destroy();
+    }
+  };
+  var LifeBar_default = LifeBar;
+
   // assets/scripts/helpers/AnimatedText.js
   var AnimatedText_exports = {};
   __export(AnimatedText_exports, {
@@ -34050,7 +34609,7 @@ void main() {
     WritingTextAnimation: () => WritingTextAnimation,
     default: () => AnimatedText_default
   });
-  var PIXI20 = __toModule(require_pixi());
+  var PIXI21 = __toModule(require_pixi());
   var TextAnimation = class {
     init() {
     }
@@ -34187,7 +34746,7 @@ void main() {
       return false;
     }
   };
-  var AnimatedText = class extends PIXI20.Container {
+  var AnimatedText = class extends PIXI21.Container {
     constructor(text, style, options = {}) {
       super();
       this.textStr = text;
@@ -34206,7 +34765,7 @@ void main() {
         throw new Error("cannot use loop true in combinaison with autoDestroy");
       }
       this.animationsName = new Set();
-      this.gameObject = new PIXI20.Text(text, style);
+      this.gameObject = new PIXI21.Text(text, style);
       if (this.autoHide && !this.animationsName.has("FadeTextAnimation")) {
         this.gameObject.alpha = 0;
       }
@@ -34231,6 +34790,7 @@ void main() {
     }
     destroy() {
       this.started = false;
+      this.emit("done");
       super.destroy({children: true, baseTexture: true, texture: true});
     }
     start() {
@@ -34279,112 +34839,1136 @@ void main() {
   };
   var AnimatedText_default = AnimatedText;
 
-  // assets/scripts/behaviours/CreatureBehavior.js
-  var kHandicapForDeplacement = 120;
-  var kHandicapForShooting = 280;
-  var CreatureBehavior = class extends scriptbehavior_default {
-    constructor() {
+  // assets/scripts/helpers/index.js
+  function progressionParser(str) {
+    const [room, niveau] = str.split(".");
+    return [Number(room), Number(niveau)];
+  }
+  function nextProgression([room, niveau]) {
+    if (niveau === 3 && room === 3) {
+      return [3, 3];
+    }
+    const upRoom = room + 1 > 3;
+    const nextRoom = upRoom ? 1 : room + 1;
+    const nextNiveau = upRoom && nextRoom === 1 ? niveau + 1 : niveau;
+    return [nextRoom, nextNiveau];
+  }
+
+  // assets/scripts/helpers/DamageText.js
+  var PIXI22 = __toModule(require_pixi());
+  function getStyle(color = "#EF5350", align = "center") {
+    return {
+      fill: color,
+      fontFamily: "Verdana",
+      fontSize: 8,
+      fontVariant: "small-caps",
+      fontWeight: "bold",
+      letterSpacing: 1,
+      lineJoin: "round",
+      strokeThickness: 2,
+      align
+    };
+  }
+  var DamageText = class extends PIXI22.utils.EventEmitter {
+    constructor(damage, parent, options = {}) {
       super();
-      const {x: x2, y: y2} = vector2_default.randomCoordInRadius(200);
-      this.position = {x: x2, y: y2};
+      this.isMiss = damage === 0;
+      this.isCritical = !this.isMiss && (options.isCritical || false);
+      this.decalY = -70;
+      this.overCount = 0;
+      if (this.isMiss) {
+        this.text = new AnimatedText_default(`MISS`, getStyle("#7E57C2"), {
+          autoDestroy: true,
+          animations: [
+            new AnimatedText_exports.FadeTextAnimation({
+              frame: 30,
+              easing: "easeInQuad",
+              defaultState: "out"
+            }),
+            new AnimatedText_exports.MovingTextAnimation({
+              decalY: 40,
+              frame: 40,
+              easing: "easeOutQuad"
+            })
+          ]
+        });
+        this.text.on("done", () => this.over());
+        this.text.gameObject.anchor.set(0.5);
+        this.text.position.set(0, this.decalY);
+      } else {
+        this.text = new AnimatedText_default(`${damage}`, getStyle(), {
+          autoDestroy: true,
+          animations: [
+            new AnimatedText_exports.FadeTextAnimation({
+              frame: 30,
+              easing: "easeInQuad",
+              defaultState: "out"
+            }),
+            new AnimatedText_exports.MovingTextAnimation({
+              decalY: 40,
+              frame: 40,
+              easing: "easeOutQuad"
+            })
+          ]
+        });
+        this.text.on("done", () => this.over());
+        this.text.gameObject.anchor.set(0.5);
+        this.text.position.set(0, this.decalY);
+      }
+      if (this.isCritical) {
+        this.criticalText = new AnimatedText_default(`CRITICAL`, getStyle("#FFEE58", "left"), {
+          autoDestroy: true,
+          animations: [
+            new AnimatedText_exports.FadeTextAnimation({
+              startAt: 5,
+              frame: 30,
+              easing: "easeInQuad",
+              defaultState: "out"
+            }),
+            new AnimatedText_exports.MovingTextAnimation({
+              decalY: 35,
+              frame: 45,
+              easing: "easeOutQuad"
+            })
+          ]
+        });
+        this.criticalText.gameObject.anchor.set(0);
+        this.criticalText.position.set(5, this.decalY);
+        this.criticalText.on("done", () => this.over());
+        parent.addChild(this.criticalText);
+      }
+      parent.addChild(this.text);
+    }
+    over() {
+      this.overCount++;
+      if (this.overCount === 1 && !this.isCritical) {
+        this.emit("done");
+      } else if (this.overCount === 2 && this.isCritical) {
+        this.emit("done");
+      }
+    }
+    update() {
+      this.text.update();
+      if (this.isCritical) {
+        this.criticalText.update();
+      }
+    }
+  };
+  var DamageText_default = DamageText;
+
+  // assets/scripts/keys.js
+  var Type = {
+    KeyboardL: "KeyboardL",
+    KeyboardR: "KeyboardR",
+    Gamepad: "Gamepad"
+  };
+  var Keys = {
+    left: [
+      {code: Key.Q, type: Type.KeyboardL},
+      {code: Key.A, type: Type.KeyboardL},
+      {code: Key.LEFT, type: Type.KeyboardR},
+      {code: "LEFT", type: Type.Gamepad, button: false}
+    ],
+    right: [
+      {code: Key.D, type: Type.KeyboardL},
+      {code: Key.RIGHT, type: Type.KeyboardR},
+      {code: "RIGHT", type: Type.Gamepad, button: false}
+    ],
+    top: [
+      {code: Key.Z, type: Type.KeyboardL},
+      {code: Key.W, type: Type.KeyboardL},
+      {code: Key.UP, type: Type.KeyboardR},
+      {code: "UP", type: Type.Gamepad, button: false}
+    ],
+    bottom: [
+      {code: Key.S, type: Type.KeyboardL},
+      {code: Key.DOWN, type: Type.KeyboardR},
+      {code: "DOWN", type: Type.Gamepad, button: false}
+    ],
+    jump: [
+      {code: Key.SPACE, type: null},
+      {code: Button.B, type: Type.Gamepad, button: true}
+    ],
+    dash: [
+      {code: Key.C, type: null},
+      {code: Button.X, type: Type.Gamepad, button: true}
+    ],
+    use: [
+      {code: Key.E, type: null},
+      {code: Button.A, type: Type.Gamepad, button: true}
+    ],
+    openDeck: [
+      {code: Key.T, type: null}
+    ],
+    cardAttack: [
+      {code: Key._1, type: Type.KeyboardL},
+      {code: Key.NUM_1, type: Type.KeyboardR}
+    ],
+    cardDefense: [
+      {code: Key._2, type: Type.KeyboardL},
+      {code: Key.NUM_2, type: Type.KeyboardR}
+    ],
+    cardConsumable: [
+      {code: Key._3, type: Type.KeyboardL},
+      {code: Key.NUM_3, type: Type.KeyboardR}
+    ],
+    cardRefresh: [
+      {code: Key.X, type: Type.KeyboardL},
+      {code: Key.ENTER, type: Type.KeyboardR}
+    ],
+    escape: [
+      {code: Key.ESCAPE, type: null}
+    ]
+  };
+  var Metrics = {
+    type: Type.KeyboardL
+  };
+  function someKey(keyName, action, actionPad = "isLeftStick") {
+    const hasSome = Keys[keyName].some((key) => {
+      let result;
+      if (key.type === Type.Gamepad) {
+        result = game.input[key.button ? "wasGamepadButtonJustPressed" : actionPad](key.code);
+      } else {
+        result = game.input[action](key.code);
+      }
+      if (result && key.type !== null && Metrics.type !== key.type) {
+        Metrics.type = key.type;
+        window.hudevents.emit("input_type", Metrics.type);
+      }
+      return result;
+    });
+    if (hasSome) {
+      window.hudevents.emit("input_action", keyName, action);
+    }
+    return hasSome;
+  }
+  var Inputs = {
+    left: () => someKey("left", "isKeyDown"),
+    right: () => someKey("right", "isKeyDown"),
+    up: () => someKey("top", "isKeyDown"),
+    down: () => someKey("bottom", "isKeyDown"),
+    jump: () => someKey("jump", "wasKeyJustPressed"),
+    dash: () => someKey("dash", "wasKeyJustPressed"),
+    escape: () => someKey("escape", "wasKeyJustPressed"),
+    offensive: () => someKey("cardAttack", "wasKeyJustPressed"),
+    defensive: () => someKey("cardDefense", "wasKeyJustPressed"),
+    consumable: () => someKey("cardConsumable", "wasKeyJustPressed"),
+    refresh: () => someKey("cardRefresh", "wasKeyJustPressed"),
+    use: () => someKey("use", "wasKeyJustPressed"),
+    openDeck: () => someKey("openDeck", "wasKeyJustPressed")
+  };
+
+  // assets/scripts/behaviours/BossBehavior.js
+  var kHandicapBetweenDeplacement = 200;
+  var kHandicapBetweenMeleeAttack = 160;
+  var kHandicapForMeleeAttack = 110;
+  var kHandicapBetweenDistAttack = 200;
+  var kHandicapForDistAttack = 110;
+  var kHandicapBetweenSpecialAttack = 240;
+  var kHandicapForSpecialAttack = 110;
+  var kDelayToDie = 120;
+  var BossBehavior = class extends scriptbehavior_default {
+    constructor(options = {
+      defenseMultiplier: 1,
+      attackMultiplier: 1,
+      hpMultiplier: 1,
+      missRatio: 0.45,
+      goldMultiplier: 1
+    }) {
+      super();
+      this.deplacementAreaRadius = 30;
+      this.deplacementMaxAreaRadius = 320;
+      this.targetingRangeForMelee = 120;
+      this.attackingRangeForMelee = 40;
+      this.meleeDamage = 4.5 * options[0].attackMultiplier;
+      this.minRangeForDist = 120;
+      this.attackingRangeForDist = 200;
+      this.rangedDamage = 3 * options[0].attackMultiplier;
+      this.attackingRangeForSpecialAttack = 60;
+      this.specialAttackDamage = 7 * options[0].attackMultiplier;
+      this.missRatio = 0.5 * options[0].missRatio;
+      this.defense = 1 * options[0].defenseMultiplier;
+      this.currentHp = 25 * options[0].hpMultiplier;
+      this.maxHp = 25 * options[0].hpMultiplier;
+      this.currentSpeed = 0.8;
+      this.goldReward = 35 * options[0].goldMultiplier;
+      this.isMoving = false;
       this.nextPos = {x: null, y: null};
-      this.radius = 80;
-      this.isInAction = false;
-      this.action = null;
-      this.delayToMove = new timer_class_default(kHandicapForDeplacement, {autoStart: true, keepIterating: false});
-      this.delayToShoot = new timer_class_default(kHandicapForShooting, {autoStart: false, keepIterating: false});
+      this.delayToMove = new timer_class_default(kHandicapBetweenDeplacement, {keepIterating: false});
+      this.isAttacking = false;
+      this.delayBeforeNextMeleeAttack = new timer_class_default(kHandicapBetweenMeleeAttack, {autoStart: false, keepIterating: false});
+      this.timerForCurrentMeleeAttack = new timer_class_default(kHandicapForMeleeAttack, {autoStart: false, keepIterating: false});
+      this.delayBeforeNextDistAttack = new timer_class_default(kHandicapBetweenDistAttack, {autoStart: false, keepIterating: false});
+      this.timerForCurrentDistAttack = new timer_class_default(kHandicapForDistAttack, {autoStart: false, keepIterating: false});
+      this.delayBeforeNextSpecialAttack = new timer_class_default(kHandicapBetweenSpecialAttack, {autoStart: false, keepIterating: false});
+      this.timerForCurrentSpecialAttack = new timer_class_default(kHandicapForSpecialAttack, {autoStart: false, keepIterating: false});
+      this.isDead = false;
+      this.timerForDying = new timer_class_default(kDelayToDie, {autoStart: false, keepIterating: false});
+      this.state = getCurrentState();
+      this.teleporting = false;
+      this.rageMode = false;
+      this.time = new timer_class_default(60 * 5);
+      this.damageContainer = new Set();
     }
     awake() {
       this.sprite = this.actor.addComponent(new Components.AnimatedSpriteEx("adventurer", {defaultAnimation: "adventurer-idle"}));
-      this.actor.position.set(this.position.x, this.position.y);
+      this.lifeBar = new LifeBar_default({
+        spriteHeight: this.sprite.height,
+        currentHp: this.currentHp,
+        relativeMaxHp: this.maxHp,
+        maxHpBarLength: 60
+      });
+      this.anchor = new vector2_default(this.actor.x, this.actor.y);
+      this.actor.addChild(this.lifeBar.container);
+    }
+    start() {
+      this.target = getActor("player");
+      this.winSound = I.find("win");
+      this.winSound.volume = 0.1;
+    }
+    warp() {
+      this.teleporting = true;
+      const script = this.target.getScriptedBehavior("PlayerBehavior");
+      script.sendMessage("exitDungeon", false);
+    }
+    canBeAttacked() {
+      const isInsideRangeOfPlayer = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+      if (isInsideRangeOfPlayer) {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
+      } else {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+      }
+    }
+    takeDamage(damage, {isCritical = false} = {}) {
+      if (typeof damage !== "number") {
+        damage = 0;
+      }
+      if (this.currentHp - damage <= 0) {
+        this.currentHp = 0;
+      }
+      if (damage !== 0) {
+        damage -= this.defense;
+      }
+      this.currentHp -= damage;
+      if (this.currentHp <= 40 * this.maxHp / 100) {
+        this.rageModeOn();
+      }
+      const dmg = new DamageText_default(damage, this.actor, {
+        isCritical
+      });
+      dmg.once("done", () => this.damageContainer.delete(dmg));
+      this.damageContainer.add(dmg);
+      return this;
+    }
+    canAttack() {
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      if (!this.rageMode) {
+        if (distance <= this.attackingRangeForMelee) {
+          if (!this.delayBeforeNextMeleeAttack.isStarted) {
+            this.delayBeforeNextMeleeAttack.start();
+            if (!this.timerForCurrentMeleeAttack.isStarted) {
+              this.timerForCurrentMeleeAttack.start();
+            }
+            if (this.timerForCurrentMeleeAttack.walk()) {
+              return false;
+            }
+            return "melee-attack";
+          }
+          if (!this.delayBeforeNextMeleeAttack.walk()) {
+            return false;
+          }
+        } else if (distance <= this.attackingRangeForDist && distance >= this.minRangeForDist) {
+          if (!this.delayBeforeNextDistAttack.isStarted) {
+            this.delayBeforeNextDistAttack.start();
+            if (!this.timerForCurrentDistAttack.isStarted) {
+              this.timerForCurrentDistAttack.start();
+            }
+            if (this.timerForCurrentDistAttack.walk()) {
+              return false;
+            }
+            return "dist-attack";
+          }
+          if (!this.delayBeforeNextDistAttack.walk()) {
+            return false;
+          }
+        } else {
+          if (this.timerForCurrentDistAttack.isStarted) {
+            this.timerForCurrentDistAttack.reset();
+          }
+          if (this.timerForCurrentMeleeAttack.isStarted) {
+            this.timerForCurrentMeleeAttack.reset();
+          }
+        }
+      } else {
+        if (distance <= this.attackingRangeForMelee) {
+          if (!this.delayBeforeNextMeleeAttack.isStarted) {
+            this.delayBeforeNextMeleeAttack.start();
+            if (!this.timerForCurrentMeleeAttack.isStarted) {
+              this.timerForCurrentMeleeAttack.start();
+            }
+            if (this.timerForCurrentMeleeAttack.walk()) {
+              return false;
+            }
+            return "melee-attack";
+          }
+          if (!this.delayBeforeNextMeleeAttack.walk()) {
+            return false;
+          }
+        } else if (distance <= this.attackingRangeForSpecialAttack) {
+          if (!this.delayBeforeNextSpecialAttack.isStarted) {
+            this.delayBeforeNextSpecialAttack.start();
+            if (!this.timerForCurrentSpecialAttack.isStarted) {
+              this.timerForCurrentSpecialAttack.start();
+            }
+            if (this.timerForCurrentSpecialAttack.walk()) {
+              return false;
+            }
+            return "special-attack";
+          }
+          if (!this.delayBeforeNextSpecialAttack.walk()) {
+            return false;
+          }
+        } else {
+          if (this.timerForCurrentSpecialAttack.isStarted) {
+            this.timerForCurrentSpecialAttack.reset();
+          }
+          if (this.timerForCurrentMeleeAttack.isStarted) {
+            this.timerForCurrentMeleeAttack.reset();
+          }
+        }
+      }
+      return false;
+    }
+    initAttack(type2) {
+      if (this.actor.x < this.target.pos.x) {
+        this.sprite.scale.x = 1;
+      } else {
+        this.sprite.scale.x = -1;
+      }
+      const isCritical = Math.random() < 0.05;
+      const script = this.target.getScriptedBehavior("PlayerBehavior");
+      const isHitting = Math.random() < this.missratio ? false : true;
+      if (type2 === "melee-attack" || type2 === "special-attack") {
+        if (isHitting) {
+          if (type2 === "melee-attack") {
+            const damageToApply = isCritical ? this.meleeDamage * 2 : this.meleeDamage;
+            script.sendMessage("takeDamage", damageToApply, {isCritical});
+          } else if (type2 === "special-attack") {
+            const damageToApply = isCritical ? this.specialAttackDamage * 2 : this.specialAttackDamage;
+            script.sendMessage("takeDamage", damageToApply, {isCritical});
+          }
+        } else {
+          script.sendMessage("takeDamage", 0, false);
+        }
+      } else if (type2 === "dist-attack") {
+        const damageToApply = isCritical ? this.rangedDamage * 2 : this.rangedDamage;
+        game.rootScene.add(create("actor:projectile", {
+          startPos: {x: this.actor.x, y: this.actor.y},
+          targetPos: {x: this.target.x, y: this.target.y},
+          stat: {
+            fadeInFrames: 240,
+            radius: 25,
+            damage: damageToApply,
+            missRatio: this.missRatio
+          },
+          sprites: {
+            name: "adventurer",
+            start: "adventurer-idle",
+            while: "adventurer-run",
+            end: "adventurer-die"
+          }
+        }));
+      }
+    }
+    computeMovement() {
+      if (this.timerForCurrentDistAttack.isStarted || this.timerForCurrentMeleeAttack.isStarted || this.timerForCurrentSpecialAttack.isStarted) {
+        this.delayToMove.reset();
+        return;
+      }
+      if (!this.delayToMove.isStarted && this.isMoving) {
+        const distance = this.actor.pos.distanceTo(this.target.pos);
+        if (distance < this.targetingRangeForMelee) {
+          this.nextPos.x = this.target.x;
+          this.nextPos.y = this.target.y;
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+        return;
+      }
+      if (this.delayToMove.walk() || this.isMoving) {
+        if (!this.isMoving) {
+          const r2 = this.deplacementAreaRadius / 2 * Math.sqrt(Math.random());
+          const theta = Math.random() * 2 * Math.PI;
+          const x2 = Math.round(this.actor.x + r2 * Math.cos(theta));
+          const y2 = Math.round(this.actor.y + r2 * Math.sin(theta));
+          this.nextPos.x = x2;
+          this.nextPos.y = y2;
+        }
+        const distance = this.actor.pos.distanceTo(this.target.pos);
+        if (distance < this.targetingRangeForMelee) {
+          this.nextPos.x = this.target.x;
+          this.nextPos.y = this.target.y;
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+      }
+    }
+    goTo() {
+      if (Math.round(this.nextPos.x) === Math.round(this.actor.x) && Math.round(this.nextPos.y) === Math.round(this.actor.y)) {
+        this.nextPos.x = null;
+        this.nextPos.y = null;
+        this.isMoving = false;
+        this.delayToMove.reset().start();
+      } else {
+        this.isMoving = true;
+        if (Math.round(this.actor.x) !== Math.round(this.nextPos.x)) {
+          if (this.actor.x < this.nextPos.x) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.nextPos.x - this.actor.x;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveX(speedToApply);
+            this.sprite.scale.x = 1;
+          } else if (this.actor.x > this.nextPos.x) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.actor.x - this.nextPos.x;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveX(-speedToApply);
+            this.sprite.scale.x = -1;
+          }
+        }
+        if (Math.round(this.actor.y) !== Math.round(this.nextPos.y)) {
+          if (this.actor.y < this.nextPos.y) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.nextPos.y - this.actor.y;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveY(speedToApply);
+          } else if (this.actor.y > this.nextPos.y) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.actor.y - this.nextPos.y;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveY(-speedToApply);
+          }
+        }
+      }
+    }
+    computeAnimations() {
+      if (this.timerForCurrentMeleeAttack.isStarted && !this.timerForCurrentMeleeAttack.walk()) {
+        this.sprite.playAnimation("adventurer-attack1");
+      } else if (this.timerForCurrentDistAttack.isStarted && !this.timerForCurrentDistAttack.walk()) {
+        this.sprite.playAnimation("adventurer-attack2");
+      } else if (this.timerForCurrentSpecialAttack.isStarted && !this.timerForCurrentSpecialAttack.walk()) {
+        this.sprite.playAnimation("adventurer-attack3");
+      } else {
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+      }
+    }
+    rageModeOn() {
+      console.log("rage mode on !");
+      this.meleeDamage += 1;
+      this.currentSpeed *= 2;
+      this.rageMode = true;
+    }
+    rageModeOff() {
+      console.log("rage mode off!");
+      this.meleeDamage -= 1;
+      this.currentSpeed = 0.8;
+      this.rageMode = false;
+    }
+    die() {
+      if (!this.isDead && this.isDying()) {
+        this.sprite.playAnimation("adventurer-die");
+      }
+      if (!this.isDead && !this.isDying()) {
+        this.winSound.play();
+        this.cleanSprite();
+      }
+    }
+    isDying() {
+      if (!this.timerForDying.isStarted) {
+        this.timerForDying.start();
+      }
+      if (!this.timerForDying.walk()) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    cleanSprite() {
+      this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+      this.lifeBar.cleanup();
+      if (this.sprite) {
+        this.sprite.destroy();
+      }
+      const playerGold = this.state.getState("player.gold");
+      this.state.setState("player.gold", playerGold + this.goldReward);
+      this.isDead = true;
+    }
+    update() {
+      if (this.currentHp <= 0) {
+        this.die();
+        if (this.isDead) {
+          if (this.teleporting) {
+            return;
+          }
+          const distance = this.actor.pos.distanceTo(this.target.pos);
+          if (distance < 150 && Inputs.use()) {
+            this.warp();
+          }
+        }
+      } else {
+        this.canBeAttacked();
+        for (const dmg of this.damageContainer) {
+          dmg.update();
+        }
+        const attackStatus = this.canAttack();
+        if (attackStatus) {
+          this.initAttack(attackStatus);
+        }
+        if (this.rageMode) {
+          if (this.time.walk() && this.currentHp < this.maxHp) {
+            this.currentHp += 0.5;
+          }
+          if (this.currentHp === this.maxHp) {
+            this.rageModeOff();
+          }
+        }
+        this.computeMovement();
+        this.computeAnimations();
+        this.actor.applyVelocity();
+        this.lifeBar.update(this.currentHp);
+      }
+    }
+  };
+  var BossBehavior_default = BossBehavior;
+  scriptbehavior_default.define("BossBehavior", BossBehavior);
+
+  // assets/scripts/behaviours/CasterBehavior.js
+  var kHandicapForDeplacement = 120;
+  var kHandicapBetweenShoot = 220;
+  var kHandicapForShoot = 110;
+  var CasterBehavior = class extends scriptbehavior_default {
+    constructor(options = {
+      defenseMultiplier: 1,
+      attackMultiplier: 1,
+      hpMultiplier: 1,
+      missRatio: 0.45,
+      goldMultiplier: 1
+    }) {
+      super();
+      this.deplacementAreaRadius = 20;
+      this.deplacementMaxAreaRadius = 160;
+      this.attackingRange = 220;
+      this.damage = 2 * options[0].attackMultiplier;
+      this.missRatio = options[0].missRatio;
+      this.defense = 0.5 * options[0].defenseMultiplier;
+      this.currentHp = 5.5 * options[0].hpMultiplier;
+      this.maxHp = 5.5 * options[0].hpMultiplier;
+      this.currentSpeed = 0.5;
+      this.goldReward = 5 * options[0].goldMultiplier;
+      this.isFocusing = false;
+      this.isMoving = false;
+      this.nextPos = {x: null, y: null};
+      this.delayToMove = new timer_class_default(kHandicapForDeplacement, {keepIterating: false});
+      this.delayBeforeNextShoot = new timer_class_default(kHandicapBetweenShoot, {autoStart: false, keepIterating: false});
+      this.timerForCurrentShoot = new timer_class_default(kHandicapForShoot, {autoStart: false, keepIterating: false});
+      this.state = getCurrentState();
+      this.damageContainer = new Set();
+    }
+    awake() {
+      this.sprite = this.actor.addComponent(new Components.AnimatedSpriteEx("adventurer", {defaultAnimation: "adventurer-idle"}));
+      this.lifeBar = new LifeBar_default({
+        spriteHeight: this.sprite.height,
+        currentHp: this.currentHp,
+        relativeMaxHp: this.maxHp,
+        maxHpBarLength: 60
+      });
+      this.anchor = new vector2_default(this.actor.x, this.actor.y);
+      this.actor.addChild(this.lifeBar.container);
     }
     start() {
       this.target = getActor("player");
     }
-    update() {
-      if (this.canShoot()) {
-        this.initShoot();
-        return;
-      }
-      if (!this.isInAction) {
-        if (this.delayToMove.walk()) {
-          const r2 = this.radius / 2 * Math.sqrt(Math.random());
-          const theta = Math.random() * 2 * Math.PI;
-          const x2 = Math.round(this.position.x + r2 * Math.cos(theta));
-          const y2 = Math.round(this.position.y + r2 * Math.sin(theta));
-          this.nextPos.x = x2;
-          this.nextPos.y = y2;
-          this.isInAction = true;
-          this.action = "DEPLACEMENT";
-          this.goTo();
-        }
+    focusOn() {
+      console.log("focusing player !");
+      this.isFocusing = true;
+    }
+    focusOff() {
+      console.log("Not focusing player ! ");
+      this.isFocusing = false;
+    }
+    die() {
+      this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+      const playerGold = this.state.getState("player.gold");
+      this.state.setState("player.gold", playerGold + this.goldReward);
+      this.actor.cleanup();
+    }
+    canBeAttacked() {
+      const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+      if (isInside) {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
       } else {
-        this.goTo();
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
       }
-      this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+    }
+    takeDamage(damage, {isCritical = false} = {}) {
+      if (typeof damage !== "number") {
+        damage = 0;
+      }
+      if (damage !== 0) {
+        damage -= this.defense;
+      }
+      if (this.currentHp - damage <= 0) {
+        this.currentHp = 0;
+      }
+      this.currentHp -= damage;
+      const dmg = new DamageText_default(damage, this.actor, {isCritical});
+      dmg.once("done", () => this.damageContainer.delete(dmg));
+      this.damageContainer.add(dmg);
+      return this;
     }
     canShoot() {
-      const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= this.radius * this.radius;
-      if (isInside) {
-        if (!this.delayToShoot.isStarted) {
-          this.delayToShoot.start();
-          return false;
-        }
-        if (this.delayToShoot.walk()) {
-          this.delayToShoot.reset();
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      if (distance <= this.attackingRange) {
+        if (!this.delayBeforeNextShoot.isStarted) {
+          this.delayBeforeNextShoot.start();
+          if (!this.timerForCurrentShoot.isStarted) {
+            this.timerForCurrentShoot.start();
+          }
+          if (!this.timerForCurrentShoot.walk()) {
+            return false;
+          }
           return true;
+        } else {
+          if (!this.delayBeforeNextShoot.walk()) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        if (this.timerForCurrentShoot.isStarted) {
+          this.timerForCurrentShoot.reset();
         }
       }
       return false;
     }
     initShoot() {
+      if (this.actor.x < this.target.pos.x) {
+        this.sprite.scale.x = 1;
+      } else {
+        this.sprite.scale.x = -1;
+      }
       game.rootScene.add(create("actor:projectile", {
-        startPos: {x: this.actor.x, y: this.actor.y},
-        targetPos: {x: this.target.x, y: this.target.y}
+        startPos: {x: Math.round(this.actor.x), y: Math.round(this.actor.y)},
+        targetPos: {x: Math.round(this.target.x), y: Math.round(this.target.y)},
+        stat: {
+          fadeInFrames: 240,
+          radius: 15,
+          damage: this.damage,
+          missRatio: this.missRatio
+        },
+        sprites: {
+          name: "adventurer",
+          start: "adventurer-idle",
+          while: "adventurer-run",
+          end: "adventurer-die"
+        }
       }));
     }
+    getRandomPos() {
+      const r2 = 120 / 2 * Math.sqrt(Math.random());
+      const theta = Math.random() * 2 * Math.PI;
+      const x2 = Math.round(this.target.pos.x + r2 * Math.cos(theta));
+      const y2 = Math.round(this.target.pos.y + r2 * Math.sin(theta));
+      this.nextPos.x = x2;
+      this.nextPos.y = y2;
+    }
+    computeMovement() {
+      if (this.timerForCurrentShoot.isStarted) {
+        this.delayToMove.reset();
+        return;
+      }
+      if (this.isFocusing) {
+        if (!this.isMoving && !this.timerForCurrentShoot.isStarted) {
+          this.getRandomPos();
+        }
+        const distanceBetweenTargetAndNextPos = this.target.pos.distanceTo(this.nextPos);
+        if (this.isMoving && distanceBetweenTargetAndNextPos > 120) {
+          this.getRandomPos();
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= 220) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+        return;
+      }
+      if (!this.timerForCurrentShoot.isStarted && this.isMoving) {
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+        return;
+      }
+      if (this.delayToMove.walk() || this.isMoving) {
+        if (!this.isMoving) {
+          const r2 = this.deplacementAreaRadius / 2 * Math.sqrt(Math.random());
+          const theta = Math.random() * 2 * Math.PI;
+          const x2 = Math.round(this.actor.x + r2 * Math.cos(theta));
+          const y2 = Math.round(this.actor.y + r2 * Math.sin(theta));
+          this.nextPos.x = x2;
+          this.nextPos.y = y2;
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+      }
+    }
     goTo() {
-      this.isInAction = true;
-      if (this.nextPos.x === this.actor.x && this.nextPos.y === this.actor.y) {
-        this.action = null;
+      if (Math.round(this.nextPos.x) === Math.round(this.actor.x) && Math.round(this.nextPos.y) === Math.round(this.actor.y)) {
         this.nextPos.x = null;
         this.nextPos.y = null;
-        this.isInAction = false;
-        this.delayToMove = new timer_class_default(kHandicapForDeplacement);
+        this.isMoving = false;
+        this.delayToMove.reset().start();
       } else {
-        if (this.actor.x !== this.nextPos.x)
-          this.actor.x = this.actor.x < this.nextPos.x ? this.actor.x + 1 : this.actor.x - 1;
-        if (this.actor.y !== this.nextPos.y)
-          this.actor.y = this.actor.y < this.nextPos.y ? this.actor.y + 1 : this.actor.y - 1;
+        this.isMoving = true;
+        if (Math.round(this.actor.x) !== Math.round(this.nextPos.x)) {
+          if (this.actor.x < this.nextPos.x) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.nextPos.x - this.actor.x;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveX(speedToApply);
+            this.sprite.scale.x = 1;
+          } else if (this.actor.x > this.nextPos.x) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.actor.x - this.nextPos.x;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveX(-speedToApply);
+            this.sprite.scale.x = -1;
+          }
+        }
+        if (Math.round(this.actor.y) !== Math.round(this.nextPos.y)) {
+          if (this.actor.y < this.nextPos.y) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.nextPos.y - this.actor.y;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveY(speedToApply);
+          } else if (this.actor.y > this.nextPos.y) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.actor.y - this.nextPos.y;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveY(-speedToApply);
+          }
+        }
+      }
+    }
+    update() {
+      this.canBeAttacked();
+      for (const dmg of this.damageContainer) {
+        dmg.update();
+      }
+      if (this.canShoot()) {
+        this.initShoot();
+      }
+      this.computeMovement();
+      if (this.timerForCurrentShoot.isStarted && !this.timerForCurrentShoot.walk()) {
+        this.sprite.playAnimation("adventurer-attack1");
+      } else {
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+      }
+      this.actor.applyVelocity();
+      this.lifeBar.update(this.currentHp);
+      if (this.currentHp <= 0) {
+        this.die();
       }
     }
   };
-  var CreatureBehavior_default = CreatureBehavior;
-  scriptbehavior_default.define("CreatureBehavior", CreatureBehavior);
-  define2("actor:creature", () => {
-    return new actor_class_default(increment("creature")).createScriptedBehavior(new CreatureBehavior());
+  var CasterBehavior_default = CasterBehavior;
+  scriptbehavior_default.define("CasterBehavior", CasterBehavior);
+  define2("actor:caster", (options = {}) => {
+    return new actor_class_default(increment("caster")).createScriptedBehavior(new CasterBehavior(options));
   });
 
-  // assets/scripts/keys.js
-  var Keys = {
-    left: [Key.Q, Key.LEFT],
-    right: [Key.D, Key.RIGHT],
-    top: [Key.Z, Key.UP],
-    bottom: [Key.S, Key.DOWN],
-    use: [Key.E, Key.SPACE]
-  };
-  function isDown(keyName) {
-    return Keys[keyName].some((key) => game.input.isKeyDown(key));
-  }
-  var Inputs = {
-    left: () => isDown("left"),
-    right: () => isDown("right"),
-    up: () => isDown("top"),
-    down: () => isDown("bottom"),
-    use() {
-      return Keys.use.some((key) => game.input.wasKeyJustPressed(key));
+  // assets/scripts/helpers/Deck/Skill.js
+  var AbstractSkill = class {
+    constructor(name, params, description = "") {
+      this.name = name;
+      this.params = params;
+      this.description = description;
     }
   };
+  var OffensiveSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    use() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("offensiveSkill", this.name);
+    }
+  };
+  var DefensiveSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    use() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("defensiveSkill", this.name);
+    }
+  };
+  var PassiveSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    activate(stars) {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("activatePassive", this.name, this.params * stars);
+    }
+    deactivate() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("deactivatePassive", this.name);
+    }
+  };
+  var ConsumableSkill = class extends AbstractSkill {
+    constructor(name, params) {
+      super(name, params);
+    }
+    use() {
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("consumable", this.name, this.params);
+    }
+  };
+  var OffensiveSkills = Object.freeze({
+    sword: new OffensiveSkill("sword", 1),
+    axe: new OffensiveSkill("axe", 1),
+    hammer: new OffensiveSkill("hammer", 1),
+    claw: new OffensiveSkill("claw", 1),
+    spear: new OffensiveSkill("spear", 2),
+    whip: new OffensiveSkill("whip", 2),
+    bow: new OffensiveSkill("bow", 1),
+    crossbow: new OffensiveSkill("crossbow", 2),
+    knife: new OffensiveSkill("knife", 2),
+    pistol: new OffensiveSkill("pistol", 2),
+    riffle: new OffensiveSkill("riffle", 2),
+    spell: new OffensiveSkill("spell", 1)
+  });
+  var DefensiveSkills = Object.freeze({
+    shield: new DefensiveSkill("shield", 1),
+    dodge: new DefensiveSkill("dodge", 1),
+    counter: new DefensiveSkill("counter", 1),
+    dash: new DefensiveSkill("dash", 1)
+  });
+  var PassiveSkills = Object.freeze({
+    attack: new PassiveSkill("attack", 1),
+    defense: new PassiveSkill("defense", 1),
+    special: new PassiveSkill("special", 1),
+    speed: new PassiveSkill("speed", 1),
+    healthRegenBoost: new PassiveSkill("healthRegenBoost", 1)
+  });
+  var ConsumableSkills = Object.freeze({
+    heal: new ConsumableSkill("heal", 4),
+    portal: new ConsumableSkill("portal", 1),
+    nuke: new ConsumableSkill("nuke", 1),
+    invincible: new ConsumableSkill("invincible", 1),
+    resistance: new ConsumableSkill("resistance", 1),
+    secretVision: new ConsumableSkill("secretVision", 1)
+  });
+
+  // assets/scripts/helpers/Deck/Card.js
+  var Card = class {
+    constructor(name, offensiveSkillName, defensiveSkillName, passiveSkillName, consumableSkillName, stars) {
+      this.name = name;
+      this.offensiveSkill = OffensiveSkills[offensiveSkillName];
+      this.defensiveSkill = DefensiveSkills[defensiveSkillName];
+      this.passiveSkill = PassiveSkills[passiveSkillName];
+      this.consumableSkill = ConsumableSkills[consumableSkillName];
+      this.stars = stars;
+    }
+    upgrade() {
+      if (this.stars < 10) {
+        ++this.stars;
+      } else {
+        console.log("ALREADY AT LEVEL MAX");
+      }
+    }
+    attack() {
+      this.offensiveSkill.use();
+    }
+    defend() {
+      this.defensiveSkill.use();
+    }
+    activatePassive() {
+      this.passiveSkill.activate(this.stars);
+    }
+    deactivatePassive() {
+      this.passiveSkill.deactivate();
+    }
+    consume() {
+      this.consumableSkill.use();
+    }
+  };
+  var StarterCards = Object.freeze([
+    new Card("Warrior", "sword", "shield", "speed", "heal", 1),
+    new Card("Archer", "bow", "shield", "speed", "heal", 3),
+    new Card("Knight", "spear", "shield", "speed", "invincible", 2),
+    new Card("Bandit", "axe", "dodge", "speed", "heal", 2),
+    new Card("Berserker", "hammer", "dodge", "defense", "invincible", 2),
+    new Card("Thief", "knife", "counter", "defense", "resistance", 3),
+    new Card("Ranger", "crossbow", "dash", "defense", "resistance", 4),
+    new Card("Wizard", "spell", "dash", "special", "invincible", 2)
+  ]);
+
+  // assets/scripts/behaviours/ChestBehavior.js
+  window.trunkCards = null;
+  var _ChestBehavior = class extends scriptbehavior_default {
+    static randomInt(max, min = 1) {
+      return Math.floor(Math.random() * max) + min;
+    }
+    awake() {
+      this.cards = [];
+      const count = _ChestBehavior.randomInt(Math.random() < 0.1 ? 3 : 2);
+      for (let i2 = 0; i2 < count; i2++) {
+        const test = new Card("First Card", "sword", "shield", "attack", "heal", 1);
+        this.cards.push(test);
+      }
+      this.opened = false;
+      const spriteComponent = new Components.AnimatedSpriteEx("chest", {
+        defaultAnimation: "idle"
+      });
+      spriteComponent.anchor.set(0, 0);
+      this.sprite = this.actor.addComponent(spriteComponent);
+      this.sprite.scale.set(0.5, 0.5);
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    destroy() {
+      if (this.opened) {
+        hudevents.emit("trunk", false);
+      }
+    }
+    open() {
+      window.trunkCards = this.cards;
+      hudevents.emit("trunk", true);
+      this.opened = true;
+    }
+    close() {
+      hudevents.emit("trunk", false);
+      this.opened = false;
+      window.trunkCards = null;
+    }
+    update() {
+      if (this.cards.length === 0) {
+        this.actor.cleanup();
+        hudevents.emit("trunk", false);
+        return;
+      }
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      const inArea = distance < _ChestBehavior.DistanceToOpen;
+      if (!this.opened && inArea) {
+        this.sprite.playAnimation("open", {loop: false});
+        if (Inputs.use()) {
+          this.open();
+        }
+      } else if (this.opened && (!inArea || Inputs.escape())) {
+        this.close();
+      }
+    }
+  };
+  var ChestBehavior = _ChestBehavior;
+  __publicField(ChestBehavior, "DistanceToOpen", 60);
+  var ChestBehavior_default = ChestBehavior;
+  scriptbehavior_default.define("ChestBehavior", ChestBehavior);
+
+  // assets/scripts/behaviours/DamageAreaBehavior.js
+  var DamageAreaBehavior = class extends scriptbehavior_default {
+    constructor() {
+      super();
+      this.activationDelay = new timer_class_default(180, {autoStart: true, keepIterating: true});
+      this.hitTimer = new timer_class_default(80, {autoStart: false, keepIterating: false});
+      this.damage = 2;
+      this.triggered = false;
+      this.draw(this.triggered ? "#B71C1C" : "#FFFFFF");
+    }
+    awake() {
+      this.graphic = this.actor.children[0];
+    }
+    draw(color) {
+      if (this.graphic) {
+        const {width, height} = this.graphic;
+        this.graphic.clear().beginFill(PIXI.utils.string2hex(color), 0.6).drawRect(0, 0, width, height).endFill();
+      }
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    hit() {
+      this.hitTimer.start();
+      const isCritical = Math.random() < 0.05;
+      const damageToApply = isCritical ? this.damage * 2 : this.damage;
+      const script = this.target.getScriptedBehavior("PlayerBehavior");
+      script.sendMessage("takeDamage", damageToApply, {isCritical});
+    }
+    update() {
+      if (this.activationDelay.walk()) {
+        this.triggered = !this.triggered;
+        if (!this.triggered) {
+          this.hitTimer.reset();
+        }
+        this.draw(this.triggered ? "#B71C1C" : "#FFFFFF");
+      }
+      if (this.hitTimer.isStarted && !this.hitTimer.walk()) {
+        return;
+      }
+      if (boxesIntersect(this.actor, this.target) && this.triggered) {
+        this.hit();
+      }
+    }
+  };
+  var DamageAreaBehavior_default = DamageAreaBehavior;
+  scriptbehavior_default.define("DamageAreaBehavior", DamageAreaBehavior);
+
+  // assets/scripts/behaviours/DonjonBehaviorExit.js
+  var DonjonBehaviorExit = class extends scriptbehavior_default {
+    DistanceToExit = 100;
+    constructor() {
+      super();
+      this.teleporting = false;
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    warp() {
+      this.teleporting = true;
+      const script = this.target.getScriptedBehavior("PlayerBehavior");
+      script.sendMessage("exitDungeon", true);
+    }
+    update() {
+      if (this.teleporting) {
+        return;
+      }
+      if (Inputs.use() && this.actor.pos.distanceTo(this.target.pos) < DonjonBehaviorExit.DistanceToExit) {
+        this.warp();
+      }
+    }
+  };
+  var DonjonBehaviorExit_default = DonjonBehaviorExit;
+  scriptbehavior_default.define("DonjonBehaviorExit", DonjonBehaviorExit);
 
   // assets/scripts/behaviours/DoorBehavior.js
   var DoorBehavior = class extends scriptbehavior_default {
@@ -34394,9 +35978,13 @@ void main() {
     start() {
       this.target = getActor("player");
       this.connectedTo = getActor(this.actor.tileProperties.connectTo);
+      this.track = this.actor.tileProperties.track || null;
     }
     warp() {
       this.warpTimer.start();
+      if (this.track !== null) {
+        window.mediaplayer.play(this.track);
+      }
       const script = this.target.getScriptedBehavior("PlayerBehavior");
       script.sendMessage("teleport", this.connectedTo.centerPosition);
     }
@@ -34413,33 +36001,565 @@ void main() {
   scriptbehavior_default.define("DoorBehavior", DoorBehavior);
 
   // assets/scripts/behaviours/DungeonDoorBehavior.js
-  var DungeonDoorBehavior = class extends scriptbehavior_default {
+  var _DungeonDoorBehavior = class extends scriptbehavior_default {
+    constructor() {
+      super();
+      this.locked = false;
+    }
     awake() {
-      this.teleporting = false;
+      this.warpTimer = new timer_class_default(60, {autoStart: false, keepIterating: false});
     }
     start() {
       this.target = getActor("player");
+      try {
+        const text = this.actor.children[0].children[0];
+        text.text = this.actor.name;
+      } catch (err) {
+      }
+    }
+    lock() {
+      this.locked = true;
+    }
+    unlock() {
+      this.locked = false;
     }
     warp() {
-      this.teleporting = true;
+      this.warpTimer.start();
       const script = this.target.getScriptedBehavior("PlayerBehavior");
-      script.playable = false;
-      console.clear();
-      console.log("load scene");
-      game.loadScene("dungeon");
-    }
-    update() {
-      if (this.teleporting) {
+      if (script.isTeleporting.isStarted) {
         return;
       }
-      const distance = this.actor.pos.distanceTo(this.target.pos);
-      if (distance < 50 && Inputs.use()) {
+      console.log("warp triggered!");
+      const pos = this.actor.connectedTo.pos;
+      this.actor.emit("player_leave");
+      script.sendMessage("fastTeleport", {
+        x: pos.x + this.actor.connectedTo.width / 4,
+        y: pos.y + this.actor.connectedTo.height / 2
+      });
+      this.actor.connectedTo.emit("player_enter");
+    }
+    update() {
+      if (this.warpTimer.isStarted && !this.warpTimer.walk()) {
+        return;
+      }
+      if (this.locked) {
+        return;
+      }
+      if (Inputs.use() && this.actor.pos.distanceTo(this.target.pos) < _DungeonDoorBehavior.DistanceToActivateDoor) {
         this.warp();
       }
     }
   };
+  var DungeonDoorBehavior = _DungeonDoorBehavior;
+  __publicField(DungeonDoorBehavior, "DistanceToActivateDoor", 60);
   var DungeonDoorBehavior_default = DungeonDoorBehavior;
   scriptbehavior_default.define("DungeonDoorBehavior", DungeonDoorBehavior);
+
+  // assets/scripts/behaviours/MeleeBehavior.js
+  var kHandicapForDeplacement2 = 120;
+  var kHandicapBetweenAttack = 200;
+  var kHandicapForAttack = 110;
+  var MeleeBehavior = class extends scriptbehavior_default {
+    constructor(options = {
+      defenseMultiplier: 1,
+      attackMultiplier: 1,
+      hpMultiplier: 1,
+      missRatio: 0.45,
+      goldMultiplier: 1
+    }) {
+      super();
+      this.deplacementAreaRadius = 40;
+      this.deplacementMaxAreaRadius = 200;
+      this.targetingRange = 90;
+      this.attackingRange = 40;
+      this.damage = 2 * options[0].attackMultiplier;
+      this.missratio = options[0].missRatio;
+      this.defense = 1 * options[0].defenseMultiplier;
+      this.currentHp = 10 * options[0].hpMultiplier;
+      this.maxHp = 10 * options[0].hpMultiplier;
+      this.currentSpeed = 0.7;
+      this.goldReward = 2 * options[0].goldMultiplier;
+      this.isFocusing = false;
+      this.isMoving = false;
+      this.nextPos = {x: null, y: null};
+      this.delayToMove = new timer_class_default(kHandicapForDeplacement2, {keepIterating: false});
+      this.delayBeforeNextAttack = new timer_class_default(kHandicapBetweenAttack, {autoStart: false, keepIterating: false});
+      this.timerForCurrentAttack = new timer_class_default(kHandicapForAttack, {autoStart: false, keepIterating: false});
+      this.state = getCurrentState();
+      this.damageContainer = new Set();
+    }
+    awake() {
+      this.sprite = this.actor.addComponent(new Components.AnimatedSpriteEx("adventurer", {defaultAnimation: "adventurer-idle"}));
+      this.lifeBar = new LifeBar_default({
+        spriteHeight: this.sprite.height,
+        currentHp: this.currentHp,
+        relativeMaxHp: this.maxHp,
+        maxHpBarLength: 60
+      });
+      this.anchor = new vector2_default(this.actor.x, this.actor.y);
+      this.actor.addChild(this.lifeBar.container);
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    focusOn() {
+      console.log("focusing player !");
+      this.isFocusing = true;
+    }
+    focusOff() {
+      console.log("Not focusing player ! ");
+      this.isFocusing = false;
+    }
+    die() {
+      this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+      const playerGold = this.state.getState("player.gold");
+      this.state.setState("player.gold", playerGold + this.goldReward);
+      this.actor.cleanup();
+    }
+    canBeAttacked() {
+      const isInside = Math.pow(this.actor.x - this.target.x, 2) + Math.pow(this.actor.y - this.target.y, 2) <= 40 * 40;
+      if (isInside) {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("inRange", this.actor.name);
+      } else {
+        this.target.getScriptedBehavior("PlayerBehavior").sendMessage("outRange", this.actor.name);
+      }
+    }
+    takeDamage(damage, {isCritical = false} = {}) {
+      if (typeof damage !== "number") {
+        damage = 0;
+      }
+      if (damage !== 0) {
+        damage -= this.defense;
+      }
+      if (this.currentHp - damage <= 0) {
+        this.currentHp = 0;
+      }
+      this.currentHp -= damage;
+      const dmg = new DamageText_default(damage, this.actor, {isCritical});
+      dmg.once("done", () => this.damageContainer.delete(dmg));
+      this.damageContainer.add(dmg);
+      return this;
+    }
+    canAttack() {
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      if (distance <= this.attackingRange) {
+        if (!this.delayBeforeNextAttack.isStarted) {
+          this.delayBeforeNextAttack.start();
+          if (!this.timerForCurrentAttack.isStarted) {
+            this.timerForCurrentAttack.start();
+          }
+          if (!this.timerForCurrentAttack.walk()) {
+            return false;
+          }
+          return true;
+        } else {
+          if (!this.delayBeforeNextAttack.walk()) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        if (this.timerForCurrentAttack.isStarted) {
+          this.timerForCurrentAttack.reset();
+        }
+      }
+      return false;
+    }
+    initAttack() {
+      if (this.actor.x < this.target.pos.x) {
+        this.sprite.scale.x = 1;
+      } else {
+        this.sprite.scale.x = -1;
+      }
+      const isCritical = Math.random() < 0.05;
+      const damageToApply = isCritical ? this.damage * 2 : this.damage;
+      const script = this.target.getScriptedBehavior("PlayerBehavior");
+      const isHitting = Math.random() < this.missratio ? false : true;
+      if (isHitting) {
+        script.sendMessage("takeDamage", damageToApply, {isCritical});
+      } else {
+        script.sendMessage("takeDamage", 0);
+      }
+    }
+    computeMovement() {
+      if (this.timerForCurrentAttack.isStarted) {
+        this.delayToMove.reset();
+        return;
+      }
+      if (this.isFocusing) {
+        if (!this.isMoving && !this.timerForCurrentAttack.isStarted) {
+          this.nextPos.x = this.target.x;
+          this.nextPos.y = this.target.y;
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= 60) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+        return;
+      }
+      if (!this.delayToMove.isStarted && this.isMoving) {
+        const distance = this.actor.pos.distanceTo(this.target.pos);
+        if (distance < this.targetingRange) {
+          this.nextPos.x = this.target.x;
+          this.nextPos.y = this.target.y;
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+        return;
+      }
+      if (this.delayToMove.walk() || this.isMoving) {
+        if (!this.isMoving) {
+          const r2 = this.deplacementAreaRadius / 2 * Math.sqrt(Math.random());
+          const theta = Math.random() * 2 * Math.PI;
+          const x2 = Math.round(this.actor.x + r2 * Math.cos(theta));
+          const y2 = Math.round(this.actor.y + r2 * Math.sin(theta));
+          this.nextPos.x = x2;
+          this.nextPos.y = y2;
+        }
+        const distance = this.actor.pos.distanceTo(this.target.pos);
+        if (distance < this.targetingRange) {
+          this.nextPos.x = this.target.x;
+          this.nextPos.y = this.target.y;
+        }
+        const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+        if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+          this.nextPos.x = this.anchor.x;
+          this.nextPos.y = this.anchor.y;
+        }
+        this.goTo();
+      }
+    }
+    goTo() {
+      if (Math.round(this.nextPos.x) === Math.round(this.actor.x) && Math.round(this.nextPos.y) === Math.round(this.actor.y)) {
+        this.nextPos.x = null;
+        this.nextPos.y = null;
+        this.isMoving = false;
+        this.delayToMove.reset().start();
+      } else {
+        this.isMoving = true;
+        if (Math.round(this.actor.x) !== Math.round(this.nextPos.x)) {
+          if (this.actor.x < this.nextPos.x) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.nextPos.x - this.actor.x;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveX(speedToApply);
+            this.sprite.scale.x = 1;
+          } else if (this.actor.x > this.nextPos.x) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.actor.x - this.nextPos.x;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveX(-speedToApply);
+            this.sprite.scale.x = -1;
+          }
+        }
+        if (Math.round(this.actor.y) !== Math.round(this.nextPos.y)) {
+          if (this.actor.y < this.nextPos.y) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.nextPos.y - this.actor.y;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveY(speedToApply);
+          } else if (this.actor.y > this.nextPos.y) {
+            let speedToApply = this.currentSpeed;
+            const diff = this.actor.y - this.nextPos.y;
+            if (diff < this.currentSpeed)
+              speedToApply = diff;
+            this.actor.moveY(-speedToApply);
+          }
+        }
+      }
+    }
+    update() {
+      this.canBeAttacked();
+      for (const dmg of this.damageContainer) {
+        dmg.update();
+      }
+      if (this.canAttack()) {
+        this.initAttack();
+      }
+      this.computeMovement();
+      if (this.timerForCurrentAttack.isStarted && !this.timerForCurrentAttack.walk()) {
+        this.sprite.playAnimation("adventurer-attack1");
+      } else {
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+      }
+      this.actor.applyVelocity();
+      this.lifeBar.update(this.currentHp);
+      if (this.currentHp <= 0) {
+        this.die();
+      }
+    }
+  };
+  var MeleeBehavior_default = MeleeBehavior;
+  scriptbehavior_default.define("MeleeBehavior", MeleeBehavior);
+  define2("actor:melee", (options = {}) => {
+    return new actor_class_default(increment("melee")).createScriptedBehavior(new MeleeBehavior(options));
+  });
+
+  // assets/scripts/behaviours/PlayerBehavior.js
+  var PIXI24 = __toModule(require_pixi());
+
+  // assets/scripts/helpers/DieScreen.js
+  var PIXI23 = __toModule(require_pixi());
+  function getStyle2() {
+    return {
+      fill: "#EF5350",
+      fontFamily: "Verdana",
+      fontSize: 10,
+      fontVariant: "small-caps",
+      fontWeight: "bold",
+      letterSpacing: 1,
+      lineJoin: "round",
+      strokeThickness: 2,
+      align: "center"
+    };
+  }
+  var DieScreen = class extends PIXI23.Container {
+    constructor() {
+      super();
+      this.animatedText = new AnimatedText_default("You are dead... noob", getStyle2(), {
+        animations: [
+          new AnimatedText_exports.WritingTextAnimation({
+            charTick: 4,
+            pauseTimeBetweenLine: 60
+          }),
+          new AnimatedText_exports.FadeTextAnimation({
+            frame: 60,
+            easing: "easeInQuad",
+            defaultState: "out"
+          }),
+          new AnimatedText_exports.MovingTextAnimation({
+            decalY: 40,
+            frame: 80,
+            easing: "easeOutQuad"
+          })
+        ]
+      });
+      this.animatedText.gameObject.anchor.set(0.5);
+      const style2 = getStyle2();
+      style2.fill = "#64FFDA";
+      this.animatedText2 = new AnimatedText_default("Press 'ENTER' to revive!", style2, {
+        autoStart: false,
+        animations: [
+          new AnimatedText_exports.FadeTextAnimation({
+            frame: 60,
+            easing: "easeInQuad",
+            defaultState: "out"
+          }),
+          new AnimatedText_exports.MovingTextAnimation({
+            decalY: 60,
+            frame: 120,
+            easing: "easeOutQuad"
+          })
+        ]
+      });
+      this.animatedText2.y = 15;
+      this.animatedText2.gameObject.anchor.set(0.5);
+      this.animatedText.linkTo(this.animatedText2);
+      this.addChild(this.animatedText);
+      this.addChild(this.animatedText2);
+    }
+    update() {
+      this.animatedText.update();
+      this.animatedText2.update();
+      if (game.input.wasKeyJustPressed(Key.ENTER)) {
+        this.emit("cleanup");
+        this.destroy({children: true, baseTexture: true, texture: true});
+      }
+    }
+  };
+  var DieScreen_default = DieScreen;
+
+  // assets/scripts/helpers/Deck/Deck.js
+  var SkillIndex = Object.freeze({
+    Offensive: 0,
+    Defensive: 1,
+    Passive: 2,
+    Consumable: 3
+  });
+  var MAK_NUMBER_OF_CARDS_IN_SLOT_HUD = 4;
+  var MAX_NUMBER_OF_CARDS_IN_RECUPERATOR = 5;
+  var DEBUG = false;
+  var Deck = class {
+    constructor() {
+      this.state = getCurrentState();
+      this.discardedCards = this.state.getState("deck.discard");
+      this.cardDraw = this.state.getState("deck.draw");
+      this.lockedCard = this.state.getState("deck.lockedCard");
+      this.recuperator = this.state.getState("deck.recuperator");
+      this.slotHUD = [];
+      this.slotHUD[SkillIndex.Offensive] = this.state.getState("deck.slotHUD.offensive");
+      this.slotHUD[SkillIndex.Defensive] = this.state.getState("deck.slotHUD.defensive");
+      this.slotHUD[SkillIndex.Passive] = this.state.getState("deck.slotHUD.passive");
+      this.slotHUD[SkillIndex.Consumable] = this.state.getState("deck.slotHUD.consumable");
+      if (this.slotHUD[SkillIndex.Offensive] === void 0 || this.slotHUD[SkillIndex.Offensive] === null) {
+        console.log("INIT DECK");
+        this.cardDraw = Array.from(StarterCards);
+        this.shuffleCardDraw();
+        this.initSlotHUD();
+      }
+      this.debugLog();
+    }
+    loadState() {
+      this.state.setState("deck.slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+      this.state.setState("deck.slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+      this.state.setState("deck.slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
+      this.state.setState("deck.slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+      this.state.setState("deck.discard", this.discardedCards);
+      this.state.setState("deck.draw", this.cardDraw);
+      this.state.setState("deck.lockedCard", this.lockedCard);
+      this.state.setState("deck.recuperator", this.recuperator);
+    }
+    updateRecuperator() {
+      this.recuperator.push(...this.lockedCard);
+      while (this.recuperator.length > MAX_NUMBER_OF_CARDS_IN_RECUPERATOR) {
+        const minNumberOfStars = Math.min.apply(Math, this.recuperator.map((card) => card.stars));
+        const indexToRemove = this.recuperator.findIndex((card) => card.stars === minNumberOfStars);
+        this.recuperator.splice(indexToRemove, 1);
+      }
+      this.lockedCard = [];
+      this.state.setState("deck.lockedCard", this.lockedCard);
+      this.state.setState("deck.recuperator", this.recuperator);
+    }
+    shuffleCardDraw() {
+      for (let i2 = this.cardDraw.length - 1; i2 > 0; i2--) {
+        let j2 = Math.floor(Math.random() * (i2 + 1));
+        [this.cardDraw[i2], this.cardDraw[j2]] = [this.cardDraw[j2], this.cardDraw[i2]];
+      }
+    }
+    initSlotHUD() {
+      this.slotHUD = [];
+      for (let i2 = 0; i2 < MAK_NUMBER_OF_CARDS_IN_SLOT_HUD; ++i2) {
+        this.slotHUD.push(this.pick());
+      }
+    }
+    pick() {
+      if (this.slotHUD.length >= MAK_NUMBER_OF_CARDS_IN_SLOT_HUD) {
+        return;
+      }
+      if (this.cardDraw.length === 0 && this.discard.length !== 0) {
+        this.cardDraw = Array.from(this.discardedCards);
+        this.discardedCards = [];
+        this.state.setState("deck.discard", this.discardedCards);
+        this.shuffleCardDraw();
+      }
+      const pickedCard = this.cardDraw.pop();
+      this.state.setState("deck.draw", this.cardDraw);
+      return pickedCard;
+    }
+    discard(card) {
+      this.discardedCards.push(card);
+      this.state.setState("deck.discard", this.discardedCards);
+    }
+    dump(card) {
+      this.lockedCard.push(card);
+      this.state.setState("deck.lockedCard", this.lockedCard);
+    }
+    recover(cardIndex) {
+      const cardToRecover = this.recuperator.splice(cardIndex, 1);
+      if (cardToRecover) {
+        this.cardDraw.unshift(cardToRecover);
+      }
+      this.state.setState("deck.recuperator", this.recuperator);
+      this.state.setState("deck.draw", this.cardDraw);
+    }
+    useOffensiveSkill() {
+      this.slotHUD[SkillIndex.Offensive].attack();
+      this.discard(this.slotHUD[SkillIndex.Offensive]);
+      this.slotHUD.splice(SkillIndex.Offensive, 1);
+      this.slotHUD.splice(SkillIndex.Offensive, 0, this.pick());
+      this.state.setState("deck.slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+      this.debugLog();
+    }
+    useDefensiveSkill() {
+      this.slotHUD[SkillIndex.Offensive].defend();
+      this.discard(this.slotHUD[SkillIndex.Defensive]);
+      this.slotHUD.splice(SkillIndex.Defensive, 1);
+      this.slotHUD.splice(SkillIndex.Defensive, 0, this.pick());
+      this.state.setState("deck.slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+      this.debugLog();
+    }
+    useConsumable() {
+      if (this.slotHUD[SkillIndex.Consumable]) {
+        this.slotHUD[SkillIndex.Consumable].consume();
+        this.dump(this.slotHUD[SkillIndex.Consumable]);
+        this.slotHUD.splice(SkillIndex.Consumable, 1);
+        this.slotHUD.splice(SkillIndex.Consumable, 0, this.pick());
+      }
+      this.state.setState("deck.slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+      this.debugLog();
+    }
+    carouselSlot() {
+      this.slotHUD[SkillIndex.Passive].deactivatePassive();
+      if (!this.slotHUD[SkillIndex.Consumable]) {
+        console.log("NO CONSUMABLE CARD");
+        this.slotHUD = Array.from([
+          this.slotHUD[SkillIndex.Passive],
+          this.slotHUD[SkillIndex.Offensive],
+          this.slotHUD[SkillIndex.Defensive],
+          this.slotHUD[SkillIndex.Consumable]
+        ]);
+      } else {
+        this.slotHUD = Array.from([
+          this.slotHUD[SkillIndex.Consumable],
+          this.slotHUD[SkillIndex.Offensive],
+          this.slotHUD[SkillIndex.Defensive],
+          this.slotHUD[SkillIndex.Passive]
+        ]);
+      }
+      this.slotHUD[SkillIndex.Passive].activatePassive();
+      this.state.setState("deck.slotHUD.offensive", this.slotHUD[SkillIndex.Offensive]);
+      this.state.setState("deck.slotHUD.defensive", this.slotHUD[SkillIndex.Defensive]);
+      this.state.setState("deck.slotHUD.passive", this.slotHUD[SkillIndex.Passive]);
+      this.state.setState("deck.slotHUD.consumable", this.slotHUD[SkillIndex.Consumable]);
+      this.debugLog();
+    }
+    moveCardInDraw(cardIndex, destinationIndex) {
+      const cardToMove = this.cardDraw.splice(cardIndex, 1);
+      this.cardDraw.splice(destinationIndex, 0, ...cardToMove);
+      this.state.setState("deck.draw", this.cardDraw);
+    }
+    moveCardFromDrawToSlot(cardIndex, slotName) {
+      const cardToMove = this.cardDraw.splice(cardIndex, 1);
+      const cardToExchange = this.slotHUD[SkillIndex[slotName]];
+      if (cardToExchange !== null && cardToExchange !== void 0) {
+        this.cardDraw.splice(cardIndex, 0, cardToExchange);
+      }
+      this.slotHUD[SkillIndex[slotName]] = cardToMove[0];
+      this.state.setState("deck.draw", this.cardDraw);
+      this.state.setState("deck.slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
+    }
+    moveCardFromSlotToDraw(slotName, destinationIndex) {
+      const cardToMove = this.slotHUD[SkillIndex[slotName]];
+      const cardToExchange = this.cardDraw.splice(destinationIndex, 1, cardToMove);
+      if (cardToExchange[0] !== null && cardToExchange[0] !== void 0) {
+        this.slotHUD[SkillIndex[slotName]] = cardToExchange[0];
+      }
+      this.state.setState("deck.draw", this.cardDraw);
+      this.state.setState("deck.slot." + String(slotName).toLowerCase(), this.slotHUD[slotName]);
+    }
+    addCard(card) {
+      this.cardDraw.unshift(card);
+      this.state.setState("deck.draw", this.cardDraw);
+    }
+    debugLog() {
+      if (DEBUG) {
+        console.log("DISCARDED CARDS:", this.discardedCards);
+        console.log("CARDDRAW:", this.cardDraw);
+        console.log("HUD SLOTS:", this.slotHUD);
+        console.log("LOCKEDCARD:", this.lockedCard);
+        console.log("RECUPERATOR:", this.recuperator);
+      }
+    }
+  };
 
   // assets/scripts/behaviours/PlayerBehavior.js
   var kPlayerStats = {
@@ -34447,24 +36567,61 @@ void main() {
     currentHp: 1,
     maxHp: 20
   };
+  var DEFAULT_HEALTH_REGENERATION = 1;
+  var DEFAULT_SPEED_BOOST = 0;
+  var DEFAULT_DAMAGE = 3;
+  var DEFAULT_DEFENSE = 0;
   var PlayerBehavior = class extends scriptbehavior_default {
     constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
       super({
         currentHp: "player.currentHp",
-        maxHp: "player.maxHp"
+        maxHp: "player.maxHp",
+        playable: "playable",
+        spawnActorName: "spawnActorName"
       });
-      this.currentHp = currentHp;
+      this.inRangeEnemies = new Set();
       this.maxHp = maxHp;
-      this.playable = true;
-      this.time = new timer_class_default(60);
+      this.damage = DEFAULT_DAMAGE;
+      this.defense = DEFAULT_DEFENSE;
+      this.isTeleporting = new timer_class_default(10, {autoStart: false, keepIterating: false});
+      this.dashTimer = new timer_class_default(40, {autoStart: false, keepIterating: false});
+      this.jumpTimer = new timer_class_default(110, {autoStart: false, keepIterating: false});
+      this.attackTimer = new timer_class_default(110, {autoStart: false, keepIterating: false});
+      this.randomAttack = null;
+      this.time = new timer_class_default(60 * 5);
+      this.dieScreen = null;
+      this.damageContainer = new Set();
+      this.healthRegeneration = DEFAULT_HEALTH_REGENERATION;
+      this.speedBoost = DEFAULT_SPEED_BOOST;
       this.speed = new progressiveNumber_default(speed, speed * 2, {
         easing: "easeInQuad",
         frame: 90
       });
+      this.cardDeck = new Deck();
+    }
+    inRange(actorName) {
+      if (!this.inRangeEnemies.has(actorName)) {
+        this.inRangeEnemies.add(actorName);
+      }
+      return this;
+    }
+    outRange(actorName) {
+      if (this.inRangeEnemies.has(actorName)) {
+        this.inRangeEnemies.delete(actorName);
+      }
+      return this;
+    }
+    shooting(event) {
+      const targetPos = new vector2_default(event.x, event.y);
+      const distance = targetPos.distanceTo(this.actor.pos);
+      if (distance <= game.viewport.worldScreenHeight * 0.3 || distance <= game.viewport.worldScreenWidth * 0.3) {
+        console.log("shooting !");
+      }
     }
     teleport(position) {
       console.log("player teleport at: ", position);
       this.playable = false;
+      this.sprite.playAnimation("idle");
       game.fade.auto(() => {
         game.fade.centerPosition = position;
         this.actor.pos = position;
@@ -34472,7 +36629,107 @@ void main() {
         this.playable = true;
       });
     }
+    fastTeleport(position) {
+      if (this.isTeleporting.isStarted) {
+        return;
+      }
+      this.isTeleporting.start();
+      this.actor.pos = position;
+    }
+    enterDungeon(roomId = 1, niveauId = 1) {
+      this.playable = false;
+      this.sprite.playAnimation("idle");
+      game.loadScene("dungeon", roomId, niveauId);
+    }
+    exitDungeon(failure = true) {
+      this.playable = false;
+      this.sprite.playAnimation("idle");
+      game.rootScene.exitDungeon(failure);
+    }
+    takeDamage(damage, {isCritical = false} = {}) {
+      if (typeof damage !== "number" || damage - this.defense < 0) {
+        damage = 0;
+      }
+      damage -= this.defense;
+      if (this.currentHp - damage <= 0) {
+        this.currentHp = 0;
+        this.die();
+      } else {
+        this.currentHp -= damage;
+      }
+      const dmg = new DamageText_default(damage, this.actor, {
+        isCritical
+      });
+      dmg.once("done", () => this.damageContainer.delete(dmg));
+      this.damageContainer.add(dmg);
+      return this;
+    }
+    canAttack() {
+      if (!this.attackTimer.isStarted) {
+        this.attackTimer.start();
+        this.randomAttack = Math.floor(Math.random() * 3) + 1;
+        return true;
+      }
+      if (!this.attackTimer.walk()) {
+        return false;
+      }
+      if (this.attackTimer.walk()) {
+        this.attackTimer.reset();
+      }
+      return false;
+    }
+    dealsDamage() {
+      this.inRangeEnemies.forEach((enemy) => {
+        const actor = getActor(enemy);
+        const isLookingToRight = this.sprite.scale.x === 1 ? true : false;
+        let canBeHit;
+        if (isLookingToRight) {
+          canBeHit = this.actor.x < actor.x ? true : false;
+        } else {
+          canBeHit = this.actor.x > actor.x ? true : false;
+        }
+        const isCritical = Math.random() < 0.05;
+        const damageToApply = isCritical ? this.damage * 2 : this.damage;
+        if (canBeHit) {
+          if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Melee"))) {
+            actor.getScriptedBehavior("MeleeBehavior").sendMessage("takeDamage", damageToApply, {isCritical});
+          } else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Caster"))) {
+            actor.getScriptedBehavior("CasterBehavior").sendMessage("takeDamage", damageToApply, {isCritical});
+          } else if (actor.behaviors.some((behavior) => behavior.constructor.name.startsWith("Boss"))) {
+            actor.getScriptedBehavior("BossBehavior").sendMessage("takeDamage", damageToApply, {isCritical});
+          }
+        }
+      });
+    }
+    die(cause = "no-pv") {
+      this.playable = false;
+      this.sprite.playAnimation("adventurer-die", {loop: false});
+      if (!this.gameOverSound.isPlaying) {
+        this.gameOverSound.play();
+      }
+      if (this.actor.isInDungeon) {
+        game.loadScene("default");
+        return;
+      }
+      game.fade.out(() => {
+        const centerPosition = this.spawn.centerPosition;
+        game.fade.centerPosition = centerPosition;
+        this.actor.pos = centerPosition;
+        game.viewport.moveCenter(this.actor.x, this.actor.y);
+        this.dieScreen = new DieScreen_default();
+        this.dieScreen.once("cleanup", () => {
+          this.currentHp = 1;
+          this.playable = true;
+          this.dieScreen = null;
+          game.fade.in();
+        });
+        this.dieScreen.zIndex = 31;
+        this.dieScreen.position.set(centerPosition.x, centerPosition.y);
+        game.rootScene.addChild(this.dieScreen);
+      });
+    }
     awake() {
+      this.playable = true;
       {
         const spriteComponent = new Components.AnimatedSpriteEx("adventurer", {
           defaultAnimation: "adventurer-idle"
@@ -34481,59 +36738,199 @@ void main() {
         spriteComponent.oneToMany("idle", ["adventurer-idle", "adventurer-idle-2"]);
         this.sprite = this.actor.addComponent(spriteComponent);
       }
-      this.deathSound = I.find("death");
-      this.deathSound.volume = 0.1;
+      this.gameOverSound = I.find("gameover");
+      this.gameOverSound.volume = 0.1;
     }
     start() {
       const map = getActor("map") || getActor("start_room");
       if (map) {
-        const spawn = map.findChild("spawn", true);
-        if (spawn) {
-          this.actor.pos = spawn.centerPosition;
+        this.spawn = map.findChild(this.spawnActorName, true);
+        if (this.spawn) {
+          this.actor.pos = this.spawn.centerPosition;
+        }
+        if (this.spawnActorName !== "spawn") {
+          this.spawnActorName = "spawn";
         }
         this.collision = map.getComponent(Components.Types.TiledMap).collision;
       }
       game.viewport.moveCenter(this.actor.x, this.actor.y);
       game.viewport.follow(this.actor, {
-        speed: 1.5,
-        acceleration: 0.01,
+        speed: 3,
+        acceleration: 0.016,
         radius: 40
       });
+      this.cardDeck.loadState();
     }
-    update() {
-      game.fade.centerPosition = this.actor.pos;
-      if (!this.playable) {
-        return;
-      }
-      if (this.time.walk() && this.currentHp < this.maxHp) {
-        this.currentHp += 1;
-      }
+    computeMovement() {
       const neighbours = this.collision.getNeighBourWalkable(this.actor.x, this.actor.y);
       const isLeftWalkable = !neighbours.left || neighbours.right;
       const isRightWalkable = !neighbours.right || neighbours.left;
       const isTopWalkable = !neighbours.top || neighbours.bottom;
       const isBottomWalkable = !neighbours.bottom || neighbours.top;
-      const currentSpeed = this.speed.walk(!this.actor.moving);
-      if (Inputs.left() && isLeftWalkable) {
+      const currentSpeed = this.speed.walk(!this.actor.moving) + this.speedBoost;
+      const dashSpeed = currentSpeed * 3;
+      const neighboursForCustomRange = this.collision.getNeighBourWalkableForGivenRange(this.actor.x, this.actor.y, currentSpeed * 2);
+      const isLeftDashable = !neighboursForCustomRange.left || neighboursForCustomRange.right;
+      const isRightDashable = !neighboursForCustomRange.right || neighboursForCustomRange.left;
+      const isTopDashable = !neighboursForCustomRange.top || neighboursForCustomRange.bottom;
+      const isBottomDashable = !neighboursForCustomRange.bottom || neighboursForCustomRange.top;
+      if (!this.dashTimer.isStarted && Inputs.left() && Inputs.dash() && isLeftDashable) {
+        this.actor.moveX(-dashSpeed);
+        this.sprite.scale.x = -1;
+        this.dashTimer.start();
+      } else if (Inputs.left() && isLeftWalkable) {
         this.actor.moveX(-currentSpeed);
         this.sprite.scale.x = -1;
+      }
+      if (!this.dashTimer.isStarted && Inputs.right() && Inputs.dash() && isRightDashable) {
+        this.actor.moveX(dashSpeed);
+        this.sprite.scale.x = -1;
+        this.dashTimer.start();
       } else if (Inputs.right() && isRightWalkable) {
         this.actor.moveX(currentSpeed);
         this.sprite.scale.x = 1;
       }
-      if (Inputs.up() && isTopWalkable) {
+      if (!this.dashTimer.isStarted && Inputs.up() && Inputs.dash() && isTopDashable) {
+        this.actor.moveY(-dashSpeed);
+        this.dashTimer.start();
+      } else if (Inputs.up() && isTopWalkable) {
         this.actor.moveY(-currentSpeed);
+      }
+      if (!this.dashTimer.isStarted && Inputs.down() && Inputs.dash() && isBottomDashable) {
+        this.actor.moveY(dashSpeed);
+        this.dashTimer.start();
       } else if (Inputs.down() && isBottomWalkable) {
         this.actor.moveY(currentSpeed);
       }
-      if (game.input.wasKeyJustPressed(Key.L)) {
-        this.sprite.playAnimation("adventurer-die", {loop: false});
-        if (!this.deathSound.isPlaying) {
-          this.deathSound.play();
-        }
+      this.jump();
+    }
+    jump() {
+      if (Inputs.jump() && !this.jumpTimer.isStarted && (Inputs.right() || Inputs.left()) && (!Inputs.down() && !Inputs.up())) {
+        this.jumpTimer.start();
       }
-      this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
+    }
+    computeAnimations() {
+      if (this.attackTimer.isStarted && !this.attackTimer.walk()) {
+        this.sprite.playAnimation(`adventurer-attack${this.randomAttack}`);
+      } else if (this.dashTimer.isStarted && !this.dashTimer.walk()) {
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-slide" : "idle");
+      } else if (this.jumpTimer.isStarted && !this.jumpTimer.walk()) {
+        this.sprite.playAnimation("adventurer-jump");
+      } else {
+        this.dashTimer.reset();
+        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "idle");
+      }
+    }
+    computeSkills() {
+      if (Inputs.offensive()) {
+        this.cardDeck.useOffensiveSkill();
+      } else if (Inputs.defensive()) {
+        this.cardDeck.useDefensiveSkill();
+      } else if (Inputs.consumable()) {
+        this.cardDeck.useConsumable();
+      } else if (Inputs.refresh()) {
+        this.cardDeck.carouselSlot();
+      }
+    }
+    computeDeck() {
+      if (Inputs.openDeck()) {
+        window.hudevents.emit("deck", true);
+      }
+      if (Inputs.escape()) {
+        window.hudevents.emit("deck", false);
+      }
+    }
+    update() {
+      game.fade.centerPosition = this.actor.pos;
+      if (this.dieScreen !== null) {
+        this.dieScreen.update();
+      }
+      if (!this.playable) {
+        return;
+      }
+      if (this.isTeleporting.isStarted) {
+        this.isTeleporting.walk();
+      }
+      for (const dmg of this.damageContainer) {
+        dmg.update();
+      }
+      if (this.time.walk() && this.currentHp < this.maxHp) {
+        this.addHealth(this.healthRegeneration);
+      }
+      this.computeMovement();
+      if (Inputs.offensive() && this.canAttack()) {
+        this.dealsDamage();
+      }
+      this.computeAnimations();
+      this.computeSkills();
+      this.computeDeck();
       this.actor.applyVelocity();
+    }
+    addHealth(amount) {
+      if (this.currentHp + amount <= this.maxHp) {
+        this.currentHp += amount;
+      } else {
+        this.currentHp += this.maxHp - this.currentHp;
+      }
+    }
+    offensiveSkill(aMessage) {
+      console.log("attack", aMessage);
+    }
+    defensiveSkill(aMessage) {
+      console.log("defend", aMessage);
+    }
+    consumable(name, value) {
+      console.log("consume", name, value);
+      switch (name) {
+        case "heal":
+          this.addHealth(value);
+          break;
+        default:
+          break;
+      }
+    }
+    activatePassive(passiveName, value) {
+      switch (passiveName) {
+        case "healthRegenBoost":
+          this.healthRegeneration = value;
+          break;
+        case "speed":
+          this.speedBoost = value;
+          break;
+        case "attack":
+          this.damage += value;
+          break;
+        case "defense":
+          this.defense = value;
+          break;
+        case "special":
+          break;
+        default:
+          break;
+      }
+    }
+    deactivatePassive(passiveName) {
+      switch (passiveName) {
+        case "healthRegenBoost":
+          this.healthRegeneration = DEFAULT_HEALTH_REGENERATION;
+          break;
+        case "speed":
+          this.speedBoost = DEFAULT_SPEED_BOOST;
+          break;
+        case "attack":
+          this.damage = DEFAULT_DAMAGE;
+          break;
+        case "defense":
+          this.defense = DEFAULT_DEFENSE;
+          break;
+        case "special":
+          break;
+        default:
+          break;
+      }
+    }
+    recuperator() {
+      this.cardDeck.updateRecuperator();
     }
   };
   var PlayerBehavior_default = PlayerBehavior;
@@ -34542,47 +36939,205 @@ void main() {
     return new actor_class_default("player").createScriptedBehavior("PlayerBehavior");
   });
 
-  // assets/scripts/behaviours/ProjectileBehavior.js
-  var kDefaultFadeInFrames = 240;
-  var ProjectileBehavior = class extends scriptbehavior_default {
-    constructor(options = {}) {
-      const {startPos, targetPos} = options;
+  // assets/scripts/behaviours/PNJBehavior.js
+  var _PNJBehavior = class extends scriptbehavior_default {
+    static titleStype() {
+      return {
+        fill: "#E3F2FD",
+        fontFamily: "Verdana",
+        fontSize: 8,
+        fontVariant: "small-caps",
+        fontWeight: "bold",
+        letterSpacing: 1,
+        lineJoin: "round",
+        strokeThickness: 2,
+        align: "center"
+      };
+    }
+    constructor(type2 = null) {
       super();
-      this.startPos = startPos;
-      this.targetPos = targetPos;
+      this.type = type2;
+      this.open = false;
+      this.shopTitleOpen = false;
+    }
+    awake() {
+      this.shopTitle = new AnimatedText_default(`Shop <Defense>`, _PNJBehavior.titleStype(), {
+        autoStart: false,
+        animations: [
+          new AnimatedText_exports.FadeTextAnimation({
+            frame: 45,
+            easing: "easeInQuad",
+            defaultState: "out"
+          }),
+          new AnimatedText_exports.MovingTextAnimation({
+            decalY: 30,
+            frame: 75,
+            easing: "easeOutQuad"
+          })
+        ]
+      });
+      this.shopTitle.gameObject.anchor.set(0);
+      this.shopTitle.position.set(-10, -10);
+      this.actor.addChild(this.shopTitle);
+      this.sprite = this.actor.addComponent(new Components.AnimatedSpriteEx("adventurer", {defaultAnimation: "adventurer-idle"}));
+      this.sprite.position.set(this.actor.width / 4, this.actor.height / 4);
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    showShopTitle() {
+      this.shopTitleOpen = true;
+      this.shopTitle.start();
+    }
+    update() {
+      this.shopTitle.update();
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      const inArea = distance < _PNJBehavior.DistanceToOpen;
+      if (inArea && !this.shopTitleOpen) {
+        this.shopTitleOpen = true;
+        this.shopTitle.start();
+      } else if (!inArea && this.shopTitleOpen) {
+        this.shopTitleOpen = false;
+        this.shopTitle.reset();
+      }
+      if (Inputs.use() && !this.open && inArea) {
+        hudevents.emit("store", true);
+        this.open = true;
+      } else if (this.open && (!inArea || Inputs.escape())) {
+        hudevents.emit("store", false);
+        this.open = false;
+      }
+    }
+    destroy() {
+      if (this.open) {
+        hudevents.emit("store", false);
+      }
+    }
+  };
+  var PNJBehavior = _PNJBehavior;
+  __publicField(PNJBehavior, "DistanceToOpen", 80);
+  var PNJBehavior_default = PNJBehavior;
+  scriptbehavior_default.define("PNJBehavior", PNJBehavior);
+
+  // assets/scripts/behaviours/PortalBehavior.js
+  var PortalBehavior = class extends scriptbehavior_default {
+    constructor() {
+      super();
+      this.open = false;
+      hudevents.on("picker", (value) => {
+        this.open = value;
+      });
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    destroy() {
+      if (this.open) {
+        hudevents.emit("picker", false);
+      }
+    }
+    update() {
+      const intersect = boxesIntersect(this.actor, this.target);
+      if (Inputs.use() && !this.open && intersect) {
+        hudevents.emit("picker", true);
+        this.open = true;
+      } else if (this.open && (!intersect || Inputs.escape())) {
+        hudevents.emit("picker", false);
+        this.open = false;
+      }
+    }
+  };
+  __publicField(PortalBehavior, "DistanceToOpen", 50);
+  var PortalBehavior_default = PortalBehavior;
+  scriptbehavior_default.define("PortalBehavior", PortalBehavior);
+
+  // assets/scripts/behaviours/ProjectileBehavior.js
+  var ProjectileBehavior = class extends scriptbehavior_default {
+    constructor(options = {
+      startPos: {
+        x: 0,
+        y: 0
+      },
+      targetPos: {
+        x: 0,
+        y: 0
+      },
+      stat: {
+        fadeInFrames: 240,
+        radius: 15,
+        damage: 2,
+        missRatio: 0.45
+      },
+      sprites: {
+        name: "adventurer",
+        start: "adventurer-idle",
+        while: "adventurer-run",
+        end: "adventurer-die"
+      }
+    }) {
+      super();
+      this.startPos = options.startPos;
+      this.targetPos = options.targetPos;
+      this.fadeInFrames = options.fadeInFrames;
+      this.radius = options.stat.radius;
+      this.damage = options.stat.damage;
+      this.missRatio = options.stat.missRatio;
+      this.sprites = options.sprites;
       this.targetPos.x = Math.round(this.targetPos.x);
       this.targetPos.y = Math.round(this.targetPos.y);
-      this.radius = 15;
     }
     awake() {
       console.log(`Projectile with name: ${this.actor.name} created`);
-      this.sprite = this.actor.addComponent(new animatedsprite_class_default("adventurer", {defaultAnimation: "adventurer-idle"}));
-      this.actor.pos = this.startPos;
+      this.sprite = this.actor.addComponent(new animatedsprite_class_default(this.sprites.name, {defaultAnimation: this.sprites.start}));
+      this.target = getActor("player");
+      this.actor.pos = new vector2_default(this.startPos.x, this.startPos.y);
+      const angle = Math.abs(Math.abs(Math.atan2(this.actor.pos.y - this.targetPos.y, this.actor.pos.x - this.targetPos.x)) - 1.5);
+      this.velocityX = angle * 1 / 1.5;
+      this.velocityY = 1 - this.velocityX;
       this.tick = 0;
     }
     die(cause) {
       console.log("projectile die because: ", cause);
       this.actor.cleanup();
     }
+    hit() {
+      const isCritical = Math.random() < 0.05;
+      const damageToApply = isCritical ? this.damage * 2 : this.damage;
+      const script = this.target.getScriptedBehavior("PlayerBehavior");
+      const isHitting = Math.random() < this.missRatio ? false : true;
+      if (isHitting) {
+        script.sendMessage("takeDamage", damageToApply, {isCritical});
+      } else {
+        script.sendMessage("takeDamage", 0, false);
+      }
+      this.die("hit player");
+    }
     update() {
       this.tick++;
-      if (this.tick >= kDefaultFadeInFrames) {
+      const actorX = Math.round(this.actor.x);
+      const actorY = Math.round(this.actor.y);
+      const targetX = Math.round(this.targetPos.x);
+      const targetY = Math.round(this.targetPos.y);
+      const distanceBetweenActorAndDest = this.actor.pos.distanceTo(this.targetPos);
+      if (boxesIntersect(this.actor, this.target)) {
+        this.hit();
+      } else if (this.tick >= this.fadeInFrames) {
         this.die("timeout");
-      } else if (Math.round(this.actor.x) !== this.targetPos.x || Math.round(this.actor.y) !== this.targetPos.y) {
-        if (this.actor.x < this.targetPos.x) {
-          this.actor.moveX(1);
-        } else if (this.actor.x > this.targetPos.x) {
-          this.actor.moveX(-1);
+      } else if (distanceBetweenActorAndDest > 10) {
+        if (actorX < targetX) {
+          this.actor.moveX(this.velocityX);
+        } else if (actorX > targetX) {
+          this.actor.moveX(-this.velocityX);
         }
-        if (this.actor.y < this.targetPos.y) {
-          this.actor.moveY(1);
-        } else if (this.actor.y > this.targetPos.y) {
-          this.actor.moveY(-1);
+        if (actorY < targetY) {
+          this.actor.moveY(this.velocityY);
+        } else if (actorY > targetY) {
+          this.actor.moveY(-this.velocityY);
         }
         this.actor.applyVelocity();
-        this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-die");
+        this.sprite.playAnimation(this.actor.moving ? this.sprites.while : this.sprites.end);
       } else {
-        this.die("hit");
+        this.die("hit targeted position");
       }
     }
   };
@@ -34591,6 +37146,73 @@ void main() {
   entitybuilder_exports.define("actor:projectile", (options = {}) => {
     return new actor_class_default(entitybuilder_exports.increment("projectile")).createScriptedBehavior(new ProjectileBehavior(options));
   });
+
+  // assets/scripts/behaviours/RecuperateurBehavior.js
+  var PIXI25 = __toModule(require_pixi());
+  var _RecuperateurBehavior = class extends scriptbehavior_default {
+    constructor() {
+      super();
+      this.open = false;
+    }
+    awake() {
+      const graphic = new PIXI25.Graphics().beginFill(PIXI25.utils.string2hex("#3E2723"), 0.6).drawCircle(0, 0, 60).endFill();
+      this.actor.addChild(graphic);
+    }
+    start() {
+      this.target = getActor("player");
+    }
+    update() {
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      const inArea = distance < _RecuperateurBehavior.DistanceToOpen;
+      if (Inputs.use() && !this.open && inArea) {
+        hudevents.emit("recuperator", true);
+        this.open = true;
+      } else if (this.open && (!inArea || Inputs.escape())) {
+        hudevents.emit("recuperator", false);
+        this.open = false;
+      }
+    }
+    destroy() {
+      if (this.open) {
+        hudevents.emit("recuperator", false);
+      }
+    }
+  };
+  var RecuperateurBehavior = _RecuperateurBehavior;
+  __publicField(RecuperateurBehavior, "DistanceToOpen", 60);
+  var RecuperateurBehavior_default = RecuperateurBehavior;
+  scriptbehavior_default.define("RecuperateurBehavior", RecuperateurBehavior);
+
+  // assets/scripts/behaviours/SecretLevierBehavior.js
+  var _SecretLevierBehavior = class extends scriptbehavior_default {
+    awake() {
+      this.triggered = false;
+    }
+    start() {
+      this.target = getActor("player");
+      const spriteComponent = new Components.AnimatedSpriteEx("stele", {
+        defaultAnimation: "idle"
+      });
+      spriteComponent.anchor.set(0, 0);
+      this.sprite = this.actor.addComponent(spriteComponent);
+    }
+    trigger() {
+      this.sprite.playAnimation("activate", {loop: false, force: true});
+      game.rootScene.setSecretRoomDoors("unlock");
+    }
+    update() {
+      if (this.triggered) {
+        return;
+      }
+      if (Inputs.use() && this.actor.pos.distanceTo(this.target.pos) < _SecretLevierBehavior.DistanceToTrigger) {
+        this.trigger();
+      }
+    }
+  };
+  var SecretLevierBehavior = _SecretLevierBehavior;
+  __publicField(SecretLevierBehavior, "DistanceToTrigger", 60);
+  var SecretLevierBehavior_default = SecretLevierBehavior;
+  scriptbehavior_default.define("SecretLevierBehavior", SecretLevierBehavior);
 
   // assets/scripts/behaviours/SpatialSoundBehavior.js
   var SpatialSoundBehavior = class extends scriptbehavior_default {
@@ -34621,13 +37243,165 @@ void main() {
     return new actor_class_default(entitybuilder_exports.increment("sound")).createScriptedBehavior("SpatialSoundBehavior", soundName, radius);
   });
 
+  // assets/scripts/behaviours/StoneBehavior.js
+  var import_pixi2 = __toModule(require_pixi());
+  var _StoneBehavior = class extends scriptbehavior_default {
+    static style() {
+      return {
+        fill: "#E3F2FD",
+        fontFamily: "Verdana",
+        fontSize: 8,
+        fontVariant: "small-caps",
+        fontWeight: "bold",
+        letterSpacing: 1,
+        lineJoin: "round",
+        strokeThickness: 2,
+        align: "center"
+      };
+    }
+    awake() {
+      this.active = game.state.getState("stoneEnabled");
+      const spriteComponent = new Components.AnimatedSpriteEx("stele", {
+        defaultAnimation: "idle"
+      });
+      spriteComponent.anchor.set(0, 0);
+      this.sprite = this.actor.addComponent(spriteComponent);
+      if (this.active) {
+        this.retract();
+      }
+      this.stoneHelperText = new AnimatedText_default(`Activated!`, _StoneBehavior.style(), {
+        autoStart: false,
+        animations: [
+          new AnimatedText_exports.FadeTextAnimation({
+            frame: 45,
+            easing: "easeInQuad",
+            defaultState: "out"
+          }),
+          new AnimatedText_exports.MovingTextAnimation({
+            decalY: 30,
+            frame: 75,
+            easing: "easeOutQuad"
+          })
+        ]
+      });
+      this.stoneHelperText.gameObject.anchor.set(0.5);
+      this.stoneHelperText.position.set(0, -25);
+      this.actor.addChild(this.stoneHelperText);
+    }
+    start() {
+      this.target = getActor("player");
+      this.stoneControlScript = getActor("stoneControl").getScriptedBehavior("StoneControlBehavior");
+      this.stoneControlScript.sendMessage("registerStone", this.actor);
+    }
+    retract() {
+      this.sprite.playAnimation("activate", {force: true, loop: false});
+    }
+    disableStone() {
+      this.active = false;
+      this.stoneHelperText.reset();
+      this.sprite.playAnimation("disabled", {loop: false});
+    }
+    activateStone() {
+      this.stoneHelperText.start();
+      this.stoneHelperText.once("stop", () => this.stoneHelperText.reset());
+      this.sprite.playAnimation("enabled", {loop: false});
+      this.active = true;
+      this.stoneControlScript.sendMessage("activateStone", this.actor.name);
+    }
+    update() {
+      if (this.active) {
+        return;
+      }
+      this.sprite.playAnimation(this.active ? "idleEnabled" : "idle");
+      this.stoneHelperText.update();
+      if (this.active) {
+        return;
+      }
+      const distance = this.actor.pos.distanceTo(this.target.pos);
+      if (Inputs.use() && distance < _StoneBehavior.DistanceToActive) {
+        this.activateStone();
+      }
+    }
+  };
+  var StoneBehavior = _StoneBehavior;
+  __publicField(StoneBehavior, "DistanceToActive", 50);
+  __publicField(StoneBehavior, "DisabledColor", "#FFFDE7");
+  var StoneBehavior_default = StoneBehavior;
+  scriptbehavior_default.define("StoneBehavior", StoneBehavior);
+
+  // assets/scripts/behaviours/StoneControlBehavior.js
+  var StoneControlBehavior = class extends scriptbehavior_default {
+    awake() {
+      this.stoneActors = new Set();
+      this.stoneOrder = ["stele1", "stele2", "stele3"];
+      this.currentOrder = [];
+      this.allStonesHaveBeenActivated = game.state.getState("stoneEnabled");
+      ;
+      this.activationTimer = new timer_class_default(60 * 60, {autoStart: false, keepIterating: false});
+    }
+    registerStone(stoneActor) {
+      this.stoneActors.add(stoneActor);
+    }
+    activateStone(name) {
+      this.currentOrder.push(name);
+      if (this.currentOrder.length === this.stoneOrder.length) {
+        this.checkSoneActivationOrder();
+      } else {
+        if (this.activationTimer.isStarted) {
+          this.activationTimer.tick = 0;
+        } else {
+          this.activationTimer.start();
+        }
+      }
+    }
+    checkSoneActivationOrder() {
+      for (let i2 = 0; i2 < 3; i2++) {
+        if (this.stoneOrder[i2] !== this.currentOrder[i2]) {
+          this.disableAllStone();
+          return;
+        }
+      }
+      this.activationTimer.reset();
+      game.state.setState("stoneEnabled", true);
+      this.allStonesHaveBeenActivated = true;
+      for (const stoneActor of this.stoneActors) {
+        const script = stoneActor.behaviors[0];
+        script.sendMessage("retract");
+      }
+    }
+    disableAllStone() {
+      this.currentOrder = [];
+      this.activationTimer.reset();
+      for (const stoneActor of this.stoneActors) {
+        const script = stoneActor.behaviors[0];
+        script.sendMessage("disableStone");
+      }
+    }
+    update() {
+      if (this.allStonesHaveBeenActivated) {
+        return;
+      }
+      if (this.activationTimer.isStarted && this.activationTimer.walk()) {
+        this.disableAllStone();
+      }
+    }
+  };
+  var StoneControlBehavior_default = StoneControlBehavior;
+  scriptbehavior_default.define("StoneControlBehavior", StoneControlBehavior);
+  entitybuilder_exports.define("actor:stoneControl", () => {
+    return new actor_class_default("stoneControl").createScriptedBehavior("StoneControlBehavior");
+  });
+
   // assets/scripts/scenes/DefaultScene.js
   var DefaultScene = class extends scene_class_default {
     constructor() {
-      super({useLRUCache: true, debug: true});
+      super({useLRUCache: true, debug: false});
       {
         const map = new actor_class_default("map");
-        const tiledMap = new Components.TiledMap("map1", {debug: true});
+        const tiledMap = new Components.TiledMap("village", {
+          debug: false,
+          showObjects: false
+        });
         tiledMap.on("object", this.build.bind(this));
         tiledMap.init();
         map.addComponent(tiledMap);
@@ -34635,220 +37409,513 @@ void main() {
       }
       const playerActor = entitybuilder_exports.create("actor:player");
       this.add(playerActor);
-      this.graph = new actor_class_default("graph");
-      {
-        const temp = new PIXI.Graphics().beginFill(PIXI.utils.string2hex("#000"), 1).drawCircle(0, 0, 30).endFill();
-        this.graph.addChild(temp);
-      }
-      this.graph.position.set(0, 0);
-      this.addChild(this.graph);
-      this.zManager = new zIndexManager_default(playerActor, [this.graph]);
-    }
-    cleanup() {
-      this.zManager.stop();
-      this.zManager = null;
-      super.cleanup();
+      const stoneControlActor = entitybuilder_exports.create("actor:stoneControl");
+      this.add(stoneControlActor);
     }
     build(actor) {
       if (actor.name.startsWith("door")) {
         actor.createScriptedBehavior("DoorBehavior");
-      } else if (actor.name === "test") {
-        actor.createScriptedBehavior("DungeonDoorBehavior");
+      } else if (actor.name.startsWith("stele")) {
+        actor.createScriptedBehavior("StoneBehavior");
+      } else if (actor.name.startsWith("portal")) {
+        actor.createScriptedBehavior("PortalBehavior");
+      } else if (actor.name === "shop") {
+        actor.createScriptedBehavior("PNJBehavior");
       }
     }
-    update() {
-      super.update();
-      if (this.zManager !== null) {
-        this.zManager.update();
-      }
+    awake() {
+      super.awake();
+      window.mediaplayer.play("town");
     }
   };
   var DefaultScene_default = DefaultScene;
   scene_class_default.define("default", DefaultScene);
 
-  // assets/scripts/scenes/DungeonScene.js
-  var PIXI21 = __toModule(require_pixi());
-  var import_RoomSpawner = __toModule(require_RoomSpawner_class());
-  var DungeonScene = class extends scene_class_default {
-    constructor() {
-      super({useLRUCache: true, debug: true});
-      this.roomWidth = 40;
-      this.roomHeight = 26;
-      const spawner = new import_RoomSpawner.default(10, {
-        includeSecretRoom: false,
-        minRooms: 6,
-        maxRooms: 10,
-        roomWidth: this.roomWidth,
-        roomHeight: this.roomHeight,
-        tileSize: 16
-      });
-      spawner.draw();
-      this.levelRooms = [...spawner.getWorldRooms()];
-      this.startRoom = this.levelRooms[0];
-      for (let i2 = 0; i2 < this.levelRooms.length; i2++) {
-        game.appendScene("room", {
-          params: [i2 === 0 ? "start_room" : `room_${i2}`, this.levelRooms[i2]],
-          loaded: this.sceneLoaded.bind(this)
-        });
+  // assets/scripts/helpers/Room.js
+  var import_pixi3 = __toModule(require_pixi());
+  var kReverseDoor = {
+    left: "doorRight",
+    right: "doorLeft",
+    top: "doorBottom",
+    bottom: "doorTop"
+  };
+  var kDoorNameConverter = {
+    door_left: "doorLeft",
+    door_right: "doorRight",
+    door_top: "doorTop",
+    door_bottom: "doorBottom"
+  };
+  var kRoomEntities = {
+    boss: {behavior: "BossBehavior"},
+    chest: {behavior: "ChestBehavior"},
+    damage: {behavior: "DamageAreaBehavior"}
+  };
+  var kRoomsConfiguration = {
+    end: ["boss_room"],
+    boss: ["boss_room"],
+    start: ["start_room"],
+    secret: ["no_enemy_room"],
+    special: ["no_enemy_room"],
+    recuperateur: ["recuperateur_room"],
+    room: ["room"],
+    survival: ["room"],
+    trap: ["room"],
+    parcours: ["room"]
+  };
+  var kDebug = false;
+  var Room = class {
+    static getRandomRoom(type2) {
+      const arr = kRoomsConfiguration[type2];
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+    static getNormalRoomSubType() {
+      const rate = Math.random();
+      if (rate < 0.5) {
+        return "room";
+      } else if (rate >= 0.5 && rate < 0.65) {
+        return "survival";
+      } else if (rate >= 0.65 && rate < 0.8) {
+        return "trap";
+      } else {
+        return "parcours";
       }
     }
-    sceneLoaded(scene) {
-      const areaNameText = new PIXI21.Text(`${scene.roomName} - ${scene.type}`, {
-        fill: "#12d94d",
-        fontFamily: "Verdana",
-        fontSize: 20,
-        fontVariant: "small-caps",
-        fontWeight: "bold",
-        letterSpacing: 1,
-        lineJoin: "round",
-        strokeThickness: 2,
-        align: "center"
-      });
-      areaNameText.anchor.set(0.5);
-      areaNameText.position.set(this.roomWidth * 16 / 2, this.roomHeight * 16 / 2);
-      scene.addChild(areaNameText);
-    }
-    centerOfRoom(room) {
-      return {
-        x: room.x + this.roomWidth * 16 / 2,
-        y: room.y + this.roomHeight * 16 / 2
+    constructor(roomName, options = {}, parent) {
+      const {id, x: x2, y: y2, type: type2, doors} = options;
+      this.offsetX = x2;
+      this.offsetY = y2;
+      this.parent = parent;
+      this.creatureOptions = {
+        defenseMultiplier: this.parent.config.ia.defenseMultiplier,
+        attackMultiplier: this.parent.config.ia.attackMultiplier,
+        hpMultiplier: this.parent.config.ia.hpMultiplier,
+        missRatio: this.parent.config.ia.missRatio,
+        goldMultiplier: this.parent.config.goldMultiplier
       };
-    }
-    awake() {
-      super.awake();
-      const playerActor = entitybuilder_exports.create("actor:player");
-      const startCenter = this.centerOfRoom(this.startRoom);
-      playerActor.position.set(startCenter.x, startCenter.y);
-      this.add(playerActor);
-    }
-  };
-  var DungeonScene_default = DungeonScene;
-  scene_class_default.define("dungeon", DungeonScene);
-
-  // assets/scripts/scenes/RoomScene.js
-  var RoomScene = class extends scene_class_default {
-    constructor(roomName, options = {}) {
-      super({useLRUCache: true, debug: false});
-      const {x: x2, y: y2, type: type2, doors} = options;
       this.roomName = roomName;
-      this.position.set(x2, y2);
-      this.type = type2;
+      this.id = id;
+      this.roomIA = [];
+      this.fade = null;
+      this.doorLockTimer = new timer_class_default(60 * 10, {autoStart: false, keepIterating: false});
+      if (this.id !== 45) {
+        this.generateWarFade();
+      }
+      this.type = type2 === "room" ? Room.getNormalRoomSubType() : type2;
+      this.isRecuperateurRoom = this.type === "special" && !parent.hasRecuperateurRoom;
+      if (this.isRecuperateurRoom) {
+        this.type = "recuperateur";
+        parent.hasRecuperateurRoom = true;
+      }
       this.doors = doors;
+      this.doorLeft = null;
+      this.doorRight = null;
+      this.doorTop = null;
+      this.doorBottom = null;
       {
-        const map = new actor_class_default(roomName);
-        this.add(map);
-        const tiledMap = new Components.TiledMap("room", {
+        this.map = new actor_class_default(roomName);
+        this.map.position.set(x2, y2);
+        this.tiledMap = new Components.TiledMap(Room.getRandomRoom(this.type), {
           debug: false,
+          showObjects: kDebug,
           useSharedCollision: true,
+          autoAddObjects: false,
           collisionOffset: {x: x2, y: y2}
         });
-        tiledMap.init();
-        map.addComponent(tiledMap);
+        this.tiledMap.on("object", this.build.bind(this));
+        this.map.addComponent(this.tiledMap);
       }
-      console.log(`Init room '${roomName}': ${type2} - ${doors}`);
+      console.log(`Init room '${roomName}': ${this.type}`);
+    }
+    generateWarFade() {
+      const fadeGraphic = new import_pixi3.default.Graphics().beginFill(import_pixi3.default.utils.string2hex("#000"), 1).drawRect(0, 0, this.parent.roomWidth * 16, this.parent.roomHeight * 16).endFill();
+      fadeGraphic.position.set(this.offsetX, this.offsetY);
+      fadeGraphic.zIndex = 25;
+      this.fade = new fade_default(fadeGraphic, {
+        frame: 45,
+        delayIn: 0,
+        delayOut: 60,
+        defaultState: "out"
+      });
+      this.parent.addChild(fadeGraphic);
+    }
+    getDoorByDirection(direction) {
+      switch (direction) {
+        case "left":
+          return this.doorLeft;
+        case "right":
+          return this.doorRight;
+        case "top":
+          return this.doorTop;
+        case "bottom":
+          return this.doorBottom;
+      }
+    }
+    *getActiveDoors() {
+      const leftScript = this.doorLeft.getScriptedBehavior("_DungeonDoorBehavior");
+      if (leftScript) {
+        yield {door: this.doorLeft, side: "left"};
+      }
+      const rightScript = this.doorRight.getScriptedBehavior("_DungeonDoorBehavior");
+      if (rightScript) {
+        yield {door: this.doorRight, side: "right"};
+      }
+      const topScript = this.doorTop.getScriptedBehavior("_DungeonDoorBehavior");
+      if (topScript) {
+        yield {door: this.doorTop, side: "top"};
+      }
+      const bottomScript = this.doorBottom.getScriptedBehavior("_DungeonDoorBehavior");
+      if (bottomScript) {
+        yield {door: this.doorBottom, side: "bottom"};
+      }
+    }
+    init() {
+      if (kDebug) {
+        const areaNameText = new import_pixi3.default.Text(`${this.roomName} - ${this.type}`, {
+          fill: "#12d94d",
+          fontFamily: "Verdana",
+          fontSize: 20,
+          fontVariant: "small-caps",
+          fontWeight: "bold",
+          letterSpacing: 1,
+          lineJoin: "round",
+          strokeThickness: 2,
+          align: "center"
+        });
+        areaNameText.anchor.set(0.5);
+        areaNameText.alpha = 0.6;
+        areaNameText.position.set(this.parent.roomWidth * 16 / 2, this.parent.roomHeight * 16 / 2);
+        this.map.addChild(areaNameText);
+      }
+      this.parent.add(this.map);
+      this.tiledMap.init();
+      if (this.isRecuperateurRoom) {
+        const recuperatorActor = new actor_class_default("recuperatorActor").createScriptedBehavior("RecuperateurBehavior");
+        recuperatorActor.position.set(this.offsetX + this.parent.roomWidth * 16 / 2, this.offsetY + this.parent.roomHeight * 16 / 2);
+        this.parent.add(recuperatorActor);
+      }
+    }
+    connectDoors() {
+      for (const [doorDirection, value] of Object.entries(this.doors)) {
+        if (value === null) {
+          continue;
+        }
+        const room = this.parent.rooms.get(this.doors[doorDirection]);
+        const door = this.getDoorByDirection(doorDirection);
+        door.connectedTo = room[kReverseDoor[doorDirection]];
+        door.createScriptedBehavior("DungeonDoorBehavior");
+        this.parent.add(door);
+        door.on("player_enter", () => this.playerEnterRoom(doorDirection));
+        door.on("player_leave", () => this.playerExitRoom(doorDirection));
+      }
+    }
+    setDoorLock(status = "locked") {
+      const eventName = status === "locked" ? "lock" : "unlock";
+      console.log("setDoorLock", eventName);
+      if (eventName === "lock") {
+        this.doorLockTimer.start();
+      }
+      for (const {door} of this.getActiveDoors()) {
+        const script = door.getScriptedBehavior("_DungeonDoorBehavior");
+        script.sendMessage(eventName);
+      }
+    }
+    playerEnterRoom() {
+      if (this.fade !== null) {
+        this.fade.in();
+      }
+      console.log("Player enter the room id: ", this.roomName, this.id);
+      this.parent.playerCurrentRoomId = this.id;
+      if (this.type === "trap") {
+        for (let ia of this.roomIA) {
+          const script = ia.getScriptedBehavior(ia.behaviors[0].constructor.name);
+          script.sendMessage("focusOn");
+        }
+        window.mediaplayer.play("battle");
+        this.setDoorLock("locked");
+        this.parent.triggerLockedText();
+      } else if (this.type === "boss" || this.type === "end") {
+        window.mediaplayer.play("battle");
+      } else {
+        window.mediaplayer.play("donjon");
+      }
+    }
+    playerExitRoom() {
+      if (this.type === "trap") {
+        for (let ia of this.roomIA) {
+          const script = ia.getScriptedBehavior(ia.behaviors[0].constructor.name);
+          script.sendMessage("focusOff");
+        }
+      }
+      if (this.fade !== null) {
+        this.fade.out();
+      }
+      console.log("Player exit the room id: ", this.roomName, this.id);
+    }
+    build(actor) {
+      if (actor.name.startsWith("door")) {
+        actor.roomInstance = this;
+        this[kDoorNameConverter[actor.name]] = actor;
+        actor.name = entitybuilder_exports.increment("door");
+      } else if (actor.name.startsWith("enemy")) {
+        actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior", [this.creatureOptions]);
+        actor.name = entitybuilder_exports.increment("enemy");
+        this.parent.add(actor);
+        this.roomIA.push(actor);
+      } else if (this.parent.hasSecretRoom && this.isRecuperateurRoom && actor.name.startsWith("levier")) {
+        actor.createScriptedBehavior("SecretLevierBehavior");
+        actor.name = entitybuilder_exports.increment("levier");
+        this.parent.add(actor);
+      }
+      for (const [actorName, config] of Object.entries(kRoomEntities)) {
+        if (actor.name.startsWith(actorName)) {
+          actor.createScriptedBehavior(config.behavior, actorName === "boss" ? [this.creatureOptions] : null);
+          actor.name = entitybuilder_exports.increment(actorName);
+          this.parent.add(actor);
+          break;
+        }
+      }
+      actor.position.set(actor.x + this.offsetX, actor.y + this.offsetY);
+    }
+    update() {
+      if (this.doorLockTimer.isStarted && this.doorLockTimer.walk()) {
+        this.setDoorLock("unlocked");
+      }
+      if (this.fade !== null) {
+        this.fade.update();
+      }
     }
   };
-  var RoomScene_default = RoomScene;
-  scene_class_default.define("room", RoomScene);
+  var Room_default = Room;
 
-  // assets/scripts/scenes/TextScene.js
-  var TextScene = class extends scene_class_default {
-    constructor() {
+  // assets/scripts/scenes/DungeonScene.js
+  var import_RoomSpawner = __toModule(require_RoomSpawner_class());
+  var import_dungeon_configuration = __toModule(require_dungeon_configuration());
+  var kSecretRoomChanceFactor = 0.1;
+  var kRoomConfig = {
+    roomWidth: 40,
+    roomHeight: 26
+  };
+  var kSpawnerDefaultConfig = {
+    ...Object.assign({}, kRoomConfig),
+    tileSize: 16,
+    marginWidth: 4,
+    marginHeight: 4
+  };
+  var DungeonScene = class extends scene_class_default {
+    constructor(roomsId = 1, niveauId = 1) {
       super({useLRUCache: true, debug: false});
+      Object.assign(this, {roomsId, niveauId}, kRoomConfig);
+      console.log({roomsId, niveauId});
+      this.config = import_dungeon_configuration.default[niveauId][roomsId];
+      console.log(this.config);
+      this.connectedToSecret = [];
+      this.rooms = new Map();
+      this.resetTextTimer = new timer_class_default(120, {
+        autoStart: false,
+        keepIterating: false
+      });
+      const spawnerOptions = Object.assign({
+        includeSecretRoom: Math.random() < kSecretRoomChanceFactor
+      }, kSpawnerDefaultConfig);
+      spawnerOptions.includeSecretRoom = true;
+      const spawner = new import_RoomSpawner.default(10, {
+        ...this.config.spawner,
+        ...spawnerOptions
+      });
+      spawner.draw();
+      const levelRooms = [...spawner.getWorldRooms()];
+      this.playerCurrentRoomId = spawner.startPosition;
+      this.hasSecretRoom = spawnerOptions.includeSecretRoom;
+      this.hasRecuperateurRoom = false;
+      for (let i2 = 0; i2 < levelRooms.length; i2++) {
+        const room = levelRooms[i2];
+        const roomObject = new Room_default(i2 === 0 ? "start_room" : `room_${i2}`, room, this);
+        this.rooms.set(room.id, roomObject);
+        roomObject.init();
+      }
+      this.createLockedText();
     }
-    getStyle() {
-      return {
-        fill: "#12d94d",
+    setSecretRoomDoors(state = "lock") {
+      for (const actor of this.connectedToSecret) {
+        actor.behaviors[0].sendMessage(state);
+      }
+    }
+    triggerLockedText() {
+      this.lockedText.start();
+      this.lockedText.on("stop", () => this.resetTextTimer.start());
+    }
+    createLockedText() {
+      const style = {
+        fill: "#E3F2FD",
         fontFamily: "Verdana",
-        fontSize: 10,
+        fontSize: 8,
         fontVariant: "small-caps",
         fontWeight: "bold",
         letterSpacing: 1,
         lineJoin: "round",
         strokeThickness: 2,
-        align: "center"
+        align: "right"
       };
-    }
-    awake() {
-      super.awake();
-      const {width, height} = game.screenSize;
-      this.animatedText = new AnimatedText_default("bienvenue fraxken...", this.getStyle(), {
-        resetOnLinkedStop: true,
-        animations: [
-          new AnimatedText_exports.WritingTextAnimation({
-            charTick: 4,
-            pauseTimeBetweenLine: 60
-          }),
-          new AnimatedText_exports.FadeTextAnimation({
-            frame: 60,
-            easing: "easeInQuad",
-            defaultState: "out"
-          }),
-          new AnimatedText_exports.MovingTextAnimation({
-            decalY: 40,
-            frame: 80,
-            easing: "easeOutQuad"
-          })
-        ]
-      });
-      this.animatedText.position.set(width / 8, height / 8);
-      this.animatedText.gameObject.anchor.set(0.5);
-      const style2 = this.getStyle();
-      style2.fill = "#FFEB3B";
-      this.animatedText2 = new AnimatedText_default("Press any key to start the game!", style2, {
+      this.lockedText = new AnimatedText_default(`Oh no! Survive.`, style, {
         autoStart: false,
         animations: [
+          new AnimatedText_exports.WritingTextAnimation({
+            charTick: 7,
+            pauseTimeBetweenLine: 0
+          }),
           new AnimatedText_exports.FadeTextAnimation({
             frame: 60,
             easing: "easeInQuad",
             defaultState: "out"
           }),
           new AnimatedText_exports.MovingTextAnimation({
-            decalY: 60,
+            decalY: -70,
             frame: 120,
             easing: "easeOutQuad"
           })
         ]
       });
-      this.animatedText2.position.set(width / 8, height / 8 + 15);
-      this.animatedText2.gameObject.anchor.set(0.5);
-      this.animatedText.linkTo(this.animatedText2);
-      this.addChild(this.animatedText);
-      this.addChild(this.animatedText2);
+      this.lockedText.gameObject.anchor.set(0.5);
+      this.addChild(this.lockedText);
+    }
+    exitDungeon(failure = true) {
+      const state = getCurrentState();
+      state.setState("spawnActorName", "spawn");
+      if (!failure) {
+        const progression = state.getState("dungeon.progression");
+        const next = nextProgression(progressionParser(progression));
+        state.setState("dungeon.progression", `${next[0]}.${next[1]}`);
+      }
+      getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("recuperator");
+      game.loadScene("default");
+    }
+    getMinimapData() {
+      const currentRoom = this.rooms.get(this.playerCurrentRoomId);
+      const currentDoors = [...currentRoom.getActiveDoors()];
+      const connectedRooms = new Map();
+      for (const {side, door} of currentDoors) {
+        const room = door.connectedTo.roomInstance;
+        connectedRooms.set(side, {
+          id: room.id,
+          type: room.type,
+          side: new Set([...room.getActiveDoors()].map((row) => row.side))
+        });
+      }
+      return {
+        currentRoom: {
+          id: this.playerCurrentRoomId,
+          type: currentRoom.type,
+          side: new Set(currentDoors.map((row) => row.side))
+        },
+        connectedRooms
+      };
+    }
+    awake() {
+      let secretRoom = null;
+      for (const room of this.rooms.values()) {
+        room.connectDoors();
+        if (room.type === "secret") {
+          secretRoom = room;
+        }
+      }
+      if (secretRoom !== null) {
+        for (const {door} of secretRoom.getActiveDoors()) {
+          this.connectedToSecret.push(door.connectedTo);
+        }
+        this.setSecretRoomDoors("lock");
+      }
+      super.awake();
+      this.playerActor = entitybuilder_exports.create("actor:player");
+      this.playerActor.isInDungeon = true;
+      this.playerActor.position.set(this.roomWidth * 16 / 2, this.roomHeight * 16 / 2);
+      this.add(this.playerActor);
+      window.mediaplayer.play("donjon");
     }
     update() {
       super.update();
-      this.animatedText.update();
-      this.animatedText2.update();
+      if (this.resetTextTimer.walk()) {
+        this.lockedText.reset();
+      }
+      if (this.lockedText.started || this.resetTextTimer.isStarted) {
+        const centerPosition = this.playerActor.centerPosition;
+        this.lockedText.position.set(centerPosition.x - 30, centerPosition.y - 80);
+        this.lockedText.update();
+      }
+      if (game.input.wasKeyJustPressed(Key.M)) {
+        hudevents.emit("minimap", true);
+      } else if (game.input.wasKeyJustReleased(Key.M)) {
+        hudevents.emit("minimap", false);
+      }
+      for (const room of this.rooms.values()) {
+        room.update();
+      }
     }
   };
-  var TextScene_default = TextScene;
-  scene_class_default.define("text", TextScene);
+  var DungeonScene_default = DungeonScene;
+  scene_class_default.define("dungeon", DungeonScene);
 
   // assets/assets.json
-  var assets_default = "./assets-7FVE44YS.json";
+  var assets_default = "./assets-7GROZTTR.json";
 
   // assets/scripts/main.js
-  var PIXI22 = require_pixi();
-  window.PIXI = PIXI22;
-  PIXI22.settings.SCALE_MODE = PIXI22.SCALE_MODES.NEAREST;
-  PIXI22.settings.RESOLUTION = 2;
-  PIXI22.settings.PRECISION_FRAGMENT = "highp";
-  PIXI22.settings.SORTABLE_CHILDREN = true;
+  var PIXI28 = require_pixi();
+  window.PIXI = PIXI28;
+  window.hudevents = new PIXI28.utils.EventEmitter();
+  PIXI28.settings.SCALE_MODE = PIXI28.SCALE_MODES.NEAREST;
+  PIXI28.settings.RESOLUTION = 2;
+  PIXI28.settings.PRECISION_FRAGMENT = "highp";
+  PIXI28.settings.SORTABLE_CHILDREN = true;
   require_pixi_layers();
   async function main() {
     const gameState = new state_class_default("gameState", {
+      spawnActorName: "spawn",
+      playable: true,
+      stoneEnabled: false,
+      dungeon: {
+        enabled: false,
+        progression: "1.1"
+      },
       player: {
-        name: "Thomas",
-        currentHp: 1,
-        maxHp: 15
+        gold: 1e3,
+        currentHp: 100,
+        maxHp: 150
+      },
+      deck: {
+        slotHUD: {},
+        discard: [],
+        draw: [],
+        lockedCard: [],
+        recuperator: []
       }
     });
+    gameState.reset();
     const game2 = new engine_class_default({defaultScene: DefaultScene_default, state: gameState}).loadAssetFromFile(assets_default).init();
+    window.mediaplayer = new backgroundmediaplayer_default({
+      defaultTrack: "town",
+      defaultFilters: [
+        new k.DistortionFilter(0.05),
+        new k.ReverbFilter(1, 9)
+      ],
+      tracks: {
+        town: [
+          {name: "town0", volume: 0.01},
+          {name: "town1", volume: 0.01}
+        ],
+        donjon: [
+          {name: "donjon1", volume: 0.01},
+          {name: "donjon2", volume: 0.01},
+          {name: "donjon3", volume: 0.01}
+        ],
+        battle: [
+          {name: "battle", volume: 0.01}
+        ],
+        house: [
+          {name: "house", volume: 0.01}
+        ]
+      }
+    }).bindToEngine(game2);
     game2.on("awake", () => {
       loadHUD("test_hud");
-      const layer = new PIXI22.display.Layer();
-      console.log(layer);
     });
   }
   main().catch(console.error);

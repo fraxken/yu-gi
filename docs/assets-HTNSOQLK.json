@@ -1,0 +1,27 @@
+{
+    "tilesets": [
+        "TilesetElement",
+        "TilesetFloor",
+        "TilesetHouse",
+        "TilesetNature",
+        "TilesetDungeon",
+        "TilesetFloorDetail",
+        "TilesetHole",
+        "TilesetInterior",
+        "TilesetInteriorFloor",
+        "TilesetLogic",
+        "TilesetRelief",
+        "TilesetReliefDetail",
+        "TilesetWater"
+    ],
+    "assets": {
+        "map1": "tilemaps/test.json",
+        "room": "tilemaps/room.json",
+        "boss_room": "tilemaps/boss.json",
+        "no_enemy_room": "tilemaps/no_enemy_room.json",
+        "adventurer": "sprites/adventurer.json",
+        "town0": "sounds/town0.wav",
+        "town1": "sounds/town1.wav",
+        "death": "sounds/death.wav"
+    }
+}

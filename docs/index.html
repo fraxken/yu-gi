@@ -3,7 +3,9 @@
 
 <meta charset="UTF-8">
 <title>Game canvas</title>
-<link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
+<link
+    href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900'
+    rel='stylesheet' type='text/css'>
 <link rel="stylesheet" href="public/css/main.css">
 <script src="assets/scripts/main.js" type="module"></script>
 <script src="public/hud.js" type="module"></script>
@@ -11,5 +13,12 @@
 <div class="hud"></div>
 
 <template id="test_hud">
-    <player-hp></player-hp>
+    <positioning-grid>
+        <action-keys slot="right-top"></action-keys>
+        <player-hp slot="left-top"></player-hp>
+        <modal-manager slot="center" id="modal-manager" style="display: none;">
+            <!-- <modal-recuperator-deck slot="modal"></modal-recuperator-deck> -->
+        </modal-manager>
+        <action-bar-slot-card slot="bottom">
+    </positioning-grid>
 </template>
