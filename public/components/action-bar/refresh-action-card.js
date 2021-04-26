@@ -13,9 +13,9 @@ class RefreshActionCard extends LitElement {
     static get styles() {
         return css`
           .action-card-container {
-            background-color: white;
-            height: 50px;
-            width: 50px;
+            background: url("./images/icons/refresh.png") no-repeat;
+            height: 84px;
+            width: 84px;
             border-radius: 4px;
             display: flex;
             justify-content: center;
@@ -24,7 +24,8 @@ class RefreshActionCard extends LitElement {
           }
           .action-button {
             position: absolute;
-            transform: translate(16px , 20px);
+            bottom: 14px;
+            right: 8px;
           }
         `;
     }
@@ -37,7 +38,6 @@ class RefreshActionCard extends LitElement {
     render() {
         return html`
             <div class="action-card-container">
-                <div>Refresh</div>
                 <div class="action-button">
                     <keyboard-icon key='${this.key}' ?isPress=${false}></keyboard-icon>
                 </div>
