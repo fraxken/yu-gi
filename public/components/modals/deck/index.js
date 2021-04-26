@@ -33,11 +33,15 @@ class DeckModal extends LitElement {
                 width: 100%;
             }
             .isSelected {
-                border: 2px solid white;
+                border: 1px solid white;
                 border-radius: 4px;
             }
             .isNotSelected:hover {
                 border: 1px solid lightgray;
+                border-radius: 4px;
+            }
+            .isNotSelected {
+                border: 1px solid black;
                 border-radius: 4px;
             }
             .slot {
