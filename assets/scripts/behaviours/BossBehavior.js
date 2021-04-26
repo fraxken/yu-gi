@@ -351,6 +351,24 @@ export default class BossBehavior extends ScriptBehavior {
         }
     }
 
+    computeAnimations() {
+        if (this.timerForCurrentMeleeAttack.isStarted && !this.timerForCurrentMeleeAttack.walk()) {
+            console.log("attack1");
+            this.sprite.playAnimation("adventurer-attack1");
+        }
+        else if (this.timerForCurrentDistAttack.isStarted && !this.timerForCurrentDistAttack.walk()) {
+            console.log("attack2");
+            this.sprite.playAnimation("adventurer-attack2");
+        }
+        else if (this.timerForCurrentSpecialAttack.isStarted && !this.timerForCurrentSpecialAttack.walk()) {
+            console.log("attack3");
+            this.sprite.playAnimation("adventurer-attack3");
+        }
+        else {
+            console.log("depl");
+            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+        }
+    }
 
     rageModeOn() {
         console.log("rage mode on !");
@@ -440,7 +458,7 @@ export default class BossBehavior extends ScriptBehavior {
 
             this.computeMovement();
 
-            this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
+            this.computeAnimations();
 
             this.actor.applyVelocity();
             this.lifeBar.update(this.currentHp);
