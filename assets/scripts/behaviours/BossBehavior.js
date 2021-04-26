@@ -1,5 +1,7 @@
+import { sound } from "@pixi/sound";
+
 // Import dependencies
-import { ScriptBehavior, getActor, Timer, Components } from "../ECS";
+import { ScriptBehavior, getActor, Timer, Components, Vector2 } from "../ECS";
 import { LifeBar } from "../helpers";
 import DamageText from "../helpers/DamageText";
 import { Inputs } from "../keys";
@@ -25,6 +27,7 @@ export default class BossBehavior extends ScriptBehavior {
 
         // Default stats
         this.deplacementAreaRadius = 30;
+        this.deplacementMaxAreaRadius = 320;
         this.targetingRangeForMelee = 120;
         this.attackingRangeForMelee = 20;
         this.meleeDamage = 2;
@@ -75,6 +78,8 @@ export default class BossBehavior extends ScriptBehavior {
             relativeMaxHp: this.maxHp,
             maxHpBarLength: 60
         });
+
+        this.anchor = new Vector2(this.actor.x, this.actor.y);
 
         this.actor.addChild(this.lifeBar.container);
     }
@@ -281,6 +286,12 @@ export default class BossBehavior extends ScriptBehavior {
                 this.nextPos.y = this.target.y
             }
 
+            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                this.nextPos.x = this.anchor.x;
+                this.nextPos.y = this.anchor.y;
+            }
+
 
             this.goTo();
         }
@@ -356,12 +367,12 @@ export default class BossBehavior extends ScriptBehavior {
     }
 
     die() {
-        this.winSound.play();
         if (!this.isDead && this.isDying()) {
             this.sprite.playAnimation("adventurer-die");
         }
 
         if (!this.isDead && !this.isDying()) {
+            this.winSound.play();
             this.cleanSprite();
         }
     }
@@ -431,8 +442,8 @@ export default class BossBehavior extends ScriptBehavior {
 
             this.sprite.playAnimation(this.actor.moving ? "adventurer-run" : "adventurer-idle");
 
-            this.lifeBar.update(this.currentHp);
             this.actor.applyVelocity();
+            this.lifeBar.update(this.currentHp);
         }
     }
 }
