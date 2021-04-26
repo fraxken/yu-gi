@@ -168,7 +168,7 @@ export default class MeleeBehavior extends ScriptBehavior {
     }
 
     computeMovement() {
-        if (isFocusing) {
+        if (this.isFocusing) {
             if (!this.timerForCurrentAttack.isStarted) {
                 this.nextPos.x = this.target.x;
                 this.nextPos.y = this.target.y;

@@ -31,6 +31,8 @@ export default class CasterBehavior extends ScriptBehavior {
         this.currentSpeed = 0.5;
         this.goldReward = 5 * options[0].goldMultiplier;
 
+        this.isFocusing = true;
+
         // Deplacements
         this.isMoving = false;
         this.nextPos = { x: null, y: null };
@@ -64,6 +66,18 @@ export default class CasterBehavior extends ScriptBehavior {
 
     start() {
         this.target = getActor("player");
+    }
+
+    focusOn() {
+        console.log("focusing player !");
+
+        this.isFocusing = true;
+    }
+
+    focusOff() {
+        console.log("Not focusing player ! ");
+
+        this.isFocusing = false;
     }
 
     die() {
@@ -155,8 +169,31 @@ export default class CasterBehavior extends ScriptBehavior {
     }
 
     computeMovement() {
+        if (this.isFocusing) {
+            if (!this.timerForCurrentShoot.isStarted) {
+                const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
+                const theta = Math.random() * 2 * Math.PI;
+                const x = Math.round(this.target.pos.x + r * Math.cos(theta));
+                const y = Math.round(this.target.pos.y + r * Math.sin(theta));
+
+                this.nextPos.x = x;
+                this.nextPos.y = y;
+            }
+
+            this.goTo();
+
+            return;
+        }
+
         if ((this.delayToMove.walk() || this.isMoving) && !this.timerForCurrentShoot.isStarted) {
             if (!this.isMoving) {
+                const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
+                if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
+                    this.nextPos.x = this.anchor.x;
+                    this.nextPos.y = this.anchor.y;
+                }
+            }
+            else {
                 const r = (this.deplacementAreaRadius / 2) * Math.sqrt(Math.random());
                 const theta = Math.random() * 2 * Math.PI;
                 const x = Math.round(this.actor.x + r * Math.cos(theta));
@@ -164,12 +201,6 @@ export default class CasterBehavior extends ScriptBehavior {
 
                 this.nextPos.x = x;
                 this.nextPos.y = y;
-            }
-
-            const distanceBetweenAnchorAndNextPos = this.anchor.distanceTo(this.nextPos);
-            if (distanceBetweenAnchorAndNextPos >= this.deplacementMaxAreaRadius) {
-                this.nextPos.x = this.anchor.x;
-                this.nextPos.y = this.anchor.y;
             }
 
             this.goTo();

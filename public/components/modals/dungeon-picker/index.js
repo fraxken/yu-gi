@@ -111,14 +111,14 @@ class DungeonPicker extends LitElement {
         }
 
         return html`
-            <div class="room ${roomOneLocked ? "lock" : "unlock"}" data-id="1.${niveau}" @click=${this.roomClicked}>
-                <img src=${roomOneLocked ? closeURL : openURL} />
+            <div class="room ${roomOneLocked ? "lock" : "unlock"}" @click=${this.roomClicked}>
+                <img data-id="1.${niveau}" src=${roomOneLocked ? closeURL : openURL} />
             </div>
-            <div class="room ${roomTwoLocked ? "lock" : "unlock"}" data-id="2.${niveau}" @click=${this.roomClicked}>
-                <img src=${roomTwoLocked ? closeURL : openURL} />
+            <div class="room ${roomTwoLocked ? "lock" : "unlock"}" @click=${this.roomClicked}>
+                <img data-id="2.${niveau}" src=${roomTwoLocked ? closeURL : openURL} />
             </div>
-            <div class="room ${roomThreeLocked ? "lock" : "unlock"}" data-id="3.${niveau}" @click=${this.roomClicked}>
-                <img src=${roomThreeLocked ? closeURL : openURL} />
+            <div class="room ${roomThreeLocked ? "lock" : "unlock"}" @click=${this.roomClicked}>
+                <img data-id="3.${niveau}" src=${roomThreeLocked ? closeURL : openURL} />
             </div>
         `;
     }
