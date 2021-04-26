@@ -1,4 +1,4 @@
-import { OffensiveSkills, PassiveSkills } from "./Skill";
+import { ConsumableSkills, DefensiveSkills, OffensiveSkills, PassiveSkills } from "./Skill";
 
 const MAX_STAR_LEVEL = 10;
 
@@ -6,9 +6,9 @@ export class Card {
     constructor(name, offensiveSkillName, defensiveSkillName, passiveSkillName, consumableSkillName, stars) {
         this.name = name;
         this.offensiveSkill = OffensiveSkills[offensiveSkillName];
-        this.defensiveSkill = defensiveSkillName;
+        this.defensiveSkill = DefensiveSkills[defensiveSkillName];
         this.passiveSkill = PassiveSkills[passiveSkillName];
-        this.consumableSkill = consumableSkillName;
+        this.consumableSkill = ConsumableSkills[consumableSkillName];
         this.stars = stars;
     }
 
@@ -39,17 +39,20 @@ export class Card {
 }
 
 export const StarterCards = Object.freeze([
-    new Card("First Card", "sword", "shield", "speedBoost", "nuke", 1),
-    new Card("Second Card", "bow", "sideDodge", "lifeRegenBoost", "nuke", 3),
-    new Card("Third Card", "spear", "backDodge", "speedBoost", "nuke", 2),
-    new Card("Fourth Card", "axe", "roll", "lifeRegenBoost", "nuke", 4),
-    new Card("Fifth Card", "crossbow", "parry", "speedBoost", "nuke", 2),
-    new Card("Sixth Card", "hammer", "roll", "lifeRegenBoost", "nuke", 2),
-    new Card("Seventh Card", "knife", "shield", "speedBoost", "nuke", 2)
+    new Card("First Card", "sword", "shieldParry", "attackDamageBoost", "healthUp", 1),
+    new Card("Second Card", "bow", "shieldDefense", "attackDamageBoost", "healthUp", 3),
+    new Card("Third Card", "spear", "shieldDefense", "defenseBoost", "healthUp", 2),
+    new Card("Fourth Card", "axe", "dodge", "defenseBoost", "healthUp", 4),
+    new Card("Fifth Card", "crossbow", "shieldParry", "healthRegenBoost", "healthUp", 2),
+    new Card("Sixth Card", "hammer", "dodge", "healthRegenBoost", "invincible", 2),
+    new Card("Seventh Card", "knife", "counter", "speedBoost", "elementaryImmunity", 2),
+    new Card("Eighth Card", "crossbow", "dash", "speedBoost", "discardToChest", 2),
+    new Card("Nineth Card", "spell", "dash", "elementaryDamage", "deckToChest", 2),
+    new Card("Tenth Card", "spear", "shieldDefense", "attackRangeBoost", "secretVision", 2)
 ]);
-
+/*
 export const AdditionalCards = Object.freeze([
-    new Card("Eighth Card", "crossbow", "shield", "speedBoost", "nuke", 2),
-    new Card("Nineth Card", "wand", "shield", "lifeRegenBoost", "nuke", 2),
-    new Card("Tenth Card", "spear", "shield", "speedBoost", "nuke", 2)
-]);
+    new Card("Eighth Card", "crossbow", "dash", "speedBoost", "discardToChest", 2),
+    new Card("Nineth Card", "wand", "dash", "elementaryDamage", "deckToChest", 2),
+    new Card("Tenth Card", "spear", "shieldDefense", "attackRangeBoost", "secretVision", 2)
+]); */
