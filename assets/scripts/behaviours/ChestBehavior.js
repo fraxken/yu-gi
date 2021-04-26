@@ -16,11 +16,9 @@ export default class ChestBehavior extends ScriptBehavior {
         this.cards = [];
         const count = ChestBehavior.randomInt(Math.random() < 0.1 ? 3 : 2);
         for (let i = 0; i < count; i++) {
-            const card = new Card(`Potion n ${i}`, 3, 0, 1, 0, 5);
-            card.id = i;
-            card.description = `Awesome potion ${i}, take it.`;
+            const test = new Card("First Card", "sword", "shieldParry", "attackDamageBoost", "healthUp", 1)
 
-            this.cards.push(card);
+            this.cards.push(test);
         }
 
         this.opened = false;

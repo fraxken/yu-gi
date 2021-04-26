@@ -31,14 +31,22 @@ class TrunkModal extends LitElement {
         this.cards = Array.isArray(window.trunkCards) ? window.trunkCards : buildFakeCards(3);
     }
 
+    *getCards() {
+        for (const card of this.cards) {
+            console.log(card);
+
+            yield html`
+            <div class="card-slot">
+                <render-slot .card='${card}' name='boo' typeCard='offensive'></render-slot>
+            </div>
+            `;
+        }
+    }
+
     render() {
         return html`
-        <div class="modal-trunk">
-            <div class="card-slot"></div>
-            <div class="card-slot"></div>
-            <div class="card-slot"></div>
-        </div>
-    `;
+            <div class="modal-trunk">${[...this.getCards()].concat()}</div>
+        `;
     }
 }
 
