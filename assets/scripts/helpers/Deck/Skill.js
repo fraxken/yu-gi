@@ -33,8 +33,8 @@ export class PassiveSkill extends AbstractSkill {
         super(name, params);
     }
 
-    activate() {
-        getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("activatePassive", this.name, this.params);
+    activate(stars) {
+        getActor("player").getScriptedBehavior("PlayerBehavior").sendMessage("activatePassive", this.name, this.params * stars);
     }
 
     deactivate() {
@@ -79,8 +79,8 @@ export const PassiveSkills = Object.freeze({
     attackDamageBoost: new PassiveSkill("attackDamageBoost", 1),
     defenseBoost: new PassiveSkill("defenseBoost", 1),
     elementaryDamage: new PassiveSkill("elementaryDamage", 1),
-    speedBoost: new PassiveSkill("speedBoost", 3),
-    healthRegenBoost: new PassiveSkill("healthRegenBoost", 3),
+    speedBoost: new PassiveSkill("speedBoost", 1),
+    healthRegenBoost: new PassiveSkill("healthRegenBoost", 1),
     attackRangeBoost: new PassiveSkill("attackRangeBoost", 1),
 });
 

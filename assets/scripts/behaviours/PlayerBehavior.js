@@ -22,7 +22,8 @@ const kPlayerStats = {
 
 const DEFAULT_HEALTH_REGENERATION = 1;
 const DEFAULT_SPEED_BOOST = 0;
-
+const DEFAULT_DAMAGE = 2.5;
+const DEFAULT_DEFENSE = 0;
 export default class PlayerBehavior extends ScriptBehavior {
     constructor(speed = kPlayerStats.speed, currentHp = kPlayerStats.currentHp, maxHp = kPlayerStats.maxHp) {
         super({
@@ -34,8 +35,8 @@ export default class PlayerBehavior extends ScriptBehavior {
 
         this.inRangeEnemies = new Set();
         this.maxHp = maxHp;
-        this.damage = 2.5;
-        this.defense = 1;
+        this.damage = DEFAULT_DAMAGE;
+        this.defense = DEFAULT_DEFENSE;
         this.isTeleporting = new Timer(10, { autoStart: false, keepIterating: false });
         this.dashTimer = new Timer(40, { autoStart: false, keepIterating: false });
         this.jumpTimer = new Timer(110, { autoStart: false, keepIterating: false });
@@ -107,9 +108,11 @@ export default class PlayerBehavior extends ScriptBehavior {
     }
 
     takeDamage(damage, { isCritical = false } = {}) {
-        if (typeof damage !== "number") {
+        if (typeof damage !== "number" || (damage - this.defense) < 0) {
             damage = 0;
         }
+
+        damage -= this.defense;
 
         if (this.currentHp - damage <= 0) {
             this.currentHp = 0;
@@ -436,8 +439,10 @@ export default class PlayerBehavior extends ScriptBehavior {
             case "attackRangeBoost":
                 break;
             case "attackDamageBoost":
+                this.damage += value;
                 break;
             case "defenseBoost":
+                this.defense = value;
                 break;
             default:
                 break;
@@ -455,8 +460,10 @@ export default class PlayerBehavior extends ScriptBehavior {
             case "attackRangeBoost":
                 break;
             case "attackDamageBoost":
+                this.damage = DEFAULT_DAMAGE;
                 break;
             case "defenseBoost":
+                this.defense = DEFAULT_DEFENSE;
                 break;
             default:
                 break;
