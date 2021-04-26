@@ -16,9 +16,13 @@ export default class DungeonDoorBehavior extends ScriptBehavior {
 
     start() {
         this.target = getActor("player");
-
-        const text = this.actor.children[0].children[0];
-        text.text = this.actor.name;
+        try {
+            const text = this.actor.children[0].children[0];
+            text.text = this.actor.name;
+        }
+        catch (err) {
+            // Ignore
+        }
     }
 
     lock() {

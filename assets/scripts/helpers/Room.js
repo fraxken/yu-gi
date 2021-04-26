@@ -12,9 +12,42 @@ const kReverseDoor = {
     right: "doorLeft",
     top: "doorBottom",
     bottom: "doorTop"
+};
+const kDoorNameConverter = {
+    door_left: "doorLeft",
+    door_right: "doorRight",
+    door_top: "doorTop",
+    door_bottom: "doorBottom"
+};
+
+const kRoomEntities = {
+    boss: { behavior: "BossBehavior" },
+    chest: { behavior: "ChestBehavior" },
+    damage: { behavior: "DamageAreaBehavior" }
 }
 
+const kRoomsConfiguration = {
+    end: ["boss_room"],
+    boss: ["boss_room"],
+    start: ["no_enemy_room"],
+    secret: ["no_enemy_room"],
+    special: ["no_enemy_room"],
+    recuperateur: ["no_enemy_room"],
+    room: ["room"],
+    survival: ["room"],
+    trap: ["room"],
+    parcours: ["room"]
+};
+
+const kDebug = true;
+
 export default class Room {
+    static getRandomRoom(type) {
+        const arr = kRoomsConfiguration[type];
+
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
     static getNormalRoomSubType() {
         const rate = Math.random();
 
@@ -22,13 +55,13 @@ export default class Room {
             return "room";
         }
         else if (rate >= 0.5 && rate < 0.65) {
-            return "survival_room";
+            return "survival";
         }
         else if (rate >= 0.65 && rate < 0.80) {
-            return "trap_room";
+            return "trap";
         }
         else {
-            return "parcours_room";
+            return "parcours";
         }
     }
 
@@ -49,43 +82,37 @@ export default class Room {
         this.roomName = roomName;
         this.id = id;
         this.roomIA = [];
-        this.doorLockTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
         this.fade = null;
+        this.doorLockTimer = new Timer(60 * 10, { autoStart: false, keepIterating: false });
+
+        // Generate fade (except for the start room which id is 45).
         if (this.id !== 45) {
-            this.addFade();
+            this.generateWarFade();
         }
 
-        /** @type {"end" | "boss" | "room" | "special" | "secret" | "recuperateur"} */
-        this.type = type;
+        /** @type {"end" | "boss" | "room" | "special" | "secret" | "recuperateur" | "trap" | "survival" | "parcours"} */
+        this.type = type === "room" ? Room.getNormalRoomSubType() : type;
         this.isRecuperateurRoom = this.type === "special" && !parent.hasRecuperateurRoom;
         if (this.isRecuperateurRoom) {
             this.type = "recuperateur";
             parent.hasRecuperateurRoom = true;
         }
-        this.doors = doors;
 
         // All doors!
+        this.doors = doors;
         this.doorLeft = null;
         this.doorRight = null;
         this.doorTop = null;
         this.doorBottom = null;
 
+        // Generate Tiled Map
         {
             this.map = new Actor(roomName);
             this.map.position.set(x, y);
 
-            // TODO: dynamically update this depending on the kind of the room
-            this.tiledRoomName = this.getTiledMapName();
-            console.log(this.tiledRoomName);
-
-            let tempType = this.type === "end" || this.type === "boss" ? "boss_room" : "room";
-            if (this.type === "start" || this.type === "secret" || this.type === "special" || this.type === "recuperateur") {
-                tempType = "no_enemy_room";
-            }
-
-            this.tiledMap = new Components.TiledMap(tempType, {
+            this.tiledMap = new Components.TiledMap(Room.getRandomRoom(this.type), {
                 debug: false,
-                showObjects: true,
+                showObjects: kDebug,
                 useSharedCollision: true,
                 autoAddObjects: false,
                 collisionOffset: { x, y }
@@ -97,7 +124,7 @@ export default class Room {
         console.log(`Init room '${roomName}': ${this.type}`);
     }
 
-    addFade() {
+    generateWarFade() {
         const fadeGraphic = new PIXI.Graphics()
             .beginFill(PIXI.utils.string2hex("#000"), 1)
             .drawRect(0, 0, this.parent.roomWidth * 16, this.parent.roomHeight * 16)
@@ -109,21 +136,6 @@ export default class Room {
             frame: 45, delayIn: 0, delayOut: 60, defaultState: "out"
         });
         this.parent.addChild(fadeGraphic);
-    }
-
-    getTiledMapName() {
-        if (this.isRecuperateurRoom) {
-            return "recuperateur_room";
-        }
-
-        switch (this.type) {
-            case "room": return Room.getNormalRoomSubType();
-            case "start": return "start";
-            case "special": return "chest_room";
-            case "boss": return "boss_room";
-            case "end": return "boss_room";
-            case "secret": return "secret_room";
-        }
     }
 
     getDoorByDirection(direction) {
@@ -158,24 +170,25 @@ export default class Room {
     }
 
     init() {
-        const areaNameText = new PIXI.Text(`${this.roomName} - ${this.type}`, {
-            fill: "#12d94d",
-            fontFamily: "Verdana",
-            fontSize: 20,
-            fontVariant: "small-caps",
-            fontWeight: "bold",
-            letterSpacing: 1,
-            lineJoin: "round",
-            strokeThickness: 2,
-            align: "center"
-        });
-        areaNameText.anchor.set(0.5);
-        areaNameText.alpha = 0.6;
-        areaNameText.position.set(this.parent.roomWidth * 16 / 2, this.parent.roomHeight * 16 / 2);
+        if (kDebug) {
+            const areaNameText = new PIXI.Text(`${this.roomName} - ${this.type}`, {
+                fill: "#12d94d",
+                fontFamily: "Verdana",
+                fontSize: 20,
+                fontVariant: "small-caps",
+                fontWeight: "bold",
+                letterSpacing: 1,
+                lineJoin: "round",
+                strokeThickness: 2,
+                align: "center"
+            });
+            areaNameText.anchor.set(0.5);
+            areaNameText.alpha = 0.6;
+            areaNameText.position.set(this.parent.roomWidth * 16 / 2, this.parent.roomHeight * 16 / 2);
+            this.map.addChild(areaNameText);
+        }
 
-        this.map.addChild(areaNameText);
         this.parent.add(this.map);
-
         this.tiledMap.init();
 
         if (this.isRecuperateurRoom) {
@@ -187,29 +200,6 @@ export default class Room {
                 this.offsetY + (this.parent.roomHeight * 16 / 2)
             );
             this.parent.add(recuperatorActor);
-        }
-    }
-
-    createDoor(doorActor) {
-        doorActor.roomInstance = this;
-
-        switch (doorActor.name) {
-            case "door_left": {
-                this.doorLeft = doorActor;
-                break;
-            }
-            case "door_right": {
-                this.doorRight = doorActor;
-                break;
-            }
-            case "door_top": {
-                this.doorTop = doorActor;
-                break;
-            }
-            case "door_bottom": {
-                this.doorBottom = doorActor;
-                break;
-            }
         }
     }
 
@@ -256,7 +246,7 @@ export default class Room {
         console.log("Player enter the room id: ", this.roomName, this.id);
         this.parent.playerCurrentRoomId = this.id;
 
-        if (this.tiledRoomName === "trap_room") {
+        if (this.type === "trap") {
             // TODO: send events to IA of the rooms ?
             this.setDoorLock("locked");
             this.parent.triggerLockedText();
@@ -271,49 +261,34 @@ export default class Room {
     }
 
     /**
-     * @param {!Actor} actor
-     */
-    createEnemySpawner(actor) {
-        // console.log("Enemy spawner triggered!");
-
-        const randomUnitBehavior = Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior";
-        actor.createScriptedBehavior(randomUnitBehavior);
-        // this.roomIA.push(actor);
-    }
-
-    /**
      * @description where we build all actors and objects of the room
      * @param {!Actor} actor
      */
     build(actor) {
         if (actor.name.startsWith("door")) {
-            this.createDoor(actor);
+            actor.roomInstance = this;
+            this[kDoorNameConverter[actor.name]] = actor;
             actor.name = EntityBuilder.increment("door");
         }
         else if (actor.name.startsWith("enemy")) {
-            this.createEnemySpawner(actor);
+            actor.createScriptedBehavior(Math.random() <= 0.6 ? "MeleeBehavior" : "CasterBehavior");
             actor.name = EntityBuilder.increment("enemy");
-            this.parent.add(actor);
-        }
-        else if (actor.name.startsWith("boss")) {
-            actor.createScriptedBehavior("BossBehavior");
-            actor.name = EntityBuilder.increment("boss");
-            this.parent.add(actor);
-        }
-        else if (actor.name.startsWith("chest")) {
-            actor.createScriptedBehavior("ChestBehavior");
-            actor.name = EntityBuilder.increment("chest");
-            this.parent.add(actor);
-        }
-        else if (actor.name.startsWith("damage")) {
-            actor.createScriptedBehavior("DamageAreaBehavior");
-            actor.name = EntityBuilder.increment("damage");
             this.parent.add(actor);
         }
         else if (this.parent.hasSecretRoom && this.isRecuperateurRoom && actor.name.startsWith("levier")) {
             actor.createScriptedBehavior("SecretLevierBehavior");
             actor.name = EntityBuilder.increment("levier");
             this.parent.add(actor);
+        }
+
+        for (const [actorName, config] of Object.entries(kRoomEntities)) {
+            if (actor.name.startsWith(actorName)) {
+                actor.createScriptedBehavior(config.behavior);
+                actor.name = EntityBuilder.increment(actorName);
+                this.parent.add(actor);
+
+                break;
+            }
         }
 
         actor.position.set(actor.x + this.offsetX, actor.y + this.offsetY);
