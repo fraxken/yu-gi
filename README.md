@@ -41,9 +41,10 @@ Programming by
 - GOREZ Tony
 
 The free assets we use:
-- https://quintino-pixels.itch.io/free-pixel-art-skill-icons-pack
-- https://hyohnoo.itch.io/keyboard-controller-keys
-- https://vgcomposer.itch.io/action-rpg-music-free
+- (Minimap icons) https://quintino-pixels.itch.io/free-pixel-art-skill-icons-pack
+- (UI) https://hyohnoo.itch.io/keyboard-controller-keys
+- (Background Music) https://vgcomposer.itch.io/action-rpg-music-free
+- (TileSet) https://pixel-boy.itch.io/ninja-adventure-asset-pack
 
 ---
 

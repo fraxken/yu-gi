@@ -29,10 +29,10 @@ const kRoomEntities = {
 const kRoomsConfiguration = {
     end: ["boss_room"],
     boss: ["boss_room"],
-    start: ["no_enemy_room"],
+    start: ["start_room"],
     secret: ["no_enemy_room"],
     special: ["no_enemy_room"],
-    recuperateur: ["no_enemy_room"],
+    recuperateur: ["recuperateur_room"],
     room: ["room"],
     survival: ["room"],
     trap: ["room"],
