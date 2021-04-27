@@ -55,7 +55,7 @@ export default class StoneBehavior extends ScriptBehavior {
                 })
             ]
         });
-        this.stoneHelperText.gameObject.anchor.set(0.5);
+        this.stoneHelperText.gameObject.anchor.set(0.25);
         this.stoneHelperText.position.set(0, -25);
         this.actor.addChild(this.stoneHelperText);
     }
@@ -77,6 +77,7 @@ export default class StoneBehavior extends ScriptBehavior {
     }
 
     activateStone() {
+        console.log("activate stone!");
         this.stoneHelperText.start();
         this.stoneHelperText.once("stop", () => this.stoneHelperText.reset());
         this.sprite.playAnimation("enabled", { loop: false });
@@ -86,12 +87,12 @@ export default class StoneBehavior extends ScriptBehavior {
     }
 
     update() {
+        this.stoneHelperText.update();
         if (this.active) {
             return;
         }
 
         this.sprite.playAnimation(this.active ? "idleEnabled" : "idle");
-        this.stoneHelperText.update();
         if (this.active) {
             return;
         }
